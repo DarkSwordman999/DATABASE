@@ -1,0 +1,67 @@
+===== 0. База BASE (base) из данных ЛР1
+  таблица  | строк 
+-----------+-------
+ РАЙОН     |     3
+ КАТЕГОРИЯ |     2
+ ПОСТАВЩИК |     5
+ ТОВАР     |    10
+ МАГАЗИН   |     5
+ СОТРУДНИК |     6
+ КЛИЕНТ    |    23
+ РАБОТА    |    66
+ ПОСТАВКА  |   352
+ ПРОДАЖА   |  1000
+(10 строк)
+
+===== 1. Контрольные задачи в BASE: task0-01..03
+Задачи решены в базе base: task0-01, task0-02, task0-03
+===== 2. Выгрузка BASE утилитой pg_dump тремя способами
+base_save: 48741 байт
+base_rar.rar: 14674 байт
+base_rarM.part1.rar: 8192 байт
+base_rarM.part2.rar: 6647 байт
+===== 3. CREATE DATABASE BASE2
+===== 4. psql BASE2 < base_save
+===== 5. Контрольные задачи в BASE2: task2-01..03, сравнение fc
+Задачи решены в базе base2: task2-01, task2-02, task2-03
+Comparing files task0-01 and TASK2-01
+FC: no differences encountered
+
+Comparing files task0-02 and TASK2-02
+FC: no differences encountered
+
+Comparing files task0-03 and TASK2-03
+FC: no differences encountered
+
+task2-* совпадают с task0-*
+===== 6. DROP DATABASE BASE, BASE2
+  datname  
+-----------
+ postgres
+ sales
+ template0
+ template1
+(4 строки)
+
+===== 7. Извлечение base_rar.rar в текстовый файл stdin
+stdin: 48741 байт
+===== 8. CREATE DATABASE BASE
+===== 9. psql BASE < stdin
+===== 10. Контрольные задачи в восстановленной BASE: task3-01..03, сравнение fc
+Задачи решены в базе base: task3-01, task3-02, task3-03
+Comparing files task0-01 and TASK3-01
+FC: no differences encountered
+
+Comparing files task0-02 and TASK3-02
+FC: no differences encountered
+
+Comparing files task0-03 and TASK3-03
+FC: no differences encountered
+
+task3-* совпадают с task0-*
+===== Размеры файлов копий
+base_save  48741 байт
+base_rar.rar  14674 байт
+base_rarM.part1.rar  8192 байт
+base_rarM.part2.rar  6647 байт
+stdin  48741 байт
