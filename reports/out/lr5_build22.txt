@@ -1,0 +1,35 @@
+> ./h lr5 build 22
+v22_f1.c
+v22_f2.c
+   Создается библиотека v22.lib и объект v22.exp
+
+Dump of file v22.dll
+
+File Type: DLL
+
+  Section contains the following exports for v22.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+           5 number of functions
+           5 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00001000 Pg_magic_func
+          2    1 00001010 f1_cosd
+          3    2 00001180 f2_pos
+          4    3 00001170 pg_finfo_f1_cosd
+          5    4 000012F0 pg_finfo_f2_pos
+
+  Summary
+
+        2000 .data
+        1000 .pdata
+        A000 .rdata
+        1000 .reloc
+        D000 .text
+        1000 _RDATA
+Библиотека скопирована: D:\PG_DLL\v22.dll

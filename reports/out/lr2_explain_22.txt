@@ -1,0 +1,53 @@
+> ./h lr2 explain 22 1
+ таблица |       индекс        |                                  определение                                   
+---------+---------------------+--------------------------------------------------------------------------------
+ МАГАЗИН | МАГАЗИН_pkey        | CREATE UNIQUE INDEX "МАГАЗИН_pkey" ON public."МАГАЗИН" USING btree ("код")
+ ПРОДАЖА | ПРОДАЖА_магазин_idx | CREATE INDEX "ПРОДАЖА_магазин_idx" ON public."ПРОДАЖА" USING btree ("магазин")
+(2 строки)
+
+
+--- EXPLAIN (оценка стоимости, без выполнения) ---
+SELECT sum(ПРОДАЖА.количество) AS sum1 FROM ПРОДАЖА INNER JOIN МАГАЗИН ON МАГАЗИН.код = ПРОДАЖА.магазин WHERE МАГАЗИН.название = 'Весна'
+                                            QUERY PLAN                                             
+---------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=26531.96..26531.97 rows=1 width=8)
+   ->  Gather  (cost=26531.75..26531.96 rows=2 width=8)
+         Workers Planned: 2
+         ->  Partial Aggregate  (cost=25531.75..25531.76 rows=1 width=8)
+               ->  Hash Join  (cost=1.07..25115.08 rows=166667 width=4)
+                     Hash Cond: ("ПРОДАЖА"."магазин" = "МАГАЗИН"."код")
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8)
+                     ->  Hash  (cost=1.06..1.06 rows=1 width=4)
+                           ->  Seq Scan on "МАГАЗИН"  (cost=0.00..1.06 rows=1 width=4)
+                                 Filter: (("название")::text = 'Весна'::text)
+(10 строк)
+
+--- EXPLAIN ANALYZE (фактическое выполнение) ---
+                                                                      QUERY PLAN                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=26531.96..26531.97 rows=1 width=8) (actual time=1105.362..1157.117 rows=1.00 loops=1)
+   Buffers: shared hit=12742
+   ->  Gather  (cost=26531.75..26531.96 rows=2 width=8) (actual time=1104.949..1157.097 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=12742
+         ->  Partial Aggregate  (cost=25531.75..25531.76 rows=1 width=8) (actual time=955.276..955.290 rows=1.00 loops=3)
+               Buffers: shared hit=12742
+               ->  Hash Join  (cost=1.07..25115.08 rows=166667 width=4) (actual time=5.564..903.293 rows=133249.33 loops=3)
+                     Hash Cond: ("ПРОДАЖА"."магазин" = "МАГАЗИН"."код")
+                     Buffers: shared hit=12742
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.040..280.801 rows=666666.67 loops=3)
+                           Buffers: shared hit=12739
+                     ->  Hash  (cost=1.06..1.06 rows=1 width=4) (actual time=5.484..5.486 rows=1.00 loops=3)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           Buffers: shared hit=3
+                           ->  Seq Scan on "МАГАЗИН"  (cost=0.00..1.06 rows=1 width=4) (actual time=5.458..5.463 rows=1.00 loops=3)
+                                 Filter: (("название")::text = 'Весна'::text)
+                                 Rows Removed by Filter: 4
+                                 Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.740 ms
+ Execution Time: 1157.231 ms
+(24 строки)
+
