@@ -1,0 +1,4 @@
+-- Создание базы данных SALES (выполняется из системной БД postgres: s1.bat DATA\create_DB)
+-- Имена без кавычек PostgreSQL приводит к нижнему регистру: фактически создаётся база sales
+DROP DATABASE IF EXISTS SALES;
+CREATE DATABASE SALES ENCODING 'UTF8' TEMPLATE template0;

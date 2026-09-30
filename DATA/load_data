@@ -1,0 +1,22 @@
+-- Загрузка содержимого таблиц из DATA/SOURCE (s.bat DATA\load_data)
+-- Используется клиентская команда \copy: файлы читает psql, поэтому
+-- серверу не нужен доступ к каталогу проекта. Сценарий запускается из корня проекта.
+-- Серверный вариант: COPY ТАБЛИЦА FROM 'C:/.../DATA/SOURCE/файл' DELIMITER E'\t';
+\set ON_ERROR_STOP on
+SET datestyle TO 'ISO, DMY';
+
+TRUNCATE ПРОДАЖА, ПОСТАВКА, РАБОТА, КЛИЕНТ, СОТРУДНИК,
+         МАГАЗИН, ТОВАР, ПОСТАВЩИК, КАТЕГОРИЯ, РАЙОН;
+
+\copy РАЙОН     FROM 'DATA/SOURCE/regions'     DELIMITER E'\t' ENCODING 'UTF8'
+\copy КАТЕГОРИЯ FROM 'DATA/SOURCE/goods_types' DELIMITER E'\t' ENCODING 'UTF8'
+\copy ПОСТАВЩИК FROM 'DATA/SOURCE/providers'   DELIMITER E'\t' ENCODING 'UTF8'
+\copy ТОВАР     FROM 'DATA/SOURCE/goods'       DELIMITER E'\t' ENCODING 'UTF8'
+\copy МАГАЗИН   FROM 'DATA/SOURCE/shops'       DELIMITER E'\t' ENCODING 'UTF8'
+\copy СОТРУДНИК FROM 'DATA/SOURCE/managers'    DELIMITER E'\t' ENCODING 'UTF8'
+\copy КЛИЕНТ    FROM 'DATA/SOURCE/clients'     DELIMITER E'\t' ENCODING 'UTF8'
+\copy РАБОТА    FROM 'DATA/SOURCE/works'       DELIMITER E'\t' ENCODING 'UTF8'
+\copy ПОСТАВКА  FROM 'DATA/SOURCE/deliveries'  DELIMITER E'\t' ENCODING 'UTF8'
+\copy ПРОДАЖА   FROM 'DATA/SOURCE/sales'       DELIMITER E'\t' ENCODING 'UTF8'
+
+\i helper/counts.sql
