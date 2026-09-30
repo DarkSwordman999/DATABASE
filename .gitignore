@@ -9,3 +9,6 @@ lab4/work/
 lab6/COPY/d_*.txt
 lab6/COPY/cr_*.txt
 lab6/COPY/*.exe
+# программа ЛР8 (собирается lab8/v20/cs.bat)
+lab8/v20/*.exe
+__pycache__/
