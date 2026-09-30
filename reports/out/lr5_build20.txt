@@ -1,0 +1,35 @@
+> ./h lr5 build 20
+v20_f1.c
+v20_f2.c
+   Создается библиотека v20.lib и объект v20.exp
+
+Dump of file v20.dll
+
+File Type: DLL
+
+  Section contains the following exports for v20.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+           5 number of functions
+           5 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00001000 Pg_magic_func
+          2    1 00001010 f1_floor
+          3    2 000010C0 f2_alltrim
+          4    3 000010B0 pg_finfo_f1_floor
+          5    4 000011A0 pg_finfo_f2_alltrim
+
+  Summary
+
+        2000 .data
+        1000 .pdata
+        9000 .rdata
+        1000 .reloc
+        C000 .text
+        1000 _RDATA
+Библиотека скопирована: D:\PG_DLL\v20.dll

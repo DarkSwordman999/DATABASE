@@ -1,0 +1,10 @@
+> ./h lr7 create
+объект тип
+------ ---
+f_дни SQL_INLINE_TABLE_VALUED_FUNCTION
+f_премия SQL_INLINE_TABLE_VALUED_FUNCTION
+f_хранение SQL_INLINE_TABLE_VALUED_FUNCTION
+f_вес_смены SQL_SCALAR_FUNCTION
+f_месяц SQL_SCALAR_FUNCTION
+v_выручка_день VIEW
+v_движение_товара VIEW

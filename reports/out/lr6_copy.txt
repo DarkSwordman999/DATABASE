@@ -1,0 +1,121 @@
+> ./h lr6 copy
+КАТЕГОРИЯ
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(2 rows affected)
+таблица загружено строк
+------- ---------------
+КАТЕГОРИЯ 2
+
+(1 rows affected)
+КЛИЕНТ
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(23 rows affected)
+таблица загружено строк
+------- ---------------
+КЛИЕНТ 23
+
+(1 rows affected)
+МАГАЗИН
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(5 rows affected)
+таблица загружено строк
+------- ---------------
+МАГАЗИН 5
+
+(1 rows affected)
+ПОСТАВКА
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(352 rows affected)
+таблица загружено строк
+------- ---------------
+ПОСТАВКА 352
+
+(1 rows affected)
+ПОСТАВЩИК
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(5 rows affected)
+таблица загружено строк
+------- ---------------
+ПОСТАВЩИК 5
+
+(1 rows affected)
+ПРОДАЖА
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(1000 rows affected)
+таблица загружено строк
+------- ---------------
+ПРОДАЖА 1000
+
+(1 rows affected)
+РАБОТА
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(66 rows affected)
+таблица загружено строк
+------- ---------------
+РАБОТА 66
+
+(1 rows affected)
+РАЙОН
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(3 rows affected)
+таблица загружено строк
+------- ---------------
+РАЙОН 3
+
+(1 rows affected)
+СОТРУДНИК
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(6 rows affected)
+таблица загружено строк
+------- ---------------
+СОТРУДНИК 6
+
+(1 rows affected)
+ТОВАР
+Changed database context to 'SALES'.
+Changed database context to 'SALES'.
+
+(0 rows affected)
+
+(10 rows affected)
+таблица загружено строк
+------- ---------------
+ТОВАР 10
+
+(1 rows affected)

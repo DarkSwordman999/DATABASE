@@ -1,0 +1,53 @@
+> ./h lr2 explain 20 1
+ таблица |      индекс       |                                определение                                 
+---------+-------------------+----------------------------------------------------------------------------
+ ПРОДАЖА | ПРОДАЖА_товар_idx | CREATE INDEX "ПРОДАЖА_товар_idx" ON public."ПРОДАЖА" USING btree ("товар")
+ ТОВАР   | ТОВАР_pkey        | CREATE UNIQUE INDEX "ТОВАР_pkey" ON public."ТОВАР" USING btree ("код")
+(2 строки)
+
+
+--- EXPLAIN (оценка стоимости, без выполнения) ---
+SELECT sum(ПРОДАЖА.количество * ТОВАР.цена2) AS sum1 FROM ПРОДАЖА INNER JOIN ТОВАР ON ТОВАР.код = ПРОДАЖА.товар WHERE ТОВАР.категория = 1
+                                            QUERY PLAN                                             
+---------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=28313.33..28313.34 rows=1 width=32)
+   ->  Gather  (cost=28313.10..28313.31 rows=2 width=32)
+         Workers Planned: 2
+         ->  Partial Aggregate  (cost=27313.10..27313.11 rows=1 width=32)
+               ->  Hash Join  (cost=1.19..24188.10 rows=416667 width=9)
+                     Hash Cond: ("ПРОДАЖА"."товар" = "ТОВАР"."код")
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8)
+                     ->  Hash  (cost=1.12..1.12 rows=5 width=9)
+                           ->  Seq Scan on "ТОВАР"  (cost=0.00..1.12 rows=5 width=9)
+                                 Filter: ("категория" = 1)
+(10 строк)
+
+--- EXPLAIN ANALYZE (фактическое выполнение) ---
+                                                                      QUERY PLAN                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=28313.33..28313.34 rows=1 width=32) (actual time=1812.129..1854.111 rows=1.00 loops=1)
+   Buffers: shared hit=12746
+   ->  Gather  (cost=28313.10..28313.31 rows=2 width=32) (actual time=1811.883..1854.089 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=12746
+         ->  Partial Aggregate  (cost=27313.10..27313.11 rows=1 width=32) (actual time=1669.549..1669.552 rows=1.00 loops=3)
+               Buffers: shared hit=12746
+               ->  Hash Join  (cost=1.19..24188.10 rows=416667 width=9) (actual time=0.281..1070.765 rows=332893.33 loops=3)
+                     Hash Cond: ("ПРОДАЖА"."товар" = "ТОВАР"."код")
+                     Buffers: shared hit=12746
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.037..249.094 rows=666666.67 loops=3)
+                           Buffers: shared hit=12739
+                     ->  Hash  (cost=1.12..1.12 rows=5 width=9) (actual time=0.207..0.208 rows=5.00 loops=3)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           Buffers: shared hit=7
+                           ->  Seq Scan on "ТОВАР"  (cost=0.00..1.12 rows=5 width=9) (actual time=0.176..0.185 rows=5.00 loops=3)
+                                 Filter: ("категория" = 1)
+                                 Rows Removed by Filter: 5
+                                 Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=4
+ Planning Time: 0.487 ms
+ Execution Time: 1854.226 ms
+(24 строки)
+

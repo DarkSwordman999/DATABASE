@@ -1,0 +1,15 @@
+:OUT nul
+USE [SALES];
+DROP TABLE IF EXISTS [ТОВАР] ;
+CREATE TABLE [ТОВАР] (
+    [код] integer NOT NULL,
+    [наименование] character varying(20),
+    [цена1] numeric(12,4),
+    [цена2] numeric(12,4),
+    [категория] integer,
+    [поставщик] integer,
+    [хранение] numeric(12,4)
+);
+ALTER TABLE [ТОВАР] 
+    ADD CONSTRAINT [ТОВАР_pkey] PRIMARY KEY ([код]);
+:OUT stdout

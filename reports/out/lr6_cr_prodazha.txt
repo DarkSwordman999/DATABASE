@@ -1,0 +1,11 @@
+:OUT nul
+USE [SALES];
+DROP TABLE IF EXISTS [ПРОДАЖА] ;
+CREATE TABLE [ПРОДАЖА] (
+    [дата] datetime,
+    [магазин] integer NOT NULL,
+    [товар] integer,
+    [количество] integer,
+    [клиент] integer
+);
+:OUT stdout

@@ -1,0 +1,7 @@
+> ./h lr6 createdb
+Changed database context to 'master'.
+name collation_name
+---- --------------
+SALES Cyrillic_General_CI_AS
+
+(1 rows affected)
