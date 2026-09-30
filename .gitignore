@@ -2,3 +2,5 @@
 *.tmp
 .vscode/
 .idea/
+# продукты сборки ЛР5 (c1.bat, dll.bat)
+lab5/build/
