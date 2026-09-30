@@ -119,6 +119,11 @@ if [ -z "$1" ]; then
     echo "  ./h lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)"
     echo "  Пример: ./h lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван"
     echo ""
+    echo "================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER =================="
+    echo "  ./h lr8 build             - компиляция программы C# варианта 20"
+    echo "  ./h lr8 20 [D1 D2 [категория]] - в.20 (C#): продажи (шт) по категории и кварталу"
+    echo "  ./h lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде"
+    echo ""
     echo "================== ПРОЧЕЕ =================="
     echo "  ./h psql                  - консоль psql (база sales)"
     echo "  ./h файл.sql [a1 [a2 [a3]]] - выполнить любой psql-сценарий с параметрами"
@@ -202,7 +207,7 @@ case "$1" in
     # ------------------------------ ЛР5 ------------------------------
     lr5)
         case "$2" in
-            build) need_variant "$3"; bat lab5/build.bat "$3" "$4" ;;
+            build) need_variant "$3"; bat lab5/build.bat "$3" "$4" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
             20|22) run "lab5/v$2_test.sql" "$3" ;;
             *) echo "ОШИБКА: ./h lr5 build 20|22  или  ./h lr5 20|22" ;;
         esac
@@ -236,6 +241,16 @@ case "$1" in
             1)      bat lab7/s.bat 'lab7\calculate1.sql' "$3" "$4" "$5" "$6" "$7" ;;
             2)      bat lab7/s.bat 'lab7\calculate2.sql' "$3" "$4" "$5" "$6" ;;
             *) echo "ОШИБКА: ./h lr7 create|1|2" ;;
+        esac
+        ;;
+
+    # ------------------------------ ЛР8 ------------------------------
+    lr8)
+        case "$2" in
+            build) bat lab8/v20/cs.bat 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
+            20)    shift 2; bat lab8/v20/run.bat "$@" ;;
+            22)    shift 2; bat lab8/v22/run.bat "$@" ;;
+            *) echo "ОШИБКА: ./h lr8 build|20|22" ;;
         esac
         ;;
 
