@@ -3,10 +3,12 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?logo=postgresql&logoColor=white)
 ![MS SQL Server](https://img.shields.io/badge/MS%20SQL%20Server-2019%20LocalDB-CC2927?logo=microsoftsqlserver&logoColor=white)
 ![C](https://img.shields.io/badge/C-MSVC%202022-A8B9CC?logo=c&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-.NET%204.8-512BD4?logo=dotnet&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Windows](https://img.shields.io/badge/Windows-11-0078D6?logo=windows&logoColor=white)
 ![Варианты](https://img.shields.io/badge/варианты-20%20и%2022-8A2BE2)
 
-Лабораторные работы по дисциплине **«Программирование и администрирование баз данных»** (5 семестр) на учебной базе торговой организации **SALES**: PostgreSQL в локальной сети, объёмная БД и индексы, пользовательские типы, резервное копирование, функции на C, перенос в MS SQL Server, представления и функции T-SQL.
+Лабораторные работы по дисциплине **«Программирование и администрирование баз данных»** (5 семестр) на учебной базе торговой организации **SALES**: PostgreSQL в локальной сети, объёмная БД и индексы, пользовательские типы, резервное копирование, функции на C, перенос в MS SQL Server, представления и функции T-SQL, программы на C# и Python с данными MS SQL Server.
 
 Все работы выполнены для **двух вариантов — 20 и 22** — и проверены прогоном на реальных серверах (PostgreSQL 18.6, SQL Server 2019 LocalDB).
 
@@ -23,6 +25,9 @@
 | 5 | Функции пользователя на C | [`lab5`](lab5) | в.20 — `floor`, `ALLTRIM`; в.22 — `cosd`, позиция подстроки |
 | 6 | Копирование БД из PostgreSQL в MS SQL Server | [`lab6`](lab6) | `pg_dump` + `sel2.exe` + `BULK INSERT`, задания на T-SQL |
 | 7 | Представления и функции в MS SQL Server | [`lab7`](lab7) | премия сотрудников, затраты на хранение товара |
+| 8 | Данные MS SQL Server в программах | [`lab8`](lab8) | в.20 — C#, в.22 — Python (pyodbc) |
+
+📄 **Отчёты** — отдельный `.docx` на каждую работу и каждый вариант (16 файлов): [`reports/docx`](reports/docx). Они собираются из сценариев репозитория и реального вывода прогонов: `bash reports/capture.sh` → `python reports/make_reports.py`.
 
 ## 🧩 Схема базы SALES
 
@@ -40,6 +45,7 @@
 | **ЛР3** (k = mod15(K−1)+1) | 5 — трёхмерный вектор | 7 — рациональное число (double) |
 | **ЛР5** f1 / f2 | `floor(x)` / `ALLTRIM(s)` | `cosd(x)` / номер символа вхождения `s1` в `s` |
 | **ЛР6** | задания ЛР1 на T-SQL | задания ЛР1 на T-SQL |
+| **ЛР8** | C#: количество проданных товаров по *категории* и *кварталу*, [01.07.2019, 30.06.2023] | Python: затраты клиентов по *поставщику* и *декаде*, [01.10.2021, 31.01.2024] |
 
 ## 🚀 Быстрый старт
 
@@ -85,7 +91,7 @@ s.bat tasks\v20_task1.sql 21.08.2020 20.08.2023 мебель
 
 ### ЛР2 — объёмная БД
 
-`ПРОДАЖА` — 2 000 000 записей (100 MB), вынесена в табличное пространство на диске D:. Время запроса (*): **≈4.7 с** (в.20), **≈6.5 с** (в.22) — в требуемом диапазоне 0.5–10 с.
+`ПРОДАЖА` — 2 000 000 записей (100 MB), вынесена в табличное пространство на диске D:. Время запроса (*): **≈4.9–5.2 с** (в.20), **≈6.4–6.6 с** (в.22) — в требуемом диапазоне 0.5–10 с.
 Полные протоколы по всем сочетаниям индексов (btree / hash / нет × PRIMARY KEY / нет × с WHERE / без):
 [`results/lr2_v20_results.txt`](results/lr2_v20_results.txt), [`results/lr2_v22_results.txt`](results/lr2_v22_results.txt).
 
@@ -129,13 +135,18 @@ s.bat tasks\v20_task1.sql 21.08.2020 20.08.2023 мебель
 DATA/            создание БД sales, таблиц, загрузка данных (SOURCE - исходные данные)
 tasks/           ЛР1: задания вариантов 20 и 22 (psql, параметры arg1..arg3)
 helper/          общие сценарии: параметры, подсчёт строк, fixenc.pl (кодировка вывода)
-lab2/ ... lab7/  лабораторные работы 2-7
+lab1/            ЛР1: клиент для локальной сети (s_lan.bat, setup_lan.ps1)
+lab2/ ... lab8/  лабораторные работы 2-8
+reports/         генератор отчётов, вывод прогонов (out) и отчёты .docx
 results/         протоколы измерений и результаты
 s0.bat s1.bat s.bat   консоль psql / сценарий в БД postgres / сценарий в БД sales
 h                запуск всех задач из Git Bash
 ```
 
 ## ⚙️ Особенности окружения
+
+- Сеть (ЛР1): сервер слушает адрес 192.168.0.102; правило `pg_hba.conf` для сети и правило брандмауэра `PostgreSQL-inPort` добавляет [`lab1/setup_lan.ps1`](lab1/setup_lan.ps1) (от имени администратора), клиент в другом ПК запускается через [`lab1/s_lan.bat`](lab1/s_lan.bat).
+- ЛР8 (Python) использует `pyodbc` и «ODBC Driver 17 for SQL Server»: `pip install -r lab8/v22/requirements.txt`.
 
 - Кириллица: `psql` под Windows получает аргументы командной строки в CP1251, поэтому параметры передаются через stdin; служебные сообщения psql приводятся к UTF-8 фильтром [`helper/fixenc.pl`](helper/fixenc.pl).
 - Служба PostgreSQL работает от `NETWORK SERVICE` и не читает файлы из профиля пользователя — DLL из ЛР5 копируются в `D:\PG_DLL`.
