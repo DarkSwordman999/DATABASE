@@ -1,0 +1,6 @@
+-- Проверка сервера: тестовая база NEW1 (lab6\s_TCP.bat lab6\SETUP\create_DB)
+USE [master];
+IF DB_ID(N'NEW1') IS NOT NULL DROP DATABASE [NEW1];
+GO
+CREATE DATABASE [NEW1];
+GO

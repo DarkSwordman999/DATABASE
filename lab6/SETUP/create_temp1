@@ -1,0 +1,7 @@
+USE [NEW1];
+CREATE TABLE [dbo].[temp1](
+	[time] [datetime] NULL DEFAULT GETDATE(),
+	[name] [nchar](16) NULL,
+	[x] [int] NULL,
+	[y] [int] NULL
+);

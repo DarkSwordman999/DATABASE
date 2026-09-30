@@ -1,0 +1,4 @@
+USE [NEW1]
+GO
+SELECT @@SERVERNAME AS [сервер], @@VERSION AS [версия];
+SELECT * FROM temp1 ORDER BY x DESC;

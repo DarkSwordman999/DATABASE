@@ -1,0 +1,5 @@
+USE [NEW1];
+GO
+INSERT INTO temp1 (name, x) VALUES (N'первая', 2);
+INSERT INTO temp1 (name, x) VALUES (N'вторая', 3);
+INSERT INTO temp1 (name, x) VALUES (N'третья', 4);
