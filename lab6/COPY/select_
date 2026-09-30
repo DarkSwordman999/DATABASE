@@ -1,0 +1,4 @@
+-- Шаблон просмотра таблицы $(table) (переменная окружения table)
+USE [SALES];
+SELECT N'$(table)' AS [таблица], COUNT(*) AS [строк] FROM [$(table)];
+SELECT TOP 5 * FROM [$(table)];

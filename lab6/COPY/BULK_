@@ -1,0 +1,9 @@
+-- Шаблон загрузки данных таблицы $(table) из d_$(table).txt (переменные окружения table, copydir)
+-- Строки d_*.txt заканчиваются CRLF (вывод psql под Windows); в BULK INSERT '\n' означает именно \r\n.
+:OUT nul
+USE [SALES];
+DELETE FROM [$(table)];
+BULK INSERT [$(table)] FROM '$(copydir)d_$(table).txt'
+  WITH (FIRSTROW = 1, FIELDTERMINATOR = '\t', ROWTERMINATOR = '\n', CODEPAGE = '1251');
+:OUT stdout
+SELECT N'$(table)' AS [таблица], COUNT(*) AS [загружено строк] FROM [$(table)];
