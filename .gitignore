@@ -5,3 +5,7 @@
 # продукты сборки ЛР5 (c1.bat, dll.bat)
 lab5/build/
 lab4/work/
+# выгрузки ЛР6 (pg_dump_data.bat, pg_dump_str.bat) и собранный sel2.exe
+lab6/COPY/d_*.txt
+lab6/COPY/cr_*.txt
+lab6/COPY/*.exe

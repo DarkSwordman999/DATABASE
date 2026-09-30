@@ -1,0 +1,13 @@
+-- Создание базы данных SALES в MS SQL Server (lab6\s_TCP.bat lab6\COPY\create_DB)
+-- Сортировка Cyrillic_General_CI_AS: кириллица в полях varchar хранится в CP1251
+-- (у LocalDB по умолчанию SQL_Latin1_General_CP1_CI_AS, где кириллица превращается в «?»).
+USE [master];
+IF DB_ID(N'SALES') IS NOT NULL
+BEGIN
+  ALTER DATABASE [SALES] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+  DROP DATABASE [SALES];
+END
+GO
+CREATE DATABASE [SALES] COLLATE Cyrillic_General_CI_AS;
+GO
+SELECT name, collation_name FROM sys.databases WHERE name = N'SALES';
