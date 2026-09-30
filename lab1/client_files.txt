@@ -1,0 +1,18 @@
+Минимальный набор файлов консольного клиента К (psql) - каталог D:\TO_PG\bin
+Источник: C:\Program Files\PostgreSQL\18\bin (PostgreSQL 18.6)
+Проверено: psql.exe из этого каталога при PATH=C:\Windows\System32;D:\TO_PG\bin
+подключается к серверу и выполняет запросы.
+
+libcrypto-3-x64.dll    5 714 432
+libiconv-2.dll         1 441 525
+libintl-9.dll            475 769
+libpgtypes.dll            85 504
+libpq.dll                384 512
+libssl-3-x64.dll       1 313 280
+libwinpthread-1.dll       52 736
+libxslt.dll              414 208
+libzstd.dll              727 040
+pg_config.exe             91 648
+psql.exe                 653 824
+
+Каталог клиента D:\TO_PG: s_lan.bat, сценарии (*.sql), подкаталог bin.
