@@ -20,7 +20,7 @@ REQUIRED = {
         "CREATE OPERATOR", "Разработанные функции и операторы"],
     4: ["Windows 11", "PostgreSQL 18.6", "dump-1.bat", "dump-2.bat", "dump-3.bat", "task0-01",
         "task0-02", "task0-03", "base_save", "base_rar.rar", "base_rarM.part1.rar",
-        "FC: no differences encountered", "app-pgdump", "app-psql", "rar"],
+        "FC: no differences encountered", "run_all.bat", "app-pgdump", "app-psql", "rar"],
     5: ["Windows 11", "PostgreSQL 18.6", "Visual Studio 2022", "c1.bat", "dll.bat", "show1.bat",
         "PG_FUNCTION_INFO_V1", "STRICT", "Dump of file"],
     6: ["Windows 11", "PostgreSQL 18.6", "SQL Server 2019", "s_TCP.bat", "pg_dump_str.bat",
@@ -39,6 +39,8 @@ VARIANT = {
     (3, 20): ["vector3"], (3, 22): ["rational"],
     (5, 20): ["f1_floor", "f2_alltrim"], (5, 22): ["f1_cosd", "f2_pos"],
     (6, 20): ["v20_task1.sql", "v20_task2.sql"], (6, 22): ["v22_task1.sql", "v22_task2.sql"],
+    (4, 20): ["v20_task1.sql", "run_all.bat 20"], (4, 22): ["v22_task1.sql", "run_all.bat 22"],
+    (7, 20): ["Андрей", "плащ"], (7, 22): ["Ольга", "шкаф"],
     (8, 20): ["Lab08.cs", "SqlConnection", "C#"], (8, 22): ["lab08.py", "pyodbc", "Python"],
 }
 
