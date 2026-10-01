@@ -177,7 +177,7 @@ $$ LANGUAGE sql IMMUTABLE STRICT;
 -- операторы, определённые для домена vector3
 SELECT oprname AS "оператор", oprleft::regtype AS "левый", oprright::regtype AS "правый",
        oprresult::regtype AS "результат", oprcode AS "функция"
-  FROM pg_operator WHERE 'vector3'::regtype IN (oprleft, oprright) ORDER BY oprname, oprleft;
+  FROM pg_operator WHERE 'vector3'::regtype IN (oprleft, oprright) ORDER BY oprname, oprleft, oprright;
 
 -- ---------------------------------------------------------------------
 -- демонстрация функций и операторов
