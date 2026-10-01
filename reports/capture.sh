@@ -12,20 +12,28 @@ cap() {                 # cap <файл> <команда...>: вывод ком�
     echo "  $f"
 }
 
+caph() {                # то же через сценарий help (PowerShell: help.cmd -> helper/help.ps1)
+    local f="$1"; shift
+    { echo "> ./help $*"
+      powershell.exe -NoProfile -ExecutionPolicy Bypass -File helper/help.ps1 "$@" 2>&1
+    } > "$O/$f.txt"
+    echo "  $f"
+}
+
 want() { [ $# -eq 0 ] || [[ " $ARGS " == *" $1 "* ]]; }
 ARGS="$*"
 
 if [ -z "$ARGS" ] || want lr1; then
     echo "ЛР1"
-    cap lr1_counts counts
-    cap lr1_v20_1 v20 1
-    cap lr1_v20_1p v20 1 01.01.2021 31.12.2022 мебель
-    cap lr1_v20_2 v20 2
-    cap lr1_v20_2p v20 2 2019 2023 пт
-    cap lr1_v22_1 v22 1
-    cap lr1_v22_1p v22 1 01.01.2020 31.12.2020 "ООО Турман"
-    cap lr1_v22_2 v22 2
-    cap lr1_v22_2p v22 2 2018 2022 зима
+    caph lr1_counts counts
+    caph lr1_v20_1 v20 1
+    caph lr1_v20_1p v20 1 01.01.2021 31.12.2022 мебель
+    caph lr1_v20_2 v20 2
+    caph lr1_v20_2p v20 2 2019 2023 пт
+    caph lr1_v22_1 v22 1
+    caph lr1_v22_1p v22 1 01.01.2020 31.12.2020 "ООО Турман"
+    caph lr1_v22_2 v22 2
+    caph lr1_v22_2p v22 2 2018 2022 зима
 fi
 if [ -z "$ARGS" ] || want lr3; then
     echo "ЛР3"

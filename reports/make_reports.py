@@ -67,11 +67,135 @@ def intro(r, lab):
     r.p(f"Цель работы: {GOALS[lab]}")
 
 
+# параметры расчётов ЛР7, выбранные для каждого варианта
+LR7_PARAMS = {20: dict(p1="01.01.2021 30.06.2021 8.5 10.5", n="Андрей",
+                      p2="01.01.2021 30.06.2021 0.5", g="плащ", p3="01.01.2022 31.03.2022 1 диван",
+                      g_sum="1051.10"),
+              22: dict(p1="01.07.2022 31.12.2022 7.5 12", n="Ольга",
+                      p2="01.07.2022 31.12.2022 0.5", g="шкаф", p3="01.01.2023 31.03.2023 0 костюм",
+                      g_sum="2212.50")}
+
+
+# команды ./h для демонстрации каждой работы на защите (в порядке выполнения)
+def defense_commands(lab, v):
+    ref = "ТОВАР" if v == 20 else "МАГАЗИН"
+    if lab == 1:
+        t1, t2 = TASKS[v]
+        a1 = t1["args"].replace("«", "\"").replace("»", "\"")
+        return [
+            ("./help db", "s1.bat DATA\\create_DB, s.bat DATA\\create_tables, "
+                       "s.bat DATA\\load_data - база sales, таблицы, данные"),
+            ("./help counts", "helper/counts.sql - количество строк в таблицах"),
+            (f"./help v{v} 1", f"tasks/v{v}_task1.sql - задание 1, параметры по умолчанию"),
+            (f"./help v{v} 1 {a1}", "задание 1 с периодом и значением «Признака 1»"),
+            (f"./help v{v} 2", f"tasks/v{v}_task2.sql - задание 2, параметры по умолчанию"),
+            (f"./help v{v} 2 {t2['args']}", "задание 2 с периодом и значением «Признака 1»"),
+            ("./help lr1 lan", "lab1/setup_lan.ps1 - pg_hba.conf и брандмауэр (от администратора)"),
+            (f"./help lr1 client tasks/v{v}_task1.sql", "lab1/s_lan.bat - задание через сервер "
+                                                     "по адресу 192.168.0.102"),
+            ("./help psql", "консоль psql (база sales)"),
+        ]
+    if lab == 2:
+        return [
+            ("./h lr2 gen 2000000", "lab2/add_data.sql - 2 млн записей в ПРОДАЖА"),
+            ("./h lr2 tbs D:/PG_TBS", "lab2/tablespace.sql - ПРОДАЖА в табличное пространство"),
+            (f"./h lr2 time {v}", "lab2/time_current.sql - 5 замеров через CURRENT_TIME"),
+            (f"./h lr2 timing {v}", "lab2/time_timing.sql - 5 замеров через \\timing on"),
+            (f"./h lr2 idx {v}", f"lab2/idx_names.sql - индексы ПРОДАЖА и {ref}"),
+            (f"./h lr2 idx1 {v} btree", "lab2/idx_1.sql - btree-индекс по полю-ссылке"),
+            (f"./h lr2 explain {v} 1", "lab2/explain.sql - EXPLAIN / EXPLAIN ANALYZE с WHERE"),
+            (f"./h lr2 idx0 {v}", "lab2/idx_0.sql - удаление индекса"),
+            (f"./h lr2 idx1 {v} hash", "hash-индекс по тому же полю"),
+            (f"./h lr2 pk0 {v}", f"lab2/create_ref1.sql - {ref} без PRIMARY KEY"),
+            (f"./h lr2 pk1 {v}", f"lab2/create_ref0.sql - {ref} с PRIMARY KEY"),
+            (f"./h lr2 copy {v}", f"lab2/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
+            (f"./h lr2 measure {v}", f"lab2/measure.sql - протокол results/lr2_v{v}_results.txt"),
+            (f"./h lr2 results {v}", "показать протокол измерений"),
+            ("./h lr2 restore", "lab2/restore_lr1.sql - вернуть 1000 записей ЛР1"),
+        ]
+    if lab == 3:
+        f = "v20_vector3" if v == 20 else "v22_rational"
+        return [
+            ("./h lr3 cmplx", "lab3/cmplx.sql - пример преподавателя (тип complex)"),
+            (f"./h lr3 {v}", f"lab3/{f}.sql - тип, домен, функции и операторы варианта"),
+        ]
+    if lab == 4:
+        return [
+            (f"./h lr4 all {v}", f"lab4/run_all.bat {v} - пп. 1-10 целиком, протокол "
+                                 f"results/lr4_v{v}_protocol.txt"),
+            ("./h lr4 base", "lab4/create_base.bat - база BASE из данных ЛР1"),
+            (f"LR4_VARIANT={v} ./h lr4 tasks 0", "lab4/tasks.bat - контрольные задачи "
+                                                 "task0-01..03"),
+            ("./h lr4 dump1", "lab4/dump-1.bat - pg_dump в текстовый файл base_save"),
+            ("./h lr4 dump2", "lab4/dump-2.bat - pg_dump в rar-архив base_rar.rar"),
+            ("./h lr4 dump3", "lab4/dump-3.bat - pg_dump в многотомный rar-архив"),
+        ]
+    if lab == 5:
+        return [
+            (f"./h lr5 build {v}", f"lab5/build.bat {v} - c1.bat, dll.bat, show1.bat: "
+                                   f"v{v}.dll -> D:\\PG_DLL"),
+            (f"./h lr5 {v}", f"lab5/v{v}_test.sql - регистрация STRICT-функций, таблица T"),
+        ]
+    if lab == 6:
+        a1 = TASKS[v][0]["args"].replace("«", "\"").replace("»", "\"")
+        return [
+            ("./h lr6 setup", "lab6/s_TCP.bat с SETUP/create_DB … select_from_temp1"),
+            ("./h lr6 sel2", "lab6/COPY/make_sel2.bat - сборка фильтра sel2.exe"),
+            ("./h lr6 createdb", "lab6/s_TCP.bat COPY\\create_DB - база SALES"),
+            ("./h lr6 copy", "lab6/COPY/copy_to_MS_SQL.bat - копирование всех таблиц"),
+            ("./h lr6 disp", "lab6/COPY/disp.bat - проверка скопированных таблиц"),
+            (f"./h lr6 v{v} 1", f"lab6/s.bat lab6\\tasks\\v{v}_task1.sql"),
+            (f"./h lr6 v{v} 1 {a1}", "задание 1 с параметрами"),
+            (f"./h lr6 v{v} 2", f"lab6/s.bat lab6\\tasks\\v{v}_task2.sql"),
+            ("./h lr6 console", "lab6/s0.bat - консоль sqlcmd"),
+        ]
+    if lab == 7:
+        p = LR7_PARAMS[v]
+        return [
+            ("./h lr7 create", "lab7/s.bat create_objects.sql - представления и функции"),
+            (f"./h lr7 1 {p['p1']}", "calculate1.sql - премия всех сотрудников"),
+            (f"./h lr7 1 {p['p1']} {p['n']}", "премия одного сотрудника"),
+            (f"./h lr7 2 {p['p2']}", "calculate2.sql - затраты на хранение всех товаров"),
+            (f"./h lr7 2 {p['p2']} {p['g']}", "затраты на хранение одного товара"),
+            (f"./h lr7 2 {p['p3']}", "затраты на хранение за другой период"),
+            ("./h lr7 1 01.01.2018 31.12.2024 10 10", "контроль по эталону bonus3 (59206.10)"),
+        ]
+    if lab == 8:
+        if v == 20:
+            return [
+                ("./h lr8 build", "lab8/v20/cs.bat - компиляция Lab08.cs"),
+                ("./h lr8 20", "lab8/v20/run.bat - период и категории по умолчанию"),
+                ("./h lr8 20 01.01.2021 31.12.2021", "заданный период"),
+                ("./h lr8 20 01.07.2019 30.06.2023 мебель", "период и категория"),
+            ]
+        return [
+            ("./h lr8 22", "lab8/v22/run.bat - lab08.py, период и поставщики по умолчанию"),
+            ("./h lr8 22 01.01.2022 31.12.2022", "заданный период"),
+            ("./h lr8 22 01.10.2021 31.01.2024 \"ООО Турман\"", "период и поставщик"),
+        ]
+
+
+DEFENSE_NOTES = {
+    2: ["Команды lr2 time, timing, explain и measure требуют объёмной таблицы ПРОДАЖА "
+        "(./h lr2 gen); перед ЛР1, ЛР6 и ЛР7 исходные 1000 записей возвращаются командой "
+        "./h lr2 restore."],
+    4: ["Каталог резервных копий - lab4/work; при нехватке места на диске C: он "
+        "переопределяется переменной: LR4_WORK=D:/LR4_WORK ./h lr4 all."],
+    6: ["Перед копированием собирается фильтр sel2.exe (./h lr6 sel2); параметры "
+        "подключения к MS SQL Server заданы в lab6/config.bat."],
+}
+
+
+def defense(r, num):
+    """Раздел num «Защита работы: запуск через ./h» (для ЛР1 - ./help)."""
+    r.defense(num, defense_commands(r.lab, r.variant), DEFENSE_NOTES.get(r.lab, ()))
+
+
 # =====================================================================
 # ЛР1
 # =====================================================================
 def lab1(v):
-    r = Report(1, TOPICS[1], v)
+    r = Report(1, TOPICS[1], v, runner="help")   # ЛР1 запускается из PowerShell: ./help
     r.h1("Лабораторная работа №1")
     intro(r, 1)
     r.software([OS, PG, PSQL])
@@ -149,8 +273,8 @@ def lab1(v):
     r.listing("lab1/s_lan.bat", "s_lan.bat - клиент К в каталоге D:\\TO_PG, сервер по сети")
 
     r.h1("5. Создание базы данных SALES")
-    r.code(">s1.bat DATA\\create_DB\n>s.bat DATA\\create_tables\n>s.bat DATA\\load_data",
-           "команды создания базы данных, таблиц и загрузки данных")
+    r.code("PS> ./help db\n\nто же в cmd:\n>s1.bat DATA\\create_DB\n>s.bat DATA\\create_tables\n"
+           ">s.bat DATA\\load_data", "команды создания базы данных, таблиц и загрузки данных")
     r.listing("DATA/create_DB", "DATA\\create_DB")
     r.listing("DATA/create_tables", "DATA\\create_tables", size=8)
     r.listing("DATA/load_data", "DATA\\load_data")
@@ -188,7 +312,8 @@ def lab1(v):
     for c in comments[v]:
         r.p(c)
 
-    r.h1("7. Выводы")
+    defense(r, 7)
+    r.h1("8. Выводы")
     r.p("В ходе работы сервер PostgreSQL 18.6 подготовлен к работе в локальной сети Windows: "
         "определён минимальный набор файлов клиента psql, описаны и подготовлены к применению "
         "настройки pg_hba.conf и брандмауэра Windows (сценарий setup_lan.ps1), разработаны "
@@ -325,7 +450,8 @@ def lab2(v):
     r.p("Отсутствие PRIMARY KEY в справочнике увеличивает оценку стоимости (cost): "
         "планировщик не знает об уникальности ключа и хуже оценивает число строк соединения.")
 
-    r.h1("5. Выводы")
+    defense(r, 5)
+    r.h1("6. Выводы")
     r.p(f"Таблица ПРОДАЖА увеличена до 2 млн записей, время запроса (*) варианта {v} составило "
         f"около {cur:.1f} с. Измерения через CURRENT_TIME и \\timing on дают близкие "
         "результаты. Освоены просмотр, создание и удаление индексов btree и hash, организация "
@@ -380,7 +506,7 @@ def lab3(v):
         "Исходный сценарий содержал преждевременный \\q и повторное создание оператора *; "
         "в воспроизведённой версии (lab3\\cmplx.sql) эти недочёты исправлены.")
     txt = out("lr3_cmplx").splitlines()
-    r.code("\n".join(txt[:60]), "начало вывода сценария cmplx (>s.bat lab3\\cmplx.sql)", size=8)
+    r.code("\n".join(txt[:60]), "начало вывода сценария cmplx: ./h lr3 cmplx (аналог в cmd: >s.bat lab3\\cmplx.sql)", size=8)
 
     r.h1(f"3. Пользовательский тип {tname}: создание и удаление")
     r.code(_split_sql(path, "DROP TYPE IF EXISTS", "-- ----") , "создание и удаление типа")
@@ -435,7 +561,8 @@ def lab3(v):
                  ("rat_eq ==, rat_lt <, rat_gt >", "сравнение по значению", "boolean")]
     r.table(["Функция / оператор", "Назначение", "Результат"], funcs,
             "Разработанные функции и операторы", widths=[5, 8, 3.5])
-    r.h1("9. Выводы")
+    defense(r, 9)
+    r.h1("10. Выводы")
     r.p(f"Разработан пользовательский составной тип {tname} и домен {dname}, ограничивающий "
         "значения полей встроенного типа. Показаны создание и удаление типа, его автономное "
         "использование и использование во временной таблице. Разработано "
@@ -475,7 +602,7 @@ def lab4(v):
         "переменной LR4_WORK=D:\\LR4_WORK. Для многотомного архива размер тома -v8k подобран "
         "так, чтобы получилось 2 части.")
     proto = read(f"results/lr4_v{v}_protocol.txt")
-    r.code(proto, f"протокол выполнения: >lab4\\run_all.bat {v}", size=8)
+    r.code(proto, f"протокол выполнения: ./h lr4 all {v} (аналог в cmd: >lab4\\run_all.bat {v})", size=8)
     sizes = re.findall(r"^(base_save|base_rar\.rar|base_rarM\.part\d\.rar|stdin)  (\d+) байт$",
                        proto, re.M)
     r.table(["Файл", "Размер, байт"], [(f, f"{int(n):,}".replace(",", " ")) for f, n in sizes],
@@ -495,7 +622,8 @@ def lab4(v):
         "rar - архиватор WinRAR: ключи a (добавить), -si (данные из stdin), -v<размер> "
         "(многотомный архив), e (извлечь); справка - файл Rar.txt в каталоге WinRAR",
     ])
-    r.h1("5. Выводы")
+    defense(r, 5)
+    r.h1("6. Выводы")
     r.p("Освоено резервное копирование базы PostgreSQL утилитой pg_dump в текстовый файл, "
         "однотомный и многотомный rar-архив с передачей данных через конвейер, а также "
         "восстановление базы командой psql из текстового файла и из архива. Совпадение "
@@ -546,7 +674,8 @@ def lab5(v):
         + ("floor и btrim" if v == 20 else "cosd и position")
         + ". Для строки с NULL-аргументами STRICT-функции возвращают NULL без вызова кода на C. "
           "Недопустимые значения аргумента обрабатываются вызовом ereport(ERROR).")
-    r.h1("6. Выводы")
+    defense(r, 6)
+    r.h1("7. Выводы")
     r.p("Разработаны две функции пользователя на C, скомпилированы MS Visual C++ 2022 и "
         f"собраны в одну динамическую библиотеку v{v}.dll. Функции зарегистрированы в "
         "PostgreSQL как STRICT и проверены на таблице T. Освоены макросы интерфейса версии 1 "
@@ -593,17 +722,18 @@ def lab6(v):
     r.listing("lab6/COPY/BULK_", "шаблон BULK_", size=8.5)
     r.listing("lab6/COPY/copy_to_MS_SQL.bat", "копирование всех таблиц (copy_to_MS_SQL.bat)",
               size=8.5)
-    r.code(out("lr6_cr_tovar"), "сформированный cr_ТОВАР.txt")
-    r.code(out("lr6_cr_prodazha"), "сформированный cr_ПРОДАЖА.txt")
-    r.code(out("lr6_d_prodazha"), "первые строки d_ПРОДАЖА.txt")
-    r.p("Последовательность действий: 1) make_sel2.bat; 2) s_TCP.bat COPY\\create_DB; "
-        "3) COPY\\copy_to_MS_SQL.bat; 4) COPY\\disp.bat для проверки.")
+    r.code(out("lr6_cr_tovar"), "сформированный cr_ТОВАР.txt (./h lr6 copy)")
+    r.code(out("lr6_cr_prodazha"), "сформированный cr_ПРОДАЖА.txt (./h lr6 copy)")
+    r.code(out("lr6_d_prodazha"), "первые строки d_ПРОДАЖА.txt (./h lr6 copy)")
+    r.p("Последовательность действий: 1) ./h lr6 sel2 (make_sel2.bat); 2) ./h lr6 createdb "
+        "(s_TCP.bat COPY\\create_DB); 3) ./h lr6 copy (COPY\\copy_to_MS_SQL.bat); "
+        "4) ./h lr6 disp (COPY\\disp.bat) для проверки.")
     copy = [l for l in out("lr6_copy").splitlines() if re.match(r"^[А-Я]+ \d+$", l)]
     r.table(["Таблица", "Загружено строк"], [l.split() for l in copy],
             "Результат копирования таблиц", widths=[6, 5])
     r.p("Число строк всех таблиц совпадает с базой sales в PostgreSQL.")
     r.listing("lab6/COPY/disp.bat", "проверка (disp.bat)", size=8.5)
-    r.code("\n".join(out("lr6_disp").splitlines()[:40]), "начало вывода disp.bat", size=8)
+    r.code("\n".join(out("lr6_disp").splitlines()[:40]), "начало вывода disp.bat: ./h lr6 disp", size=8)
     r.h1(f"3. Задачи варианта {v} в MS SQL Server")
     r.listing("lab6/s.bat", "запуск сценария с параметрами (lab6\\s.bat)", size=8)
     for i, t in enumerate(TASKS[v], 1):
@@ -618,7 +748,8 @@ def lab6(v):
     r.p("Результаты всех заданий совпадают с результатами тех же заданий в PostgreSQL (ЛР1). "
         "Отличия T-SQL: DATEPART вместо EXTRACT, CHOOSE для названий, SET DATEFIRST 1 для "
         "нумерации дней недели с понедельника, CONVERT(date, …, 104) для дат ДД.ММ.ГГГГ.")
-    r.h1("4. Выводы")
+    defense(r, 4)
+    r.h1("5. Выводы")
     r.p("База данных SALES скопирована из PostgreSQL в MS SQL Server: структура таблиц "
         "переведена в T-SQL фильтром sel2, данные загружены командой BULK INSERT. Решены "
         f"задачи варианта {v} на T-SQL с параметрами командной строки; результаты совпали "
@@ -669,13 +800,7 @@ def lab7(v):
     r.p("Параметры: calculate1 - D1 D2 P M [N], calculate2 - D1 D2 α [G]; даты в формате "
         "ДД.ММ.ГГГГ, дробные числа - с точкой. Пустой параметр заменяется значением по умолчанию.")
     r.h1("4. Результаты")
-    # параметры расчётов, выбранные для варианта
-    par = {20: dict(p1="01.01.2021 30.06.2021 8.5 10.5", n="Андрей",
-                    p2="01.01.2021 30.06.2021 0.5", g="плащ", p3="01.01.2022 31.03.2022 1 диван",
-                    g_sum="1051.10"),
-           22: dict(p1="01.07.2022 31.12.2022 7.5 12", n="Ольга",
-                    p2="01.07.2022 31.12.2022 0.5", g="шкаф", p3="01.01.2023 31.03.2023 0 костюм",
-                    g_sum="2212.50")}[v]
+    par = LR7_PARAMS[v]
     r.p(f"Для варианта {v} расчёты выполнены со следующими наборами параметров: премия - "
         f"{par['p1']} (все сотрудники и сотрудник «{par['n']}»); затраты на хранение - "
         f"{par['p2']} (все товары и товар «{par['g']}») и {par['p3']}.")
@@ -695,7 +820,8 @@ def lab7(v):
         "величин в PostgreSQL. В примере из задания используется имя «Иван», но такого "
         "сотрудника в таблице СОТРУДНИК нет, поэтому параметр N задан именем существующего "
         "сотрудника.")
-    r.h1("5. Выводы")
+    defense(r, 5)
+    r.h1("6. Выводы")
     r.p("В MS SQL Server разработан комплект представлений, скалярных и табличных функций, "
         "позволяющий решать задачи расчёта премии сотрудников и затрат на хранение товаров с "
         "параметрами командной строки. Результаты проверены по эталонному примеру и "
@@ -756,8 +882,9 @@ def lab8(v):
         r.listing("lab8/v20/Lab08.cs", "программа lab8\\v20\\Lab08.cs", size=8)
         r.listing("lab8/v20/cs.bat", "компиляция (cs.bat)", size=8.5)
         r.listing("lab8/v20/run.bat", "запуск (run.bat)", size=8.5)
-        r.code(">lab8\\v20\\cs.bat\n\n>dir /b lab8\\v20\\Lab08.exe\nLab08.exe",
-               "компиляция (csc при успешной компиляции ничего не выводит)")
+        r.code("$ ./h lr8 build\n\n$ ls lab8/v20/Lab08.exe\nlab8/v20/Lab08.exe",
+               "компиляция: ./h lr8 build (аналог в cmd: >lab8\\v20\\cs.bat); csc при "
+               "успешной компиляции ничего не выводит")
     else:
         r.listing("lab8/v22/lab08.py", "программа lab8\\v22\\lab08.py", size=8)
         r.listing("lab8/v22/run.bat", "запуск (run.bat)", size=8.5)
@@ -779,7 +906,8 @@ def lab8(v):
         r.p("За период по умолчанию затраты клиентов составили 228895.000 ден. ед.; наибольшие "
             "затраты приходятся на товары поставщика «ООО Турман» (70190.000). Внутри каждого "
             "поставщика затраты распределены по декадам месяца, выведены итоги.")
-    r.h1("6. Выводы")
+    defense(r, 6)
+    r.h1("7. Выводы")
     r.p(f"Разработана консольная программа на {task[4]}, которая выполняет параметризованный "
         "запрос к базе SALES в MS SQL Server и выводит таблицу распределения «Величины» по "
         "двум признакам с «естественными» названиями и итогами. Результаты согласуются с "
@@ -793,5 +921,7 @@ if __name__ == "__main__":
     labs = [int(a) for a in sys.argv[1:]] or sorted(BUILDERS)
     for lab in labs:
         for variant in (20, 22):
-            path = BUILDERS[lab](variant).save(f"ЛР{lab}_вариант_{variant}.docx")
+            r = BUILDERS[lab](variant)
+            r.h_appendix()
+            path = r.save(f"ЛР{lab}_вариант_{variant}.docx")
             print(path)

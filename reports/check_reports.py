@@ -10,6 +10,15 @@ from docx import Document
 DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docx")
 
 COMMON = ["Цель работы", "Используемое программное обеспечение", "Выводы"]
+# раздел защиты и приложение: сценарий h (Git Bash) или help (PowerShell, ЛР1)
+RUNNER = {
+    "h": ["Защита работы: запуск через ./h", "Приложение А. Листинг сценария h",
+          "PGCLIENTENCODING=UTF8", "need_variant()"],
+    "help": ["Защита работы: запуск через ./help", "Приложение А. Листинг сценария help",
+             "help.cmd", "$env:PGCLIENTENCODING = 'UTF8'", "function Need-Variant",
+             "./help v"],
+}
+HELP_LABS = {1}
 REQUIRED = {
     1: ["pg_hba.conf", "брандмауэр", "s0.bat", "s1.bat", "s.bat", "s1.bat DATA\\create_DB",
         "psql.exe", "libpq.dll", "192.168.0.102", "Задание 1", "Задание 2", "Windows 11",
@@ -69,7 +78,8 @@ def main():
                 continue
             doc = Document(path)
             text, empty = text_of(doc)
-            missing = [k for k in COMMON + REQUIRED[lab] + VARIANT.get((lab, v), [])
+            runner = RUNNER["help" if lab in HELP_LABS else "h"]
+            missing = [k for k in COMMON + runner + REQUIRED[lab] + VARIANT.get((lab, v), [])
                        if k not in text]
             if f"Вариант {v}" not in text:
                 missing.append(f"титул: Вариант {v}")

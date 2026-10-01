@@ -2,3 +2,4 @@
 *.bat text eol=crlf
 *.png binary
 *.docx binary
+*.cmd text eol=crlf

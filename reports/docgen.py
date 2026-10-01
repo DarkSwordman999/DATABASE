@@ -24,7 +24,7 @@ SERIF = "Times New Roman"
 
 def read(path):
     """Текст файла проекта (путь от корня репозитория)."""
-    with open(os.path.join(ROOT, path), encoding="utf-8") as f:
+    with open(os.path.join(ROOT, path), encoding="utf-8-sig") as f:
         return f.read().rstrip("\n")
 
 
@@ -32,9 +32,65 @@ def out(name):
     """Сохранённый вывод прогона reports/out/<name>.txt без строки вызова."""
     with open(os.path.join(OUT, name + ".txt"), encoding="utf-8") as f:
         text = f.read().rstrip("\n")
-    if text.startswith("> ./h "):          # строка вызова - она уже есть в подписи листинга
+    if text.startswith(("> ./h ", "> ./help ")):  # строка вызова - она уже есть в подписи
         text = text.split("\n", 1)[1] if "\n" in text else ""
     return text.strip("\n")
+
+
+def out_cmd(name):
+    """Команда ./h или ./help, которой получен вывод reports/out/<name>.txt (или None)."""
+    with open(os.path.join(OUT, name + ".txt"), encoding="utf-8") as f:
+        first = f.readline().rstrip("\n")
+    return first[2:] if first.startswith(("> ./h ", "> ./help ")) else None
+
+
+# сценарии запуска: h - Git Bash, help - PowerShell (help.cmd -> helper/help.ps1)
+SCRIPT = {"h": "h", "help": "helper/help.ps1"}
+
+
+def _help_lines(runner):
+    """Строки справки: echo "..." в h (None - не echo), here-string @' ... '@ в help.ps1."""
+    src = read(SCRIPT[runner]).splitlines()
+    if runner == "h":
+        for line in src:
+            m = re.match(r'\s*echo "(.*)"$', line)
+            yield m.group(1).replace("\\\\", "\\") if m else None
+        return
+    start = next(i for i, l in enumerate(src) if l.rstrip().endswith("@'"))
+    for line in src[start + 1:]:
+        if line.startswith("'@"):
+            return
+        yield line
+
+
+def h_help(lab, runner="h"):
+    """Раздел справки ./h (./help) без параметров для ЛР lab - строки между заголовками."""
+    lines, on = [], False
+    for text in _help_lines(runner):
+        if text is None:
+            if on:
+                break
+            continue
+        if text.startswith("=================="):
+            if on:
+                break
+            on = f"ЛР{lab}:" in text
+        if on:
+            lines.append(text)
+    return "\n".join(l for l in lines if l.strip())
+
+
+def h_branch(lab, runner="h"):
+    """Ветвь case (switch) сценария h (help.ps1), обрабатывающая команды ЛР lab."""
+    lines = read(SCRIPT[runner]).splitlines()
+    start = next(i for i, l in enumerate(lines) if re.match(rf"\s*# -+ ЛР{lab} -+", l))
+    end = start + 1
+    while end < len(lines) and not re.match(r"\s*# -+ ЛР\d -+|\s*'?reports'?\s*[){]",
+                                            lines[end]):
+        end += 1
+    while lines[end - 1].strip() == "":
+        end -= 1
+    return "\n".join(lines[start:end])
 
 
 def _set_cell_shading(cell, color):
@@ -47,8 +103,9 @@ def _set_cell_shading(cell, color):
 
 
 class Report:
-    def __init__(self, lab, topic, variant):
+    def __init__(self, lab, topic, variant, runner="h"):
         self.lab, self.topic, self.variant = lab, topic, variant
+        self.runner = runner        # сценарий запуска: h (Git Bash) или help (PowerShell)
         self.fig = 0
         self.tab = 0
         self.lst = 0
@@ -193,7 +250,68 @@ class Report:
         self.code(read(path), caption or f"файл {path}", size)
 
     def output(self, name, caption, size=8.5):
+        """Вывод прогона; в подписи - команда ./h (./help), которой он получен, и аналог в cmd."""
+        cmd = out_cmd(name)
+        if cmd:
+            m = re.match(r"(.*?):\s*>(.*)$", caption)
+            caption = (f"{m.group(1)}: {cmd} (аналог в cmd: >{m.group(2)})" if m
+                       else f"{caption}: {cmd}")
         self.code(out(name), caption, size)
+
+    def defense(self, num, commands, notes=()):
+        """Раздел «Защита работы»: команды ./h (./help), справка и фрагмент сценария для ЛР."""
+        cmd = f"./{self.runner}"
+        self.h1(f"{num}. Защита работы: запуск через {cmd}")
+        if self.runner == "help":
+            self.p("Все действия работы выполняются из корня проекта в PowerShell (или cmd) "
+                   "единым сценарием **help**: командный файл help.cmd вызывает "
+                   "helper/help.ps1 с ключом -ExecutionPolicy Bypass, поэтому запуск не "
+                   "зависит от политики выполнения сценариев PowerShell (листинги - в "
+                   "приложении А). Сценарий задаёт параметры подключения к PostgreSQL "
+                   "(PGHOST, PGPORT, PGUSER, PGDATABASE, клиентская кодировка UTF8), передаёт "
+                   "параметры сценариям psql через стандартный ввод командами \\set "
+                   "(кириллица в аргументах командной строки Windows не искажается), вызывает "
+                   "командные файлы .bat и приводит служебные сообщения psql из CP1251 к "
+                   "UTF-8 (функция Fix-Line). Git Bash для работы не требуется. Все "
+                   "результаты, приведённые в отчёте, получены этими командами; в подписи "
+                   "каждого листинга результата указана команда ./help.")
+        else:
+            self.p("Все действия работы выполняются из корня проекта в Git Bash единым "
+                   "сценарием **h** (листинг полностью - в приложении А). Сценарий задаёт "
+                   "параметры подключения к PostgreSQL (PGHOST, PGPORT, PGUSER, PGDATABASE, "
+                   "клиентская кодировка UTF8), передаёт параметры сценариям psql через "
+                   "стандартный ввод командами \\set (кириллица в аргументах командной строки "
+                   "Windows не искажается), вызывает командные файлы .bat и приводит вывод к "
+                   "UTF-8 фильтром helper/fixenc.pl. Все результаты, приведённые в отчёте, "
+                   "получены этими командами; в подписи каждого листинга результата указана "
+                   "команда ./h.")
+        self.p("Порядок демонстрации работы на защите:")
+        self.table(["№", "Команда", "Что выполняется"],
+                   [(i, c, d) for i, (c, d) in enumerate(commands, 1)],
+                   f"Команды {cmd} для защиты ЛР{self.lab}, вариант {self.variant}",
+                   widths=[1, 7.5, 8], size=11)
+        for n in notes:
+            self.p(n)
+        self.code(h_help(self.lab, self.runner),
+                  f"справка по командам ЛР{self.lab}: {cmd} (без параметров)", size=8)
+        self.code(h_branch(self.lab, self.runner),
+                  f"обработка команд ЛР{self.lab} в сценарии {SCRIPT[self.runner]} (фрагмент)",
+                  size=8)
+
+    def h_appendix(self):
+        self.doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+        if self.runner == "help":
+            self.h1("Приложение А. Листинг сценария help")
+            self.p("Сценарий help - единая точка запуска всех лабораторных работ из PowerShell "
+                   "или cmd: ./help <команда> [параметры]; ./help без параметров выводит "
+                   "список команд. Командный файл help.cmd запускает helper/help.ps1.")
+            self.listing("help.cmd", "командный файл help.cmd", size=7.5)
+            self.listing("helper/help.ps1", "сценарий helper/help.ps1", size=7.5)
+            return
+        self.h1("Приложение А. Листинг сценария h")
+        self.p("Сценарий h - единая точка запуска всех лабораторных работ из Git Bash: "
+               "./h <команда> [параметры]; ./h без параметров выводит список команд.")
+        self.listing("h", "сценарий h", size=7.5)
 
     def table(self, header, rows, caption=None, widths=None, size=12):
         if caption:
