@@ -103,7 +103,7 @@ def _set_cell_shading(cell, color):
 
 
 class Report:
-    def __init__(self, lab, topic, variant, runner="h"):
+    def __init__(self, lab, topic, variant, runner="help"):
         self.lab, self.topic, self.variant = lab, topic, variant
         self.runner = runner        # сценарий запуска: h (Git Bash) или help (PowerShell)
         self.fig = 0

@@ -7,7 +7,7 @@
 -- Для каждого сочетания - 1 прогревочный и arg2 (по умолчанию 3) учитываемых прогонов.
 -- Протокол выводится в консоль и в results/lr2_vNN_results.txt.
 -- После замеров восстанавливается исходное состояние: индекса в ПРОДАЖА нет, PRIMARY KEY есть.
--- Запуск: ./h lr2 measure 20|22 [прогонов]      s.bat lab2\measure.sql 20 3
+-- Запуск: ./help lr2 measure 20|22 [прогонов]      s.bat lab2\measure.sql 20 3
 \set ON_ERROR_STOP on
 \set QUIET on
 \ir config.sql

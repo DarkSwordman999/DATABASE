@@ -10,15 +10,15 @@ from docx import Document
 DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docx")
 
 COMMON = ["Цель работы", "Используемое программное обеспечение", "Выводы"]
-# раздел защиты и приложение: сценарий h (Git Bash) или help (PowerShell, ЛР1)
+# раздел защиты и приложение: сценарий h (Git Bash) или help (PowerShell)
 RUNNER = {
     "h": ["Защита работы: запуск через ./h", "Приложение А. Листинг сценария h",
           "PGCLIENTENCODING=UTF8", "need_variant()"],
     "help": ["Защита работы: запуск через ./help", "Приложение А. Листинг сценария help",
              "help.cmd", "$env:PGCLIENTENCODING = 'UTF8'", "function Need-Variant",
-             "./help v"],
+             "./help "],
 }
-HELP_LABS = {1}
+HELP_LABS = set(range(1, 9))      # все отчёты оформлены через ./help
 REQUIRED = {
     1: ["pg_hba.conf", "брандмауэр", "s0.bat", "s1.bat", "s.bat", "s1.bat DATA\\create_DB",
         "psql.exe", "libpq.dll", "192.168.0.102", "Задание 1", "Задание 2", "Windows 11",

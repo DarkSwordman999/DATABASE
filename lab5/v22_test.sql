@@ -4,7 +4,7 @@
 --   f2 = v22_pos(s varchar, s1 varchar) -> int     (список 2, k2 = 8: номер символа,
 --                                                   с которого s1 входит в s)
 -- Сборка:  lab5\build.bat 22   (-> D:\PG_DLL\v22.dll)
--- Запуск:  ./h lr5 22 [каталог_dll]      s.bat lab5\v22_test.sql [каталог_dll]
+-- Запуск:  ./help lr5 22 [каталог_dll]      s.bat lab5\v22_test.sql [каталог_dll]
 -- =====================================================================
 \set ON_ERROR_STOP on
 \if :{?arg1} \else \set arg1 '' \endif

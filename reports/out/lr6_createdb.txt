@@ -1,4 +1,4 @@
-> ./h lr6 createdb
+> ./help lr6 createdb
 Changed database context to 'master'.
 name collation_name
 ---- --------------

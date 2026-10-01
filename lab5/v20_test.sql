@@ -3,7 +3,7 @@
 --   f1 = v20_floor(x double) -> int          (список 1, k1 = 5: floor)
 --   f2 = v20_alltrim(s varchar) -> varchar   (список 2, k2 = 6: ALLTRIM)
 -- Сборка:  lab5\build.bat 20   (-> D:\PG_DLL\v20.dll)
--- Запуск:  ./h lr5 20 [каталог_dll]      s.bat lab5\v20_test.sql [каталог_dll]
+-- Запуск:  ./help lr5 20 [каталог_dll]      s.bat lab5\v20_test.sql [каталог_dll]
 -- =====================================================================
 \set ON_ERROR_STOP on
 \if :{?arg1} \else \set arg1 '' \endif

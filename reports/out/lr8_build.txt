@@ -1,1 +1,1 @@
-> ./h lr8 build
+> ./help lr8 build

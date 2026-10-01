@@ -115,9 +115,10 @@ function Run-Pg([string]$file) {
     $env:PGDATABASE = $db
 }
 
-# командный файл Windows: путь в формате Windows, параметры как есть
+# командный файл Windows: полный путь в формате Windows (с относительным путём в кавычках
+# cmd неверно вычисляет %~dp0 после cd внутри .bat), параметры как есть
 function Bat([string]$file, [string[]]$params, [string]$Cp, [string]$Tee) {
-    $line = Q ($file -replace '/', '\')
+    $line = Q (Join-Path $Root ($file -replace '/', '\'))
     foreach ($a in $params) { $line += ' ' + (Q $a) }
     Invoke-Raw $line $null $Cp $Tee
 }

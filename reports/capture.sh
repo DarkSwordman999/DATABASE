@@ -1,18 +1,13 @@
 #!/bin/bash
 # Сбор реального вывода сценариев для отчётов: reports/out/*.txt
 # Запуск из корня проекта: bash reports/capture.sh [lr1|lr2|lr3|lr5|lr6|lr7 ...]
-# ЛР2 требует объёмной таблицы ПРОДАЖА (./h lr2 gen), ЛР1/ЛР6/ЛР7 - данных ЛР1 (./h lr2 restore)
+# ЛР2 требует объёмной таблицы ПРОДАЖА (./help lr2 gen), ЛР1/ЛР6/ЛР7 - данных ЛР1 (./help lr2 restore)
 cd "$(dirname "$0")/.." || exit 1
 O=${CAPTURE_OUT:-reports/out}
 mkdir -p "$O"
 
+# команды выполняются сценарием help (PowerShell: help.cmd -> helper/help.ps1)
 cap() {                 # cap <файл> <команда...>: вывод команды с строкой вызова
-    local f="$1"; shift
-    { echo "> ./h $*"; ./h "$@" 2>&1; } > "$O/$f.txt"
-    echo "  $f"
-}
-
-caph() {                # то же через сценарий help (PowerShell: help.cmd -> helper/help.ps1)
     local f="$1"; shift
     { echo "> ./help $*"
       powershell.exe -NoProfile -ExecutionPolicy Bypass -File helper/help.ps1 "$@" 2>&1
@@ -25,15 +20,15 @@ ARGS="$*"
 
 if [ -z "$ARGS" ] || want lr1; then
     echo "ЛР1"
-    caph lr1_counts counts
-    caph lr1_v20_1 v20 1
-    caph lr1_v20_1p v20 1 01.01.2021 31.12.2022 мебель
-    caph lr1_v20_2 v20 2
-    caph lr1_v20_2p v20 2 2019 2023 пт
-    caph lr1_v22_1 v22 1
-    caph lr1_v22_1p v22 1 01.01.2020 31.12.2020 "ООО Турман"
-    caph lr1_v22_2 v22 2
-    caph lr1_v22_2p v22 2 2018 2022 зима
+    cap lr1_counts counts
+    cap lr1_v20_1 v20 1
+    cap lr1_v20_1p v20 1 01.01.2021 31.12.2022 мебель
+    cap lr1_v20_2 v20 2
+    cap lr1_v20_2p v20 2 2019 2023 пт
+    cap lr1_v22_1 v22 1
+    cap lr1_v22_1p v22 1 01.01.2020 31.12.2020 "ООО Турман"
+    cap lr1_v22_2 v22 2
+    cap lr1_v22_2p v22 2 2018 2022 зима
 fi
 if [ -z "$ARGS" ] || want lr3; then
     echo "ЛР3"

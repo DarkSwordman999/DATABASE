@@ -1,7 +1,7 @@
 @ECHO OFF
 REM run_all.bat [20|22] - ЛР4 целиком: копирование базы BASE и восстановление (пп. 1-10 задания)
 REM Контрольные задачи - задания ЛР1 указанного варианта (по умолчанию 20) и подсчёт строк.
-REM Протокол: lab4\run_all.bat 20 > results\lr4_v20_protocol.txt   (или ./h lr4 all 20)
+REM Протокол: lab4\run_all.bat 20 > results\lr4_v20_protocol.txt   (или ./help lr4 all 20)
 CALL "%~dp0config.bat"
 SET "LR4_VARIANT=%~1"
 IF "%LR4_VARIANT%"=="" SET LR4_VARIANT=20

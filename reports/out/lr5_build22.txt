@@ -1,4 +1,4 @@
-> ./h lr5 build 22
+> ./help lr5 build 22
 v22_f1.c
 v22_f2.c
    Создается библиотека v22.lib и объект v22.exp

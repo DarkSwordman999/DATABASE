@@ -1,4 +1,4 @@
-> ./h lr6 copy
+> ./help lr6 copy
 КАТЕГОРИЯ
 Changed database context to 'SALES'.
 Changed database context to 'SALES'.

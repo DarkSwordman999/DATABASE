@@ -1,5 +1,5 @@
 -- ЛР2, этап 2а: время выполнения запроса (*) по CURRENT_TIME, 5 повторов
--- Запуск: ./h lr2 time 20|22     s.bat lab2\time_current.sql 20
+-- Запуск: ./help lr2 time 20|22     s.bat lab2\time_current.sql 20
 \set ON_ERROR_STOP on
 \set QUIET on
 \ir config.sql

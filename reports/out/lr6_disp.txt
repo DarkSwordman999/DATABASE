@@ -1,4 +1,4 @@
-> ./h lr6 disp
+> ./help lr6 disp
 Changed database context to 'SALES'.
 таблица строк
 ------- -----

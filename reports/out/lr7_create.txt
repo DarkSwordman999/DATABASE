@@ -1,4 +1,4 @@
-> ./h lr7 create
+> ./help lr7 create
 объект тип
 ------ ---
 f_дни SQL_INLINE_TABLE_VALUED_FUNCTION

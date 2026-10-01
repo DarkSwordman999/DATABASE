@@ -1,4 +1,4 @@
-> ./h lr5 build 20
+> ./help lr5 build 20
 v20_f1.c
 v20_f2.c
    Создается библиотека v20.lib и объект v20.exp

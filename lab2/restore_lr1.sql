@@ -1,5 +1,5 @@
 -- Восстановление исходных 1000 записей ПРОДАЖА (данные ЛР1)
--- Запуск: ./h lr2 restore
+-- Запуск: ./help lr2 restore
 \set ON_ERROR_STOP on
 SET datestyle TO 'ISO, DMY';
 TRUNCATE ПРОДАЖА;

@@ -1,6 +1,6 @@
 -- ЛР2, этап 3: загрузка таблицы-справочника варианта из DATA/SOURCE (аналог COPY_товар)
 -- (\copy не подставляет переменные psql, поэтому команда выбирается по варианту)
--- Запуск (из корня проекта): ./h lr2 copy 20|22      s.bat lab2\copy_ref.sql 20
+-- Запуск (из корня проекта): ./help lr2 copy 20|22      s.bat lab2\copy_ref.sql 20
 \set ON_ERROR_STOP on
 \set QUIET on
 \ir config.sql

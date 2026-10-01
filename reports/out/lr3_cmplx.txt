@@ -1,4 +1,4 @@
-> ./h lr3 cmplx
+> ./help lr3 cmplx
    row   
 ---------
  (1,2,3)
