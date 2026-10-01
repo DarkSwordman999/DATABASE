@@ -1,3 +1,4 @@
+ЛР4, вариант 20
 ===== 0. База BASE (base) из данных ЛР1
   таблица  | строк 
 -----------+-------
@@ -14,16 +15,16 @@
 (10 строк)
 
 ===== 1. Контрольные задачи в BASE: task0-01..03
-Задачи решены в базе base: task0-01, task0-02, task0-03
+Задачи варианта 20 решены в базе base: task0-01, task0-02, task0-03
 ===== 2. Выгрузка BASE утилитой pg_dump тремя способами
 base_save: 48741 байт
-base_rar.rar: 14674 байт
+base_rar.rar: 14672 байт
 base_rarM.part1.rar: 8192 байт
-base_rarM.part2.rar: 6647 байт
+base_rarM.part2.rar: 6644 байт
 ===== 3. CREATE DATABASE BASE2
 ===== 4. psql BASE2 < base_save
 ===== 5. Контрольные задачи в BASE2: task2-01..03, сравнение fc
-Задачи решены в базе base2: task2-01, task2-02, task2-03
+Задачи варианта 20 решены в базе base2: task2-01, task2-02, task2-03
 Comparing files task0-01 and TASK2-01
 FC: no differences encountered
 
@@ -48,7 +49,7 @@ stdin: 48741 байт
 ===== 8. CREATE DATABASE BASE
 ===== 9. psql BASE < stdin
 ===== 10. Контрольные задачи в восстановленной BASE: task3-01..03, сравнение fc
-Задачи решены в базе base: task3-01, task3-02, task3-03
+Задачи варианта 20 решены в базе base: task3-01, task3-02, task3-03
 Comparing files task0-01 and TASK3-01
 FC: no differences encountered
 
@@ -61,7 +62,7 @@ FC: no differences encountered
 task3-* совпадают с task0-*
 ===== Размеры файлов копий
 base_save  48741 байт
-base_rar.rar  14674 байт
+base_rar.rar  14672 байт
 base_rarM.part1.rar  8192 байт
-base_rarM.part2.rar  6647 байт
+base_rarM.part2.rar  6644 байт
 stdin  48741 байт

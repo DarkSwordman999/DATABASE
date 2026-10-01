@@ -96,7 +96,7 @@ if [ -z "$1" ]; then
     echo "  ./h lr3 22                - в.22: рациональное число (rational)"
     echo ""
     echo "================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ =================="
-    echo "  ./h lr4 all               - пп. 1-10 целиком -> results/lr4_protocol.txt"
+    echo "  ./h lr4 all [20|22]       - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt"
     echo "  ./h lr4 base              - создать базу BASE из данных ЛР1"
     echo "  ./h lr4 tasks N [база]    - контрольные задачи -> taskN-01..03"
     echo "  ./h lr4 dump1|dump2|dump3 - pg_dump в файл / rar / многотомный rar"
@@ -204,7 +204,8 @@ case "$1" in
     lr4)
         case "$2" in
             all)
-                bat lab4/run_all.bat 2>&1 | perl helper/fixenc.pl | tee results/lr4_protocol.txt
+                v=${3:-20}; need_variant "$v"
+                bat lab4/run_all.bat "$v" 2>&1 | perl helper/fixenc.pl | tee "results/lr4_v${v}_protocol.txt"
                 ;;
             base)  bat lab4/create_base.bat 2>&1 | perl helper/fixenc.pl ;;
             tasks)
