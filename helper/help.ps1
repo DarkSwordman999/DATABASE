@@ -161,6 +161,10 @@ if (-not $A[0]) {
   ./help all             - все 4 задания с параметрами по умолчанию
   ./help lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)
   ./help lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)
+  ./help srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы
+  ./help srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети
+  ./help srv all         - проверка и все 4 задания на сервере; ./help srv psql - консоль
+  (другой адрес/пользователь: $env:SRV_HOST, SRV_PORT, SRV_USER, SRV_PASS)
   Пример: ./help v20 1 01.01.2021 31.12.2022 мебель
 
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
@@ -254,6 +258,32 @@ switch ($A[0]) {
                 Bat 'lab1/s_lan.bat' @(($A[2] -replace '/', '\'), $A[3], $A[4], $A[5])
             }
             default  { Say 'ОШИБКА: ./help lr1 lan|client' }
+        }
+    }
+
+    # сервер преподавателя в сети PMII: те же сценарии ЛР1, подключение по IP
+    'srv' {
+        $env:PGHOST     = if ($env:SRV_HOST) { $env:SRV_HOST } else { '192.168.1.50' }
+        $env:PGPORT     = if ($env:SRV_PORT) { $env:SRV_PORT } else { '5432' }
+        $env:PGUSER     = if ($env:SRV_USER) { $env:SRV_USER } else { 'stud' }
+        $env:PGPASSWORD = if ($env:SRV_PASS) { $env:SRV_PASS } else { '12345' }
+        $env:PGDATABASE = 'sales'
+        $env:PGCONNECT_TIMEOUT = '10'
+        Say "Сервер: $($env:PGHOST):$($env:PGPORT), база $($env:PGDATABASE), пользователь $($env:PGUSER)"
+        switch ($A[1]) {
+            { $_ -in '', 'check' } { Run 'lab1/check_server.sql' }
+            { $_ -in 'v20', 'v22' } {
+                Need-Task $A[2]
+                Run "tasks/$($A[1])_task$($A[2]).sql" $A[3] $A[4] $A[5]
+            }
+            'all' {
+                Run 'lab1/check_server.sql'
+                foreach ($t in 'v20_task1', 'v20_task2', 'v22_task1', 'v22_task2') {
+                    Run "tasks/$t.sql"
+                }
+            }
+            'psql'  { & psql.exe }
+            default { Say 'ОШИБКА: ./help srv [check|all|psql|v20 N|v22 N [параметры]]' }
         }
     }
 

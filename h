@@ -72,6 +72,10 @@ if [ -z "$1" ]; then
     echo "  ./h all             - все 4 задания с параметрами по умолчанию"
     echo "  ./h lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)"
     echo "  ./h lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)"
+    echo "  ./h srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы"
+    echo "  ./h srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети"
+    echo "  ./h srv all         - проверка и все 4 задания на сервере; ./h srv psql - консоль"
+    echo "  (другой адрес/пользователь: SRV_HOST, SRV_PORT, SRV_USER, SRV_PASS)"
     echo "  Пример: ./h v20 1 01.01.2021 31.12.2022 мебель"
     echo ""
     echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN =================="
@@ -165,6 +169,32 @@ case "$1" in
                 bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
                 ;;
             *) echo "ОШИБКА: ./h lr1 lan|client" ;;
+        esac
+        ;;
+
+    # сервер преподавателя в сети PMII: те же сценарии ЛР1, подключение по IP
+    srv)
+        export PGHOST=${SRV_HOST:-192.168.1.50}
+        export PGPORT=${SRV_PORT:-5432}
+        export PGUSER=${SRV_USER:-stud}
+        export PGPASSWORD=${SRV_PASS:-12345}
+        export PGDATABASE=sales
+        export PGCONNECT_TIMEOUT=10
+        echo "Сервер: $PGHOST:$PGPORT, база $PGDATABASE, пользователь $PGUSER"
+        case "$2" in
+            ""|check) run lab1/check_server.sql ;;
+            v20|v22)
+                need_task "$3"
+                run "tasks/$2_task$3.sql" "$4" "$5" "$6"
+                ;;
+            all)
+                run lab1/check_server.sql
+                for t in v20_task1 v20_task2 v22_task1 v22_task2; do
+                    run "tasks/$t.sql"
+                done
+                ;;
+            psql) psql ;;
+            *) echo "ОШИБКА: ./h srv [check|all|psql|v20 N|v22 N [параметры]]" ;;
         esac
         ;;
 
