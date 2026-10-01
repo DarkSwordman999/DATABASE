@@ -3,7 +3,7 @@
 # Запуск из корня проекта: bash reports/capture.sh [lr1|lr2|lr3|lr5|lr6|lr7 ...]
 # ЛР2 требует объёмной таблицы ПРОДАЖА (./h lr2 gen), ЛР1/ЛР6/ЛР7 - данных ЛР1 (./h lr2 restore)
 cd "$(dirname "$0")/.." || exit 1
-O=reports/out
+O=${CAPTURE_OUT:-reports/out}
 mkdir -p "$O"
 
 cap() {                 # cap <файл> <команда...>: вывод команды с строкой вызова
