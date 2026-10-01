@@ -10,6 +10,8 @@ SET PGUSER=postgres
 SET PGDATABASE=sales
 SET PGCLIENTENCODING=UTF8
 SET "PATH=C:\Windows\System32;%~dp0bin"
+REM запуск из репозитория (без подкаталога bin) - psql установленного PostgreSQL
+IF NOT EXIST "%~dp0bin\psql.exe" SET "PATH=C:\Windows\System32;C:\Program Files\PostgreSQL\18\bin"
 SET "SCRIPT=%~1"
 SET "SCRIPT=%SCRIPT:\=/%"
 (ECHO \set arg1 '%~2'& ECHO \set arg2 '%~3'& ECHO \set arg3 '%~4'& ECHO \i '%SCRIPT%') | psql.exe -q -P "null=<null>" -P pager=off -f -
