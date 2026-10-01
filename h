@@ -70,6 +70,8 @@ if [ -z "$1" ]; then
     echo "  ./h v22 1 [дата1 дата2 [поставщик]]  - в.22: выручка по поставщику и декаде"
     echo "  ./h v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу"
     echo "  ./h all             - все 4 задания с параметрами по умолчанию"
+    echo "  ./h lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)"
+    echo "  ./h lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)"
     echo "  Пример: ./h v20 1 01.01.2021 31.12.2022 мебель"
     echo ""
     echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN =================="
@@ -125,6 +127,7 @@ if [ -z "$1" ]; then
     echo "  ./h lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде"
     echo ""
     echo "================== ПРОЧЕЕ =================="
+    echo "  ./h reports [N ...]       - пересобрать отчёты .docx (reports/docx)"
     echo "  ./h psql                  - консоль psql (база sales)"
     echo "  ./h файл.sql [a1 [a2 [a3]]] - выполнить любой psql-сценарий с параметрами"
     exit 1
@@ -152,6 +155,17 @@ case "$1" in
         for t in v20_task1 v20_task2 v22_task1 v22_task2; do
             run "tasks/$t.sql"
         done
+        ;;
+
+    lr1)
+        case "$2" in
+            lan)    powershell -ExecutionPolicy Bypass -File lab1/setup_lan.ps1 ;;
+            client)
+                if [ -z "$3" ]; then echo "Использование: ./h lr1 client сценарий [a1 a2 a3]"; exit 1; fi
+                bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
+                ;;
+            *) echo "ОШИБКА: ./h lr1 lan|client" ;;
+        esac
         ;;
 
     # ------------------------------ ЛР2 ------------------------------
@@ -254,6 +268,7 @@ case "$1" in
         esac
         ;;
 
+    reports) shift; (cd reports && python make_reports.py "$@") ;;
     psql) psql -X ;;
     *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)" ;;
 esac
