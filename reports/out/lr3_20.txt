@@ -119,8 +119,8 @@ psql:lab3/v20_vector3.sql:88: ОШИБКА:  значение домена vecto
  оператор |      левый       |      правый      |    результат     |    функция    
 ----------+------------------+------------------+------------------+---------------
  *        | double precision | vector3          | vector3          | public.v3_mul
- *        | vector3          | vector3          | double precision | v3_dot
  *        | vector3          | double precision | vector3          | public.v3_mul
+ *        | vector3          | vector3          | double precision | v3_dot
  +        | vector3          | vector3          | vector3          | v3_add
  -        | -                | vector3          | vector3          | v3_inv
  -        | vector3          | vector3          | vector3          | v3_sub
