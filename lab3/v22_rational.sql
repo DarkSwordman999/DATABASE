@@ -167,7 +167,7 @@ CREATE OPERATOR > (leftarg = rational, rightarg = rational, procedure = rat_gt, 
 -- операторы, определённые для домена rational
 SELECT oprname AS "оператор", oprleft::regtype AS "левый", oprright::regtype AS "правый",
        oprresult::regtype AS "результат", oprcode AS "функция"
-  FROM pg_operator WHERE 'rational'::regtype IN (oprleft, oprright) ORDER BY oprname, oprleft;
+  FROM pg_operator WHERE 'rational'::regtype IN (oprleft, oprright) ORDER BY oprname, oprleft, oprright;
 
 -- ---------------------------------------------------------------------
 -- 5) тип и домен во временной таблице
