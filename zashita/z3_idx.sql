@@ -7,7 +7,7 @@
 \ir config.sql
 \ir drop_all.sql
 \set QUIET off
-\echo '=== Вариант' :variant ', задание 3: создание индексов ==='
+\echo '=== Вариант' :variant', задание 3: создание индексов ==='
 \timing on
 CREATE INDEX zas_продажа_товар ON ПРОДАЖА USING btree (товар);
 CREATE INDEX zas_товар_код ON ТОВАР USING hash (код);
@@ -30,22 +30,19 @@ ANALYZE КАТЕГОРИЯ;
 \set QUIET off
 \ir indexes.sql
 \set QUIET on
+DROP TABLE IF EXISTS zas_время;
 CREATE TEMP TABLE zas_время (№ serial, ms numeric);
 \set QUIET off
 \if :is_v20
 \echo '--- выполнение запроса с индексами: 1 раз (\\timing on и clock_timestamp()) ---'
-\timing on
 \ir time_run.sql
-\timing off
 \else
 \echo '--- 5 выполнений запроса с индексами (\\timing on и clock_timestamp()) ---'
-\timing on
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
-\timing off
 \endif
 \ir time_table.sql
 \echo '--- EXPLAIN ANALYZE (один раз) ---'

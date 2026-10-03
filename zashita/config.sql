@@ -6,6 +6,7 @@
 SELECT CASE WHEN :'arg1' IN ('20', '22') THEN :'arg1' ELSE '20' END AS variant \gset
 SELECT :'variant' = '20' AS is_v20 \gset
 \set explain ''
+SET client_min_messages TO warning;
 \if :is_v20
     -- в.20: таблицы ПРОДАЖА, ТОВАР, ПОСТАВЩИК; в п. 3 запрос выполняется один раз
     SELECT coalesce(nullif(:'arg2', ''), 'ООО Турман') AS p1,
