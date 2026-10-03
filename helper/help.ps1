@@ -92,14 +92,16 @@ function Q([string]$a) { '"' + $a + '"' }
 # psql-сценарий с параметрами arg1..arg3 (как s.bat): параметры передаются через stdin
 # командами \set, т.к. psql под Windows получает argv в CP1251 и кириллица в -v ломается.
 # Служебные сообщения psql приходят в CP1251 и приводятся к UTF-8 (Fix-Line).
-function Run([string]$file, [string]$a1, [string]$a2, [string]$a3, [switch]$Quiet) {
+function Run([string]$file, [string]$a1, [string]$a2, [string]$a3, [string]$a4, [string]$a5,
+             [switch]$Quiet) {
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) {
         Say "ОШИБКА: Файл $file не найден"
         exit 1
     }
+    if (-not $Quiet) { Say ">>> Файл: $file" }
     $text = ''
     $i = 1
-    foreach ($a in @($a1, $a2, $a3)) {
+    foreach ($a in @($a1, $a2, $a3, $a4, $a5)) {
         $text += "\set arg$i '" + ($a -replace "'", "''") + "'`n"
         $i++
     }
@@ -109,6 +111,7 @@ function Run([string]$file, [string]$a1, [string]$a2, [string]$a3, [switch]$Quie
 
 # psql-сценарий в системной базе postgres (как s1.bat)
 function Run-Pg([string]$file) {
+    Say ">>> Файл: $file (база postgres)"
     $db = $env:PGDATABASE
     $env:PGDATABASE = 'postgres'
     Invoke-Raw ('psql.exe -q -X -P pager=off -f ' + (Q $file)) $null 'cp1251'
@@ -118,6 +121,7 @@ function Run-Pg([string]$file) {
 # командный файл Windows: полный путь в формате Windows (с относительным путём в кавычках
 # cmd неверно вычисляет %~dp0 после cd внутри .bat), параметры как есть
 function Bat([string]$file, [string[]]$params, [string]$Cp, [string]$Tee) {
+    Say ">>> Файл: $file"
     $line = Q (Join-Path $Root ($file -replace '/', '\'))
     foreach ($a in $params) { $line += ' ' + (Q $a) }
     Invoke-Raw $line $null $Cp $Tee
@@ -142,6 +146,27 @@ function Show-Text([string]$file) {
     $StdOut.Write($b, 0, $b.Length)
 }
 
+# команды-аналоги TAXI-db: таблица helper/menu.txt (код|файл|параметры|обязательных|описание)
+$MenuFile = 'helper/menu.txt'
+function Read-Menu {
+    [IO.File]::ReadAllLines((Join-Path $Root $MenuFile), $Utf8) |
+        Where-Object { $_ -and -not $_.StartsWith('#') }
+}
+
+function Show-Menu {
+    foreach ($l in Read-Menu) {
+        if ($l.StartsWith('== ')) {
+            Say ''
+            Say ('================== БАЗА SALES: ' + $l.Substring(3) + ' ==================')
+            continue
+        }
+        $f = $l.Split('|')
+        $cmd = "./help $($f[0])"
+        if ($f[2]) { $cmd += " $($f[2])" }
+        Say ('  {0,-36} - {1}  [{2}]' -f $cmd, $f[4], $f[1])
+    }
+}
+
 $Argv = @($args)
 $A = $Argv + @('', '', '', '', '', '', '', '') | ForEach-Object { [string]$_ }
 
@@ -150,85 +175,106 @@ if (-not $A[0]) {
 =============================================
   ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22
 =============================================
+  В [] - файл, который выполняет команда; при запуске он выводится строкой ">>> Файл: ...".
+  Обработчик каждой команды - helper/help.ps1 (switch, ветвь с именем команды).
 
 ================== ЛР1: БАЗА И ЗАДАНИЯ ==================
-  ./help db              - создать БД sales, таблицы и загрузить данные
-  ./help counts          - количество строк в таблицах
-  ./help v20 1 [дата1 дата2 [категория]]  - в.20: объём поставок по категории и кварталу
-  ./help v20 2 [год1 год2 [день недели]]  - в.20: продажи (шт) по дню недели и району
-  ./help v22 1 [дата1 дата2 [поставщик]]  - в.22: выручка по поставщику и декаде
-  ./help v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу
-  ./help all             - все 4 задания с параметрами по умолчанию
-  ./help lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)
-  ./help lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)
-  ./help srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы
-  ./help srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети
+  ./help db              - создать БД sales, таблицы и загрузить данные  [DATA/create_DB, DATA/create_tables, DATA/load_data]
+  ./help counts          - количество строк в таблицах  [helper/counts.sql]
+  ./help v20 1 [дата1 дата2 [категория]]  - в.20: объём поставок по категории и кварталу  [tasks/v20_task1.sql]
+  ./help v20 2 [год1 год2 [день недели]]  - в.20: продажи (шт) по дню недели и району  [tasks/v20_task2.sql]
+  ./help v22 1 [дата1 дата2 [поставщик]]  - в.22: выручка по поставщику и декаде  [tasks/v22_task1.sql]
+  ./help v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу  [tasks/v22_task2.sql]
+  ./help all             - все 4 задания с параметрами по умолчанию  [tasks/*.sql]
+  ./help lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lab1/setup_lan.ps1]
+  ./help lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)  [lab1/s_lan.bat]
+  ./help srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы  [lab1/check_server.sql]
+  ./help srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]
   ./help srv all         - проверка и все 4 задания на сервере; ./help srv psql - консоль
   (другой адрес/пользователь: $env:SRV_HOST, SRV_PORT, SRV_USER, SRV_PASS)
   Пример: ./help v20 1 01.01.2021 31.12.2022 мебель
 
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
-  ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)
-  ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1
-  ./help lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)
-  ./help lr2 time 20|22        - время запроса (*) по CURRENT_TIME, 5 замеров
-  ./help lr2 timing 20|22      - время запроса (*) по \timing on, 5 замеров
-  ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника
-  ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке
-  ./help lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке
-  ./help lr2 pk1 20|22         - справочник с PRIMARY KEY (create_ref0)
-  ./help lr2 pk0 20|22         - справочник без PRIMARY KEY (create_ref1)
-  ./help lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE
-  ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)
-  ./help lr2 measure 20|22 [прогонов] - протокол замеров -> results/lr2_vNN_results.txt
-  ./help lr2 results 20|22     - показать протокол замеров
+  ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]
+  ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]
+  ./help lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]
+  ./help lr2 time 20|22        - время запроса (*) по CURRENT_TIME, 5 замеров  [lab2/time_current.sql]
+  ./help lr2 timing 20|22      - время запроса (*) по \timing on, 5 замеров  [lab2/time_timing.sql]
+  ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]
+  ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке  [lab2/idx_1.sql]
+  ./help lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке  [lab2/idx_0.sql]
+  ./help lr2 pk1 20|22         - справочник с PRIMARY KEY  [lab2/create_ref0.sql]
+  ./help lr2 pk0 20|22         - справочник без PRIMARY KEY  [lab2/create_ref1.sql]
+  ./help lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [lab2/copy_ref.sql]
+  ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql]
+  ./help lr2 measure 20|22 [прогонов] - протокол замеров -> results/lr2_vNN_results.txt  [lab2/measure.sql]
+  ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
+  (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
 
 ================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ ==================
-  ./help lr3 cmplx             - пример преподавателя (complex)
-  ./help lr3 20                - в.20: трёхмерный вектор (vector3)
-  ./help lr3 22                - в.22: рациональное число (rational)
+  ./help lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]
+  ./help lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]
+  ./help lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]
 
 ================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ ==================
-  ./help lr4 all [20|22]       - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt
-  ./help lr4 base              - создать базу BASE из данных ЛР1
-  ./help lr4 tasks N [база]    - контрольные задачи -> taskN-01..03
-  ./help lr4 dump1|dump2|dump3 - pg_dump в файл / rar / многотомный rar
+  ./help lr4 all [20|22]       - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]
+  ./help lr4 base              - создать базу BASE из данных ЛР1  [lab4/create_base.bat]
+  ./help lr4 tasks N [база]    - контрольные задачи -> taskN-01..03  [lab4/tasks.bat]
+  ./help lr4 dump1|dump2|dump3 - pg_dump в файл / rar / многотомный rar  [lab4/dump-1.bat, dump-2.bat, dump-3.bat]
   (каталог копий: lab4/work или $env:LR4_WORK='D:/LR4_WORK'; ./help lr4 all)
 
 ================== ЛР5: ФУНКЦИИ НА C ==================
-  ./help lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\PG_DLL)
-  ./help lr5 20|22 [каталог]   - регистрация функций и демонстрация на таблице T
+  ./help lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\PG_DLL)  [lab5/build.bat]
+  ./help lr5 20|22 [каталог]   - регистрация функций и демонстрация на таблице T  [lab5/vNN_test.sql]
 
 ================== ЛР6: КОПИРОВАНИЕ В MS SQL SERVER ==================
-  ./help lr6 setup             - проверка сервера (база NEW1, таблица temp1)
-  ./help lr6 sel2              - собрать фильтр sel2.exe
-  ./help lr6 createdb          - создать базу SALES в MS SQL Server
-  ./help lr6 copy              - скопировать все таблицы sales из PostgreSQL
-  ./help lr6 disp              - проверить скопированные таблицы
-  ./help lr6 v20|v22 1|2 [параметры] - задания варианта в MS SQL Server
-  ./help lr6 console           - консоль sqlcmd
+  ./help lr6 setup             - проверка сервера (база NEW1, таблица temp1)  [lab6/s_TCP.bat + lab6/SETUP/*]
+  ./help lr6 sel2              - собрать фильтр sel2.exe  [lab6/COPY/make_sel2.bat]
+  ./help lr6 createdb          - создать базу SALES в MS SQL Server  [lab6/COPY/create_DB]
+  ./help lr6 copy              - скопировать все таблицы sales из PostgreSQL  [lab6/COPY/copy_to_MS_SQL.bat]
+  ./help lr6 disp              - проверить скопированные таблицы  [lab6/COPY/disp.bat]
+  ./help lr6 v20|v22 1|2 [параметры] - задания варианта в MS SQL Server  [lab6/tasks/vNN_taskN.sql]
+  ./help lr6 console           - консоль sqlcmd  [lab6/s0.bat]
 
 ================== ЛР7: ПРЕДСТАВЛЕНИЯ И ФУНКЦИИ MS SQL SERVER ==================
-  ./help lr7 create            - создать представления и функции
-  ./help lr7 1 [D1 D2 P M [N]] - премия сотрудников (N - имя сотрудника)
-  ./help lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)
+  ./help lr7 create            - создать представления и функции  [lab7/create_objects.sql]
+  ./help lr7 1 [D1 D2 P M [N]] - премия сотрудников (N - имя сотрудника)  [lab7/calculate1.sql]
+  ./help lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)  [lab7/calculate2.sql]
   Пример: ./help lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван
 
 ================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER ==================
-  ./help lr8 build             - компиляция программы C# варианта 20
-  ./help lr8 20 [D1 D2 [категория]] - в.20 (C#): продажи (шт) по категории и кварталу
-  ./help lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде
+  ./help lr8 build             - компиляция программы C# варианта 20  [lab8/v20/cs.bat]
+  ./help lr8 20 [D1 D2 [категория]] - в.20 (C#): продажи (шт) по категории и кварталу  [lab8/v20/run.bat]
+  ./help lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде  [lab8/v22/run.bat]
+'@
+    Show-Menu
+    Say @'
 
-================== ПРОЧЕЕ ==================
-  ./help reports [N ...]       - пересобрать отчёты .docx (reports/docx)
+================== ЗАПУСК SQL-ФАЙЛОВ ==================
+  ./help файл.sql [a1 .. a5]   - выполнить любой psql-сценарий с параметрами arg1..arg5
   ./help psql                  - консоль psql (база sales)
-  ./help файл.sql [a1 [a2 [a3]]] - выполнить любой psql-сценарий с параметрами
+  ./help reports [N ...]       - пересобрать отчёты .docx  [reports/make_reports.py]
 '@
     exit 1
 }
 
 if ($A[0] -like '*.sql') {
-    Run $A[0] $A[1] $A[2] $A[3]
+    Run $A[0] $A[1] $A[2] $A[3] $A[4] $A[5]
+    exit 0
+}
+
+# команды-аналоги TAXI-db (./help 01 ... ./help 204): файл и параметры - из helper/menu.txt
+$hit = Read-Menu | Where-Object { -not $_.StartsWith('== ') -and $_.Split('|')[0] -eq $A[0] } |
+       Select-Object -First 1
+if ($hit) {
+    $f = $hit.Split('|')
+    $given = @($A[1..5] | Where-Object { $_ }).Count
+    if ($given -lt [int]$f[3]) {
+        Say "Использование: ./help $($f[0]) $($f[2])   ($($f[4]))"
+        exit 1
+    }
+    Say ">>> ./help $($f[0]) - $($f[4])"
+    Run $f[1] $A[1] $A[2] $A[3] $A[4] $A[5]
     exit 0
 }
 
