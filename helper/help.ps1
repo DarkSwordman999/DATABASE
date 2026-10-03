@@ -197,28 +197,47 @@ if (-not $A[0]) {
 
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
   ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]
+                                         пример: ./help lr2 gen 2000000
   ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]
   ./help lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]
+                                         пример: ./help lr2 tbs D:/PG_TBS
   ./help lr2 time 20|22        - время запроса (*) по CURRENT_TIME, 5 замеров  [lab2/time_current.sql]
+                                         пример: ./help lr2 time 20
   ./help lr2 timing 20|22      - время запроса (*) по \timing on, 5 замеров  [lab2/time_timing.sql]
+                                         пример: ./help lr2 timing 22
   ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]
+                                         пример: ./help lr2 idx 20
   ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке  [lab2/idx_1.sql]
+                                         пример: ./help lr2 idx1 22 hash
   ./help lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке  [lab2/idx_0.sql]
+                                         пример: ./help lr2 idx0 22
   ./help lr2 pk1 20|22         - справочник с PRIMARY KEY  [lab2/create_ref0.sql]
+                                         пример: ./help lr2 pk1 20
   ./help lr2 pk0 20|22         - справочник без PRIMARY KEY  [lab2/create_ref1.sql]
+                                         пример: ./help lr2 pk0 20
   ./help lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [lab2/copy_ref.sql]
+                                         пример: ./help lr2 copy 22
   ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql]
+                                         пример: ./help lr2 explain 20 1
   ./help lr2 measure 20|22 [прогонов] - протокол замеров -> results/lr2_vNN_results.txt  [lab2/measure.sql]
+                                         пример: ./help lr2 measure 22 3
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
+                                         пример: ./help lr2 results 20
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
 
 ================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
   ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql]
+                                         пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
   ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql]
+                                         пример: ./help zas 22 all мебель
   ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, zashita/vNN_query.sql]
-  ./help zas 20|22 2 [параметры]   - 2) без индексов (никаких): 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql]
+                                         пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"
+  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql]
+                                         пример: ./help zas 22 2 мебель
   ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql]
+                                         пример: ./help zas 22 3 мебель
   ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
+                                         пример: ./help zas 22 idx
   ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
 

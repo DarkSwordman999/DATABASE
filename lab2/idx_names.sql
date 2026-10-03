@@ -1,6 +1,7 @@
 -- ЛР2, этап 3: индексы таблицы ПРОДАЖА и таблицы-справочника варианта (аналог idx_names)
 -- Показывает как созданные пользователем индексы, так и автоматические (для PRIMARY KEY)
 -- Запуск: ./help lr2 idx 20|22      s.bat lab2\idx_names.sql 20
+-- Пример: ./help lr2 idx 20
 \set QUIET on
 \ir config.sql
 \set QUIET off

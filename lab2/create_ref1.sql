@@ -1,6 +1,7 @@
 -- ЛР2, этап 3: таблица-справочник варианта БЕЗ ключевого поля (нет PRIMARY KEY => нет индекса)
 -- Аналог create_товар1. После пересоздания таблица заново заполняется (copy_ref.sql).
 -- Запуск: ./help lr2 pk0 20|22      s.bat lab2\create_ref1.sql 20
+-- Пример: ./help lr2 pk0 22
 \set ON_ERROR_STOP on
 \set QUIET on
 \ir config.sql

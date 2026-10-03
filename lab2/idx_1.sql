@@ -1,6 +1,7 @@
 -- ЛР2, этап 3: индекс в ПРОДАЖА по полю-ссылке на таблицу-справочник варианта (аналог idx_1)
 -- arg1 - вариант (20|22), arg2 - тип индекса (btree|hash, по умолчанию btree)
 -- Запуск: ./help lr2 idx1 20 hash      s.bat lab2\idx_1.sql 20 hash
+-- Пример: ./help lr2 idx1 22 btree
 \set ON_ERROR_STOP on
 \set QUIET on
 \ir config.sql
