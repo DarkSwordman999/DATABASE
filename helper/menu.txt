@@ -1,0 +1,76 @@
+# Команды-аналоги TAXI-db для базы SALES: ./help <код> [параметры] и ./h <код> [параметры]
+# Формат строки: код|файл сценария psql|параметры (для справки)|число обязательных параметров|описание
+# Строка "== заголовок" начинает раздел справки. Параметры передаются в сценарий как arg1..arg5.
+== ПРОСМОТР ДАННЫХ
+01|helper/01_show_goods.sql||0|все товары (категория, поставщик)
+02|helper/02_show_managers.sql||0|все сотрудники (смены, последний магазин)
+03|helper/03_show_clients.sql||0|клиенты, первые 10
+04|helper/04_show_sales_count.sql||0|количество продаж и поставок
+05|helper/05_show_sales_sample.sql||0|10 последних продаж
+06|helper/06_show_all_clients.sql||0|все клиенты, полный список
+16|helper/16_show_table_structure.sql||0|структура таблиц
+== ДЕМОНСТРАЦИЯ JOIN
+07|helper/07_demo_inner_join.sql||0|INNER JOIN: продажа + товар + магазин + клиент
+08|helper/08_demo_left_join.sql||0|LEFT JOIN: товары и число продаж
+09|helper/09_demo_right_join.sql||0|RIGHT JOIN: клиенты и число покупок
+10|helper/10_demo_full_join.sql||0|FULL JOIN: районы и поставщики
+11|helper/11_demo_cross_join.sql||0|CROSS JOIN: магазины x категории
+12|helper/12_demo_self_join.sql||0|SELF JOIN: пары товаров одной категории
+== ПОКАЗАТЬ ДО/ПОСЛЕ
+60|helper/60_before_update.sql||0|ДО UPDATE
+61|helper/61_do_update.sql||0|ВЫПОЛНИТЬ UPDATE (цена товара 1, имя сотрудника 1)
+62|helper/62_after_update.sql||0|ПОСЛЕ UPDATE
+63|helper/63_before_delete.sql||0|ДО DELETE
+64|helper/64_do_delete.sql||0|ВЫПОЛНИТЬ DELETE (клиент 23 и его продажи)
+65|helper/65_after_delete.sql||0|ПОСЛЕ DELETE
+66|helper/66_restore_demo.sql||0|вернуть исходные значения после 61 и 64
+== АНАЛИТИКА
+17|helper/17_top_10_goods_by_revenue.sql||0|топ-10 товаров по выручке
+18|helper/18_top_10_managers_by_revenue.sql||0|топ-10 сотрудников по выручке магазинов
+19|helper/19_revenue_by_month.sql||0|выручка по месяцам
+20|helper/20_average_receipt.sql||0|средний чек
+21|helper/21_sales_by_hour.sql||0|продажи по часам
+22|helper/22_stats_by_category.sql||0|статистика по категориям
+23|helper/23_managers_workload.sql||0|загруженность сотрудников
+24|helper/24_avg_price_by_category.sql||0|средние цены по категориям
+25|helper/25_revenue_by_weekday.sql||0|выручка по дням недели
+26|helper/26_top_5_clients.sql||0|топ-5 клиентов
+27|helper/27_avg_quantity_by_category.sql||0|среднее количество в продаже по категориям
+28|helper/28_sales_share_by_hour.sql||0|распределение продаж по часам, %
+29|helper/29_avg_receipt_by_hour.sql||0|средний чек по часам
+30|helper/30_revenue_by_provider.sql||0|выручка по поставщикам с районом
+== ЗАПРОСЫ С ПАРАМЕТРАМИ
+31|queries/select/31_goods_by_category.sql|категория|1|товары категории (./help 31 мебель)
+32|queries/select/32_manager_info.sql|код|1|информация о сотруднике и его сменах
+33|queries/select/33_goods_sales_history.sql|код|1|история продаж товара
+34|queries/select/34_sales_above_sum.sql|сумма|1|продажи дороже суммы
+35|queries/select/35_shops_above_revenue.sql|сумма|1|магазины с выручкой выше суммы
+40|queries/update/40_update_goods_price.sql|код цена|2|изменить розничную цену товара
+41|queries/update/41_update_manager_name.sql|код имя|2|изменить имя сотрудника
+42|queries/delete/42_delete_client.sql|код|1|удалить клиента и его продажи
+43|queries/insert/43_insert_goods.sql|наименование категория цена|3|добавить товар
+44|queries/insert/44_insert_client.sql|фамилия имя [район]|2|добавить клиента
+45|queries/update/45_update_goods_category.sql|код категория|2|изменить категорию товара
+46|queries/update/46_update_goods_provider.sql|код поставщик|2|изменить поставщика товара
+== ПРЕДСТАВЛЕНИЯ
+100|queries/views/01_create_sales_view.sql||0|создать пользовательское представление V_ПРОДАЖИ
+101|queries/views/02_create_sales_tech.sql||0|создать технологическое представление V_ПРОДАЖИ_ТЕХ
+102|queries/views/03_check_views.sql||0|проверить представления
+== ПОДЗАПРОСЫ
+110|queries/subqueries/01_price_deviation.sql||0|1.1 отклонение суммы продажи от средней
+111|queries/subqueries/02_goods_rating.sql||0|1.2 рейтинг товаров
+112|queries/subqueries/03_sales_above_avg.sql||0|2.1 продажи дороже средней по категории
+113|queries/subqueries/04_category_stats.sql||0|2.2 статистика по категориям
+114|queries/subqueries/05_top_goods_lateral.sql||0|3.1 топ-3 товара в каждом магазине (LATERAL)
+115|queries/subqueries/06_sales_above_avg_param.sql|фамилия|1|4.1 покупки клиента дороже его средней
+116|queries/subqueries/07_good_clients_exists.sql||0|4.2 клиенты без мелких покупок (NOT EXISTS)
+117|queries/subqueries/08_best_shops_all.sql||0|4.3 лучший магазин (>= ALL)
+118|control/inserts/add_expensive_sales.sql||0|добавить дорогие продажи (для теста 4.2, 4.3)
+119|control/delete/del_expensive_sales.sql||0|удалить продажи, добавленные 118
+199|queries/subqueries/09_run_all.sql||0|выполнить все задачи с подзапросами
+== ФУНКЦИИ
+200|queries/functions/00_create_all.sql||0|создать все функции
+201|queries/functions/11_call_task1.sql|[порог]|0|shops_above_revenue(порог): магазины с выручкой выше порога
+202|queries/functions/12_call_task2.sql||0|revenue_by_category_and_season(): выручка по категориям и сезонам
+203|queries/functions/13_call_task3.sql||0|display_pivot_table(): сводная таблица магазины x категории
+204|queries/functions/04_run_all.sql||0|создать функции и выполнить задачи 1-3
