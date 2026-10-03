@@ -55,9 +55,9 @@ need_variant() {
 
 # команды-аналоги TAXI-db: таблица helper/menu.txt (код|файл|параметры|обязательных|описание)
 show_menu() {
-    local code file params req desc cmd pad
+    local code file params req desc ex cmd pad
     local LC_ALL=C.UTF-8     # длина строки ${#cmd} - в символах, а не в байтах
-    while IFS='|' read -r code file params req desc; do
+    while IFS='|' read -r code file params req desc ex; do
         case "$code" in
             ''|'#'*) continue ;;
             '== '*) echo ""; echo "================== БАЗА SALES: ${code#== } =================="; continue ;;
@@ -65,6 +65,7 @@ show_menu() {
         cmd="./h $code${params:+ $params}"
         pad=$((36 - ${#cmd})); [ $pad -lt 0 ] && pad=0
         printf '  %s%*s - %s  [%s]\n' "$cmd" $pad '' "$desc" "$file"
+        [ -n "$ex" ] && printf '  %36s   пример: ./h %s %s\n' '' "$code" "$ex"
     done < helper/menu.txt
 }
 
@@ -177,12 +178,13 @@ fi
 
 # команды-аналоги TAXI-db (./h 01 ... ./h 204): файл и параметры - из helper/menu.txt
 if [[ "$1" =~ ^[0-9]+$ ]] && line=$(grep -m1 "^$1|" helper/menu.txt); then
-    IFS='|' read -r code file params req desc <<< "$line"
+    IFS='|' read -r code file params req desc ex <<< "$line"
     shift
     given=0
     for a in "$@"; do [ -n "$a" ] && given=$((given + 1)); done
     if [ "$given" -lt "$req" ]; then
         echo "Использование: ./h $code $params   ($desc)"
+        [ -n "$ex" ] && echo "Пример:        ./h $code $ex"
         exit 1
     fi
     echo ">>> ./h $code - $desc"

@@ -164,6 +164,7 @@ function Show-Menu {
         $cmd = "./help $($f[0])"
         if ($f[2]) { $cmd += " $($f[2])" }
         Say ('  {0,-36} - {1}  [{2}]' -f $cmd, $f[4], $f[1])
+        if ($f.Count -gt 5 -and $f[5]) { Say ('  {0,-36}   пример: ./help {1} {2}' -f '', $f[0], $f[5]) }
     }
 }
 
@@ -281,6 +282,7 @@ if ($hit) {
     $given = @($A[1..5] | Where-Object { $_ }).Count
     if ($given -lt [int]$f[3]) {
         Say "Использование: ./help $($f[0]) $($f[2])   ($($f[4]))"
+        if ($f.Count -gt 5 -and $f[5]) { Say "Пример:        ./help $($f[0]) $($f[5])" }
         exit 1
     }
     Say ">>> ./help $($f[0]) - $($f[4])"
