@@ -40,7 +40,7 @@
 29|helper/29_avg_receipt_by_hour.sql||0|средний чек по часам
 30|helper/30_revenue_by_provider.sql||0|выручка по поставщикам с районом
 == ЗАПРОСЫ С ПАРАМЕТРАМИ
-31|queries/select/31_goods_by_category.sql|категория|1|товары категории (./help 31 мебель)
+31|queries/select/31_goods_by_category.sql|категория|1|товары категории (мебель, одежда)
 32|queries/select/32_manager_info.sql|код|1|информация о сотруднике и его сменах
 33|queries/select/33_goods_sales_history.sql|код|1|история продаж товара
 34|queries/select/34_sales_above_sum.sql|сумма|1|продажи дороже суммы

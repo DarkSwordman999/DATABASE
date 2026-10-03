@@ -3,5 +3,5 @@
 \set QUIET on
 \ir config.sql
 \set QUIET off
-\echo '=== Вариант' :variant ': индексы таблиц' :tbls '==='
+\echo '=== Вариант' :variant': индексы таблиц' :tbls '==='
 \ir indexes.sql
