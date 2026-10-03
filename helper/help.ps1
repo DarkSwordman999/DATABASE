@@ -211,6 +211,16 @@ if (-not $A[0]) {
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
 
+================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
+  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql]
+  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql]
+  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, zashita/vNN_query.sql]
+  ./help zas 20|22 2 [параметры]   - 2) без индексов (никаких): 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql]
+  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql]
+  ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
+  ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
+  (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
+
 ================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ ==================
   ./help lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]
   ./help lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]
@@ -442,6 +452,29 @@ switch ($A[0]) {
         Pop-Location
     }
     'psql'  { & psql.exe -X }
+
+    # защита ЛР2: запрос варианта без индексов и с индексами (zashita/*.sql)
+    'zas' {
+        if ($A[1] -eq 'restore') { Run 'zashita/restore.sql' }
+        else {
+            Need-Variant $A[1]
+            $step = if ($A[2]) { $A[2] } else { 'all' }
+            $file = @{ 'all' = 'zashita/z_all.sql'; '1' = 'zashita/z1_query.sql'
+                       '2' = 'zashita/z2_noidx.sql'; '3' = 'zashita/z3_idx.sql' }[$step]
+            if ($step -eq 'idx') { Run 'zashita/show_idx.sql' $A[1] }
+            elseif (-not $file) {
+                Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx] [параметры]  или  ./help zas restore'
+                exit 1
+            }
+            else {
+                if ($step -in 'all', '1') {
+                    Say ">>> Текст запроса: zashita/v$($A[1])_query.sql"
+                    Show-Text "zashita/v$($A[1])_query.sql"
+                }
+                Run $file $A[1] $A[3] $A[4]
+            }
+        }
+    }
     default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)" }
 }
 exit 0
