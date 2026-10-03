@@ -111,6 +111,9 @@ def defense_commands(lab, v):
             (f"./help lr2 copy {v}", f"lab2/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
             (f"./help lr2 measure {v}", f"lab2/measure.sql - протокол results/lr2_v{v}_results.txt"),
             (f"./help lr2 results {v}", "показать протокол измерений"),
+            (f"./help zas {v}", "zashita/z_all.sql - задание на защиту: запрос варианта, "
+                                "5 замеров без индексов, индексы варианта и EXPLAIN ANALYZE"),
+            ("./help zas restore", "zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
             ("./help lr2 restore", "lab2/restore_lr1.sql - вернуть 1000 записей ЛР1"),
         ]
     if lab == 3:
@@ -178,7 +181,13 @@ def defense_commands(lab, v):
 DEFENSE_NOTES = {
     2: ["Команды lr2 time, timing, explain и measure требуют объёмной таблицы ПРОДАЖА "
         "(./help lr2 gen); перед ЛР1, ЛР6 и ЛР7 исходные 1000 записей возвращаются командой "
-        "./help lr2 restore."],
+        "./help lr2 restore.",
+        "Каждая команда ./help перед выполнением выводит строку «>>> Файл: …» с путём "
+        "выполняемого сценария, а в справке ./help у каждой команды в квадратных скобках указан "
+        "её файл, поэтому на защите видно, какой сценарий открывается и где он лежит.",
+        "Задание на защиту (ПРОДАЖА, ТОВАР и поставщик или категория без индексов и с индексами "
+        "варианта) выполняется командами ./help zas; результаты приведены в отдельном отчёте "
+        "«Защита_вариант_NN.txt»."],
     4: ["Каталог резервных копий - lab4/work; при нехватке места на диске C: он "
         "переопределяется переменной: $env:LR4_WORK='D:/LR4_WORK'; ./help lr4 all."],
     6: ["Перед копированием собирается фильтр sel2.exe (./help lr6 sel2); параметры "
@@ -188,7 +197,8 @@ DEFENSE_NOTES = {
 
 def defense(r, num):
     """Раздел num «Защита работы: запуск через ./help»."""
-    r.defense(num, defense_commands(r.lab, r.variant), DEFENSE_NOTES.get(r.lab, ()))
+    notes = [n.replace("_NN.", f"_{r.variant}.") for n in DEFENSE_NOTES.get(r.lab, ())]
+    r.defense(num, defense_commands(r.lab, r.variant), notes)
 
 
 # =====================================================================
