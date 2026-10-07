@@ -201,10 +201,10 @@ if (-not $A[0]) {
   ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]
   ./help lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]
                                          пример: ./help lr2 tbs D:/PG_TBS
-  ./help lr2 time 20|22        - время запроса (*) по CURRENT_TIME, 5 замеров  [lab2/time_current.sql]
-                                         пример: ./help lr2 time 20
-  ./help lr2 timing 20|22      - время запроса (*) по \timing on, 5 замеров  [lab2/time_timing.sql]
-                                         пример: ./help lr2 timing 22
+  ./help lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [lab2/time_current.sql]
+                                         пример: ./help lr2 time 20 5      ./help lr2 time 22 10
+  ./help lr2 timing 20|22 [замеров] - время запроса (*) по \timing on (по умолч. 5 замеров)  [lab2/time_timing.sql]
+                                         пример: ./help lr2 timing 20 5    ./help lr2 timing 22 10
   ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]
                                          пример: ./help lr2 idx 20
   ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке  [lab2/idx_1.sql]
@@ -371,8 +371,8 @@ switch ($A[0]) {
             'gen'     { Run 'lab2/add_data.sql' $A[2] }
             'restore' { Run 'lab2/restore_lr1.sql' }
             'tbs'     { Run 'lab2/tablespace.sql' $A[2] }
-            'time'    { Need-Variant $v; Run 'lab2/time_current.sql' $v }
-            'timing'  { Need-Variant $v; Run 'lab2/time_timing.sql' $v }
+            'time'    { Need-Variant $v; Run 'lab2/time_current.sql' $v $A[3] }
+            'timing'  { Need-Variant $v; Run 'lab2/time_timing.sql' $v $A[3] }
             'idx'     { Need-Variant $v; Run 'lab2/idx_names.sql' $v }
             'idx1'    { Need-Variant $v; Run 'lab2/idx_1.sql' $v $A[3] }
             'idx0'    { Need-Variant $v; Run 'lab2/idx_0.sql' $v }

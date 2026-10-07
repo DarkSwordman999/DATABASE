@@ -105,10 +105,10 @@ if [ -z "$1" ]; then
     echo "  ./h lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]"
     echo "  ./h lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]"
     echo "                                         пример: ./h lr2 tbs D:/PG_TBS"
-    echo "  ./h lr2 time 20|22        - время запроса (*) по CURRENT_TIME, 5 замеров  [lab2/time_current.sql]"
-    echo "                                         пример: ./h lr2 time 20"
-    echo "  ./h lr2 timing 20|22      - время запроса (*) по \\timing on, 5 замеров  [lab2/time_timing.sql]"
-    echo "                                         пример: ./h lr2 timing 22"
+    echo "  ./h lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [lab2/time_current.sql]"
+    echo "                                         пример: ./h lr2 time 20 5      ./h lr2 time 22 10"
+    echo "  ./h lr2 timing 20|22 [замеров] - время запроса (*) по \\timing on (по умолч. 5 замеров)  [lab2/time_timing.sql]"
+    echo "                                         пример: ./h lr2 timing 20 5    ./h lr2 timing 22 10"
     echo "  ./h lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]"
     echo "                                         пример: ./h lr2 idx 20"
     echo "  ./h lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке  [lab2/idx_1.sql]"
@@ -272,8 +272,8 @@ case "$1" in
             gen)      run lab2/add_data.sql "$3" ;;
             restore)  run lab2/restore_lr1.sql ;;
             tbs)      run lab2/tablespace.sql "$3" ;;
-            time)     need_variant "$3"; run lab2/time_current.sql "$3" ;;
-            timing)   need_variant "$3"; run lab2/time_timing.sql "$3" ;;
+            time)     need_variant "$3"; run lab2/time_current.sql "$3" "$4" ;;
+            timing)   need_variant "$3"; run lab2/time_timing.sql "$3" "$4" ;;
             idx)      need_variant "$3"; run lab2/idx_names.sql "$3" ;;
             idx1)     need_variant "$3"; run lab2/idx_1.sql "$3" "$4" ;;
             idx0)     need_variant "$3"; run lab2/idx_0.sql "$3" ;;
