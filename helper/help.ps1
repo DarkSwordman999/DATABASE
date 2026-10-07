@@ -190,9 +190,13 @@ if (-not $A[0]) {
   ./help db              - создать БД sales, таблицы и загрузить данные  [DATA/create_DB, DATA/create_tables, DATA/load_data]
   ./help counts          - количество строк в таблицах  [helper/counts.sql]
   ./help v20 1 [дата1 дата2 [категория]]  - в.20: объём поставок по категории и кварталу  [tasks/v20_task1.sql]
+                                         пример: ./help v20 1 01.01.2021 31.12.2022 мебель
   ./help v20 2 [год1 год2 [день недели]]  - в.20: продажи (шт) по дню недели и району  [tasks/v20_task2.sql]
+                                         пример: ./help v20 2 2019 2023 пн
   ./help v22 1 [дата1 дата2 [поставщик]]  - в.22: выручка по поставщику и декаде  [tasks/v22_task1.sql]
+                                         пример: ./help v22 1 01.07.2019 30.06.2023 "ООО Турман"
   ./help v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу  [tasks/v22_task2.sql]
+                                         пример: ./help v22 2 2018 2022 зима
   ./help all             - все 4 задания с параметрами по умолчанию  [tasks/*.sql]
   ./help lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lab1/setup_lan.ps1]
   ./help lr1 client [адрес] сценарий [a1 a2 a3] - сценарий через s_lan.bat на сервере в сети (по умолч. postgres@192.168.0.102:5432)  [lab1/s_lan.bat]
@@ -205,7 +209,6 @@ if (-not $A[0]) {
                                                  ./help srv stud@192.168.1.50:5432 v22 2 2018 2022 зима
   ./help srv [адрес] all       - проверка и все 4 задания на сервере; ./help srv [адрес] psql - консоль
   (адрес - [пользователь@]хост[:порт]; пароль - $env:SRV_PASS или pgpass.conf)
-  Пример: ./help v20 1 01.01.2021 31.12.2022 мебель
 
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
   ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]
@@ -218,23 +221,23 @@ if (-not $A[0]) {
   ./help lr2 timing 20|22 [замеров] - время запроса (*) по \timing on (по умолч. 5 замеров)  [lab2/time_timing.sql]
                                          пример: ./help lr2 timing 20 5    ./help lr2 timing 22 10
   ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]
-                                         пример: ./help lr2 idx 20
-  ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке  [lab2/idx_1.sql]
-                                         пример: ./help lr2 idx1 22 hash
+                                         пример: ./help lr2 idx 20      ./help lr2 idx 22
+  ./help lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке (по умолч. btree)  [lab2/idx_1.sql]
+                                         пример: ./help lr2 idx1 20 btree      ./help lr2 idx1 22 hash
   ./help lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке  [lab2/idx_0.sql]
-                                         пример: ./help lr2 idx0 22
+                                         пример: ./help lr2 idx0 20      ./help lr2 idx0 22
   ./help lr2 pk1 20|22         - справочник с PRIMARY KEY  [lab2/create_ref0.sql]
-                                         пример: ./help lr2 pk1 20
+                                         пример: ./help lr2 pk1 20      ./help lr2 pk1 22
   ./help lr2 pk0 20|22         - справочник без PRIMARY KEY  [lab2/create_ref1.sql]
-                                         пример: ./help lr2 pk0 20
+                                         пример: ./help lr2 pk0 20      ./help lr2 pk0 22
   ./help lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [lab2/copy_ref.sql]
-                                         пример: ./help lr2 copy 22
+                                         пример: ./help lr2 copy 20      ./help lr2 copy 22
   ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql]
-                                         пример: ./help lr2 explain 20 1
-  ./help lr2 measure 20|22 [прогонов] - протокол замеров -> results/lr2_vNN_results.txt  [lab2/measure.sql]
-                                         пример: ./help lr2 measure 22 3
+                                         пример: ./help lr2 explain 20 1      ./help lr2 explain 22
+  ./help lr2 measure 20|22 [прогонов] - протокол замеров (по умолч. 3 прогона) -> results/lr2_vNN_results.txt  [lab2/measure.sql]
+                                         пример: ./help lr2 measure 20 3      ./help lr2 measure 22 5
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
-                                         пример: ./help lr2 results 20
+                                         пример: ./help lr2 results 20      ./help lr2 results 22
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
 
 ================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
@@ -243,13 +246,13 @@ if (-not $A[0]) {
   ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql]
                                          пример: ./help zas 22 all мебель
   ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, zashita/vNN_query.sql]
-                                         пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"
+                                         пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"      ./help zas 22 1 мебель
   ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql]
-                                         пример: ./help zas 22 2 мебель
+                                         пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"      ./help zas 22 2 мебель
   ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql]
-                                         пример: ./help zas 22 3 мебель
+                                         пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
   ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
-                                         пример: ./help zas 22 idx
+                                         пример: ./help zas 20 idx      ./help zas 22 idx
   ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
 
@@ -283,14 +286,17 @@ if (-not $A[0]) {
   ./help lr6 createdb          - создать базу SALES в MS SQL Server  [lab6/COPY/create_DB]
   ./help lr6 copy              - скопировать все таблицы sales из PostgreSQL  [lab6/COPY/copy_to_MS_SQL.bat]
   ./help lr6 disp              - проверить скопированные таблицы  [lab6/COPY/disp.bat]
-  ./help lr6 v20|v22 1|2 [параметры] - задания варианта в MS SQL Server  [lab6/tasks/vNN_taskN.sql]
+  ./help lr6 v20|v22 1|2 [параметры] - задания варианта в MS SQL Server (параметры - как ./help v20|v22)  [lab6/tasks/vNN_taskN.sql]
+                                         пример: ./help lr6 v20 1 21.08.2020 20.08.2023 мебель      ./help lr6 v20 2 2019 2023 пн
+                                                 ./help lr6 v22 1 01.07.2019 30.06.2023 "ООО Турман"      ./help lr6 v22 2 2018 2022 зима
   ./help lr6 console           - консоль sqlcmd  [lab6/s0.bat]
 
 ================== ЛР7: ПРЕДСТАВЛЕНИЯ И ФУНКЦИИ MS SQL SERVER ==================
   ./help lr7 create            - создать представления и функции  [lab7/create_objects.sql]
   ./help lr7 1 [D1 D2 P M [N]] - премия сотрудников (N - имя сотрудника)  [lab7/calculate1.sql]
+                                         пример: ./help lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван
   ./help lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)  [lab7/calculate2.sql]
-  Пример: ./help lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван
+                                         пример: ./help lr7 2 01.01.2021 30.06.2021 0.5 плащ
 
 ================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER ==================
   ./help lr8 build [файл.cs]   - компиляция программы C# варианта 20 (по умолч. Lab08.cs)  [lab8/v20/cs.bat]
