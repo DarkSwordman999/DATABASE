@@ -216,9 +216,9 @@ if (-not $A[0]) {
   ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]
   ./help lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]
                                          пример: ./help lr2 tbs D:/PG_TBS
-  ./help lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [lab2/time_current.sql]
+  ./help lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [lab2/time_current.sql, запрос lab2/vNN_query.sql]
                                          пример: ./help lr2 time 20 5      ./help lr2 time 22 10
-  ./help lr2 timing 20|22 [замеров] - время запроса (*) по \timing on (по умолч. 5 замеров)  [lab2/time_timing.sql]
+  ./help lr2 timing 20|22 [замеров] - время запроса (*) по \timing on (по умолч. 5 замеров)  [lab2/time_timing.sql, запрос lab2/vNN_query.sql]
                                          пример: ./help lr2 timing 20 5    ./help lr2 timing 22 10
   ./help lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]
                                          пример: ./help lr2 idx 20      ./help lr2 idx 22
@@ -232,24 +232,24 @@ if (-not $A[0]) {
                                          пример: ./help lr2 pk0 20      ./help lr2 pk0 22
   ./help lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [lab2/copy_ref.sql]
                                          пример: ./help lr2 copy 20      ./help lr2 copy 22
-  ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql]
+  ./help lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql, запрос lab2/vNN_config.sql]
                                          пример: ./help lr2 explain 20 1      ./help lr2 explain 22
-  ./help lr2 measure 20|22 [прогонов] - протокол замеров (по умолч. 3 прогона) -> results/lr2_vNN_results.txt  [lab2/measure.sql]
+  ./help lr2 measure 20|22 [прогонов] - протокол замеров (по умолч. 3 прогона) -> results/lr2_vNN_results.txt  [lab2/measure.sql, запросы lab2/vNN_config.sql]
                                          пример: ./help lr2 measure 20 3      ./help lr2 measure 22 5
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
                                          пример: ./help lr2 results 20      ./help lr2 results 22
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
 
 ================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
-  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql]
+  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
-  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql]
+  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 22 all мебель
-  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, zashita/vNN_query.sql]
+  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"      ./help zas 22 1 мебель
-  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql]
+  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"      ./help zas 22 2 мебель
-  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql]
+  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
   ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
                                          пример: ./help zas 20 idx      ./help zas 22 idx
