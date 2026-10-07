@@ -8,7 +8,7 @@
 SELECT CASE WHEN :'arg2' ~ '^[1-9][0-9]*$' THEN :'arg2' ELSE '5' END AS runs \gset
 \echo
 \echo '=== ЛР2 / Вариант' :variant '/ Этап 2а: CURRENT_TIME ==='
-\echo 'Запрос (*):' :query_file '  замеров:' :runs '  строк в ПРОДАЖА:'
+\echo 'Запрос (*): файл' :query_path '  замеров:' :runs '  строк в ПРОДАЖА:'
 SELECT count(*) AS "строк ПРОДАЖА" FROM ПРОДАЖА;
 
 CREATE TEMP TABLE lr2_время (№ serial, секунды numeric);

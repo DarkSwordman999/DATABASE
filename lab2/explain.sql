@@ -15,6 +15,8 @@ SELECT :'arg2' = '1' AS with_where \gset
 \ir idx_names.sql
 \echo
 \echo '--- EXPLAIN (оценка стоимости, без выполнения) ---'
+\set q_hdr 'Запрос (файл ' :cfg_path ', переменные join_query, where_cond):'
+\echo :q_hdr
 \echo :q
 \set QUIET off
 EXPLAIN :q;

@@ -81,6 +81,8 @@ SELECT version() AS "pgver" \gset
 \qecho 'M =' :M 'записей в ПРОДАЖА, размер таблицы' :size
 \qecho 'Индекс П - индекс ПРОДАЖА по полю' :ref_fk ', Индекс Т - индекс' :ref_table 'по ключу (PRIMARY KEY)'
 \qecho
+\set q_hdr 'Запросы (файл ' :cfg_path ', переменные join_query, where_cond):'
+\qecho :q_hdr
 \qecho 'EXPLAIN ANALYZE' :join_query ';'
 \qecho 'EXPLAIN ANALYZE' :join_query :where_cond ';'
 \qecho

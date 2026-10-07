@@ -9,7 +9,7 @@
 SELECT CASE WHEN :'arg2' ~ '^[1-9][0-9]*$' THEN :'arg2' ELSE '5' END AS runs \gset
 \echo
 \echo '=== ЛР2 / Вариант' :variant '/ Этап 2б: psql timing ==='
-\echo '--- результат запроса (*) ---'
+\echo '--- результат запроса (*), файл' :query_path '---'
 \ir :query_file
 \echo '---' :runs 'замеров (вывод строк отключён) ---'
 \set run_no 0

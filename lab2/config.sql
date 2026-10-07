@@ -7,3 +7,7 @@ SELECT CASE WHEN :'arg1' IN ('20', '22') THEN :'arg1' ELSE '20' END AS variant \
 \ir :cfg
 SELECT :'variant' = '20' AS is_v20 \gset
 \set idx_name ПРОДАЖА_ :ref_fk _idx
+-- файлы с текстом запросов (для вывода вместе с текстом запроса):
+-- запрос (*) - query_path, запрос EXPLAIN (join_query, where_cond) - cfg_path
+\set query_path lab2/ :query_file
+\set cfg_path lab2/ :cfg
