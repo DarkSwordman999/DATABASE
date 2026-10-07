@@ -151,7 +151,7 @@ help_zas() {
     echo "                                         пример: ./h zas 22 all мебель"
     echo "  ./h zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, запрос zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 1 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 1 мебель"
-    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров, мс и мин, минимум  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 2 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 2 мебель"
     echo "  ./h zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 3 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 3 мебель"
