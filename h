@@ -383,10 +383,6 @@ case "$1" in
             idx) run zashita/show_idx.sql "$2"; exit 0 ;;
             *)   echo "ОШИБКА: ./h zas 20|22 [all|1|2|3|idx] [параметры]  или  ./h zas restore"; exit 1 ;;
         esac
-        if [ "$step" = "all" ] || [ "$step" = "1" ]; then
-            echo ">>> Текст запроса: zashita/v$2_query.sql"
-            cat "zashita/v$2_query.sql"
-        fi
         run "$f" "$2" "$4" "$5"
         ;;
     *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)" ;;

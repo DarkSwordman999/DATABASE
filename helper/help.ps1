@@ -487,13 +487,7 @@ switch ($A[0]) {
                 Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx] [параметры]  или  ./help zas restore'
                 exit 1
             }
-            else {
-                if ($step -in 'all', '1') {
-                    Say ">>> Текст запроса: zashita/v$($A[1])_query.sql"
-                    Show-Text "zashita/v$($A[1])_query.sql"
-                }
-                Run $file $A[1] $A[3] $A[4]
-            }
+            else { Run $file $A[1] $A[3] $A[4] }
         }
     }
     default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)" }
