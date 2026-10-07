@@ -11,7 +11,7 @@ IF "%DB%"=="" SET "DB=%BASE%"
 IF "%LR4_VARIANT%"=="" SET LR4_VARIANT=20
 SET "ROOT=%~dp0.."
 CD /D "%WORK%"
-"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\tasks\v%LR4_VARIANT%_task1.sql" > task%1-01
-"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\tasks\v%LR4_VARIANT%_task2.sql" > task%1-02
-"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\helper\counts.sql" > task%1-03
-ECHO Задачи варианта %LR4_VARIANT% решены в базе %DB%: task%1-01, task%1-02, task%1-03
+"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\tasks\v%LR4_VARIANT%_task1.sql" > task%~1-01
+"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\tasks\v%LR4_VARIANT%_task2.sql" > task%~1-02
+"%PGBIN%\psql.exe" -q -X -P footer=off -P pager=off -d %DB% -f "%ROOT%\helper\counts.sql" > task%~1-03
+ECHO Задачи варианта %LR4_VARIANT% решены в базе %DB%: task%~1-01, task%~1-02, task%~1-03
