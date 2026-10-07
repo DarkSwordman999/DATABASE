@@ -83,6 +83,7 @@ function Invoke-Raw {
     }
     if ($line.Length) { & $emit $line.ToArray() }
     $p.WaitForExit()
+    $script:ExitCode = $p.ExitCode
     if ($teeFile) { $teeFile.Close() }
 }
 
@@ -92,14 +93,15 @@ function Q([string]$a) { '"' + $a + '"' }
 # psql-сценарий с параметрами arg1..arg3 (как s.bat): параметры передаются через stdin
 # командами \set, т.к. psql под Windows получает argv в CP1251 и кириллица в -v ломается.
 # Служебные сообщения psql приходят в CP1251 и приводятся к UTF-8 (Fix-Line).
+# -Stop - с ON_ERROR_STOP: при ошибке psql останавливается, код - в $script:ExitCode
 function Run([string]$file, [string]$a1, [string]$a2, [string]$a3, [string]$a4, [string]$a5,
-             [switch]$Quiet) {
+             [switch]$Quiet, [switch]$Stop) {
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) {
         Say "ОШИБКА: Файл $file не найден"
         exit 1
     }
     if (-not $Quiet) { Say ">>> Файл: $file" }
-    $text = ''
+    $text = if ($Stop) { "\set ON_ERROR_STOP on`n" } else { '' }
     $i = 1
     foreach ($a in @($a1, $a2, $a3, $a4, $a5)) {
         $text += "\set arg$i '" + ($a -replace "'", "''") + "'`n"
@@ -253,6 +255,7 @@ $Help.zas = @'
                                          пример: ./help zas 20 idx      ./help zas 22 idx
   ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
+  (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)
 '@
 $Help.lr3 = @'
 ================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ ==================
@@ -583,10 +586,20 @@ switch ($A[0]) {
 
     # защита ЛР2: запрос варианта без индексов и с индексами (zashita/*.sql)
     'zas' {
-        if ($A[1] -eq 'restore') { Run 'zashita/restore.sql' }
+        if ($A[1] -eq 'restore') {
+            if ($Argv.Count -gt 2) { Say 'ОШИБКА: у ./help zas restore нет параметров'; exit 1 }
+            Run 'zashita/restore.sql'
+        }
         else {
             Need-Variant $A[1]
             $step = if ($A[2]) { $A[2] } else { 'all' }
+            # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
+            $max = if ($step -eq 'idx') { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
+            if ($Argv.Count -gt $max) {
+                Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
+                Say '  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]   ./help zas 20|22 idx'
+                exit 1
+            }
             $file = @{ 'all' = 'zashita/z_all.sql'; '1' = 'zashita/z1_query.sql'
                        '2' = 'zashita/z2_noidx.sql'; '3' = 'zashita/z3_idx.sql' }[$step]
             if ($step -eq 'idx') { Run 'zashita/show_idx.sql' $A[1] }
@@ -594,7 +607,12 @@ switch ($A[0]) {
                 Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx] [параметры]  или  ./help zas restore'
                 exit 1
             }
-            else { Run $file $A[1] $A[3] $A[4] }
+            else {
+                # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
+                Run 'zashita/check_args.sql' $A[1] $A[3] $A[4] -Stop
+                if ($script:ExitCode -ne 0) { exit 1 }
+                Run $file $A[1] $A[3] $A[4]
+            }
         }
     }
     default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)" }

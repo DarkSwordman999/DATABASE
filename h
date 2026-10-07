@@ -16,6 +16,7 @@ export MSYS_NO_PATHCONV=1
 # psql-сценарий с параметрами arg1..arg3 (как s.bat): параметры передаются через stdin
 # командами \set, т.к. psql под Windows получает argv в CP1251 и кириллица в -v ломается.
 # Вывод проходит через helper/fixenc.pl (служебные сообщения psql приходят в CP1251).
+# RUN_STOP=1 run ... - с ON_ERROR_STOP: при ошибке psql останавливается, run возвращает его код
 run() {
     local file="$1"; shift
     if [ ! -f "$file" ]; then
@@ -24,6 +25,7 @@ run() {
     fi
     echo ">>> Файл: $file"
     {
+        [ -n "$RUN_STOP" ] && printf '\\set ON_ERROR_STOP on\n'
         local i=1
         for a in "$1" "$2" "$3" "$4" "$5"; do
             printf "\\\\set arg%d '%s'\n" "$i" "${a//\'/\'\'}"
@@ -31,6 +33,7 @@ run() {
         done
         printf "\\\\i '%s'\n" "$file"
     } | psql -q -X -P pager=off -P "null=<null>" -f - 2>&1 | perl helper/fixenc.pl
+    return "${PIPESTATUS[1]}"
 }
 
 # psql-сценарий в системной базе postgres (как s1.bat)
@@ -159,6 +162,7 @@ help_zas() {
     echo "                                         пример: ./h zas 20 idx      ./h zas 22 idx"
     echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]"
     echo "  (нужна объёмная ПРОДАЖА: ./h lr2 gen; в.20 по умолч. \"ООО Турман\" \"ЧП Загорье\", в.22 - мебель)"
+    echo "  (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)"
 }
 
 help_lr3() {
@@ -509,9 +513,20 @@ case "$1" in
 
     # защита ЛР2: запрос варианта без индексов и с индексами (zashita/*.sql)
     zas)
-        if [ "$2" = "restore" ]; then run zashita/restore.sql; exit 0; fi
+        if [ "$2" = "restore" ]; then
+            if [ $# -gt 2 ]; then echo "ОШИБКА: у ./h zas restore нет параметров"; exit 1; fi
+            run zashita/restore.sql; exit 0
+        fi
         need_variant "$2"
         step=${3:-all}
+        # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
+        max=$([ "$2" = "20" ] && echo 5 || echo 4)
+        [ "$step" = "idx" ] && max=3
+        if [ $# -gt $max ]; then
+            echo "ОШИБКА: лишние параметры: ${*:$((max + 1))}"
+            echo "  ./h zas 20 [all|1|2|3] [\"поставщик1\" \"поставщик2\"]   ./h zas 22 [all|1|2|3] [категория]   ./h zas 20|22 idx"
+            exit 1
+        fi
         case "$step" in
             all) f=zashita/z_all.sql ;;
             1)   f=zashita/z1_query.sql ;;
@@ -520,6 +535,8 @@ case "$1" in
             idx) run zashita/show_idx.sql "$2"; exit 0 ;;
             *)   echo "ОШИБКА: ./h zas 20|22 [all|1|2|3|idx] [параметры]  или  ./h zas restore"; exit 1 ;;
         esac
+        # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
+        RUN_STOP=1 run zashita/check_args.sql "$2" "$4" "$5" || exit 1
         run "$f" "$2" "$4" "$5"
         ;;
     *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)" ;;
