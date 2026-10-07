@@ -14,6 +14,23 @@ SET client_min_messages TO warning;
     -- в.20: таблицы ПРОДАЖА, ТОВАР, ПОСТАВЩИК; в п. 3 запрос выполняется один раз
     SELECT coalesce(nullif(:'arg2', ''), 'ООО Турман') AS p1,
            coalesce(nullif(:'arg3', ''), 'ЧП Загорье') AS p2 \gset
+    -- проверка параметров: оба поставщика есть в ПОСТАВЩИК и не совпадают
+    SELECT CASE
+             WHEN NOT EXISTS (SELECT 1 FROM ПОСТАВЩИК WHERE название = :'p1')
+               THEN format('поставщик «%s» не найден в таблице ПОСТАВЩИК', :'p1')
+             WHEN NOT EXISTS (SELECT 1 FROM ПОСТАВЩИК WHERE название = :'p2')
+               THEN format('поставщик «%s» не найден в таблице ПОСТАВЩИК', :'p2')
+             WHEN :'p1' = :'p2'
+               THEN 'укажите двух разных поставщиков'
+             ELSE ''
+           END AS err \gset
+    SELECT :'err' <> '' AS bad \gset
+    \if :bad
+        \echo 'ОШИБКА:' :err
+        \echo 'Допустимые поставщики (пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"):'
+        SELECT название AS "поставщик" FROM ПОСТАВЩИК ORDER BY название;
+        \ir abort.sql
+    \endif
     \set tbls '{ПРОДАЖА,ТОВАР,ПОСТАВЩИК}'
     \set q_file zashita/v20_query.sql
     \ir v20_query.sql
@@ -21,9 +38,27 @@ SET client_min_messages TO warning;
     -- в.22: таблицы ПРОДАЖА, ТОВАР, КАТЕГОРИЯ; в п. 3 запрос выполняется 5 раз
     SELECT coalesce(nullif(:'arg2', ''), 'мебель') AS p1 \gset
     \set p2 ''
+    -- проверка параметра: категория есть в КАТЕГОРИЯ, второго параметра нет
+    SELECT CASE
+             WHEN :'arg3' <> ''
+               THEN format('для в.22 нужен один параметр - категория, лишний: «%s»', :'arg3')
+             WHEN NOT EXISTS (SELECT 1 FROM КАТЕГОРИЯ WHERE наименование = :'p1')
+               THEN format('категория «%s» не найдена в таблице КАТЕГОРИЯ', :'p1')
+             ELSE ''
+           END AS err \gset
+    SELECT :'err' <> '' AS bad \gset
+    \if :bad
+        \echo 'ОШИБКА:' :err
+        \echo 'Допустимые категории (пример: ./help zas 22 1 мебель):'
+        SELECT наименование AS "категория" FROM КАТЕГОРИЯ ORDER BY наименование;
+        \ir abort.sql
+    \endif
     \set tbls '{ПРОДАЖА,ТОВАР,КАТЕГОРИЯ}'
     \set q_file zashita/v22_query.sql
     \ir v22_query.sql
+\endif
+\if :{?check_only}
+    \quit
 \endif
 SELECT count(*) < 100000 AS small FROM ПРОДАЖА \gset
 \if :small
