@@ -247,11 +247,17 @@ if (-not $A[0]) {
   ./help lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]
 
 ================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ ==================
-  ./help lr4 all [20|22]       - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]
-  ./help lr4 base              - создать базу BASE из данных ЛР1  [lab4/create_base.bat]
-  ./help lr4 tasks N [база]    - контрольные задачи -> taskN-01..03  [lab4/tasks.bat]
-  ./help lr4 dump1|dump2|dump3 - pg_dump в файл / rar / многотомный rar  [lab4/dump-1.bat, dump-2.bat, dump-3.bat]
-  (каталог копий: lab4/work или $env:LR4_WORK='D:/LR4_WORK'; ./help lr4 all)
+  ./help lr4 all [20|22 [каталог]] - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]
+                                         пример: ./help lr4 all 20      ./help lr4 all 22 D:/LR4_WORK
+  ./help lr4 base [база]       - создать базу (по умолч. base) из данных ЛР1  [lab4/create_base.bat]
+                                         пример: ./help lr4 base base
+  ./help lr4 tasks N [база] [20|22] - контрольные задачи варианта -> taskN-01..03  [lab4/tasks.bat]
+                                         пример: ./help lr4 tasks 0 base 20      ./help lr4 tasks 0 base 22
+  ./help lr4 dump1|dump2 [база] - pg_dump в файл / rar  [lab4/dump-1.bat, dump-2.bat]
+                                         пример: ./help lr4 dump1 base      ./help lr4 dump2 base
+  ./help lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]
+                                         пример: ./help lr4 dump3 10k base
+  (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)
 
 ================== ЛР5: ФУНКЦИИ НА C ==================
   ./help lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\PG_DLL)  [lab5/build.bat]
@@ -403,16 +409,31 @@ switch ($A[0]) {
             'all' {
                 $v = if ($A[2]) { $A[2] } else { '20' }
                 Need-Variant $v
+                if ($A[3]) { $env:LR4_WORK = $A[3] -replace '/', '\' }
                 Bat 'lab4/run_all.bat' @($v) 'cp1251' "results/lr4_v$($v)_protocol.txt"
             }
-            'base'  { Bat 'lab4/create_base.bat' @() 'cp1251' }
-            'tasks' {
-                if (-not $A[2]) { Say 'Использование: ./help lr4 tasks N [база]'; exit 1 }
-                Bat 'lab4/tasks.bat' @($A[2], $A[3])
+            'base'  {
+                if ($A[2]) { $env:LR4_BASE = $A[2] }
+                Bat 'lab4/create_base.bat' @() 'cp1251'
             }
-            'dump1' { Bat 'lab4/dump-1.bat' }
-            'dump2' { Bat 'lab4/dump-2.bat' }
-            'dump3' { Bat 'lab4/dump-3.bat' @($A[2]) }
+            'tasks' {
+                if (-not $A[2]) { Say 'Использование: ./help lr4 tasks N [база] [20|22]'; exit 1 }
+                # необязательные параметры в любом порядке: 20|22 - вариант, иначе - база
+                $db = ''
+                foreach ($p in $A[3], $A[4]) {
+                    if ($p -in '20', '22') { $env:LR4_VARIANT = $p }
+                    elseif ($p) { $db = $p }
+                }
+                Bat 'lab4/tasks.bat' @($A[2], $db)
+            }
+            { $_ -in 'dump1', 'dump2' } {
+                if ($A[2]) { $env:LR4_BASE = $A[2] }
+                Bat "lab4/dump-$($A[1].Substring(4)).bat"
+            }
+            'dump3' {
+                if ($A[3]) { $env:LR4_BASE = $A[3] }
+                Bat 'lab4/dump-3.bat' @($A[2])
+            }
             default { Say 'ОШИБКА: ./help lr4 all|base|tasks|dump1|dump2|dump3' }
         }
     }

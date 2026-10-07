@@ -7,7 +7,9 @@ SET PGPORT=5432
 SET PGUSER=postgres
 REM SET PGPASSWORD=...   (если в pg_hba.conf для localhost задан метод scram-sha-256/md5)
 SET PGCLIENTENCODING=UTF8
+REM имя базы: base или имя из переменной LR4_BASE (./help lr4 base|dump1|dump2 [база])
 SET BASE=base
+IF NOT "%LR4_BASE%"=="" SET "BASE=%LR4_BASE%"
 SET "PGBIN=C:\Program Files\PostgreSQL\18\bin"
 SET "RAR=C:\Program Files\WinRAR\Rar.exe"
 REM рабочий каталог копий: lab4\work или каталог из переменной LR4_WORK

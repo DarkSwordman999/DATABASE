@@ -151,11 +151,17 @@ if [ -z "$1" ]; then
     echo "  ./h lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]"
     echo ""
     echo "================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ =================="
-    echo "  ./h lr4 all [20|22]       - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]"
-    echo "  ./h lr4 base              - создать базу BASE из данных ЛР1  [lab4/create_base.bat]"
-    echo "  ./h lr4 tasks N [база]    - контрольные задачи -> taskN-01..03  [lab4/tasks.bat]"
-    echo "  ./h lr4 dump1|dump2|dump3 - pg_dump в файл / rar / многотомный rar  [lab4/dump-1.bat, dump-2.bat, dump-3.bat]"
-    echo "  (каталог копий: lab4/work или LR4_WORK=D:/LR4_WORK ./h lr4 all)"
+    echo "  ./h lr4 all [20|22 [каталог]] - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]"
+    echo "                                         пример: ./h lr4 all 20      ./h lr4 all 22 D:/LR4_WORK"
+    echo "  ./h lr4 base [база]       - создать базу (по умолч. base) из данных ЛР1  [lab4/create_base.bat]"
+    echo "                                         пример: ./h lr4 base base"
+    echo "  ./h lr4 tasks N [база] [20|22] - контрольные задачи варианта -> taskN-01..03  [lab4/tasks.bat]"
+    echo "                                         пример: ./h lr4 tasks 0 base 20      ./h lr4 tasks 0 base 22"
+    echo "  ./h lr4 dump1|dump2 [база] - pg_dump в файл / rar  [lab4/dump-1.bat, dump-2.bat]"
+    echo "                                         пример: ./h lr4 dump1 base      ./h lr4 dump2 base"
+    echo "  ./h lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]"
+    echo "                                         пример: ./h lr4 dump3 10k base"
+    echo "  (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)"
     echo ""
     echo "================== ЛР5: ФУНКЦИИ НА C =================="
     echo "  ./h lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\\PG_DLL)  [lab5/build.bat]"
@@ -303,16 +309,34 @@ case "$1" in
         case "$2" in
             all)
                 v=${3:-20}; need_variant "$v"
+                [ -n "$4" ] && export LR4_WORK="$(cygpath -w "$4")"
                 bat lab4/run_all.bat "$v" 2>&1 | perl helper/fixenc.pl | tee "results/lr4_v${v}_protocol.txt"
                 ;;
-            base)  bat lab4/create_base.bat 2>&1 | perl helper/fixenc.pl ;;
-            tasks)
-                if [ -z "$3" ]; then echo "Использование: ./h lr4 tasks N [база]"; exit 1; fi
-                bat lab4/tasks.bat "$3" "$4"
+            base)
+                [ -n "$3" ] && export LR4_BASE="$3"
+                bat lab4/create_base.bat 2>&1 | perl helper/fixenc.pl
                 ;;
-            dump1) bat lab4/dump-1.bat ;;
-            dump2) bat lab4/dump-2.bat ;;
-            dump3) bat lab4/dump-3.bat "$3" ;;
+            tasks)
+                if [ -z "$3" ]; then echo "Использование: ./h lr4 tasks N [база] [20|22]"; exit 1; fi
+                # необязательные параметры в любом порядке: 20|22 - вариант, иначе - база
+                db=""
+                for a in "$4" "$5"; do
+                    case "$a" in
+                        '') ;;
+                        20|22) export LR4_VARIANT="$a" ;;
+                        *) db="$a" ;;
+                    esac
+                done
+                bat lab4/tasks.bat "$3" "$db"
+                ;;
+            dump1|dump2)
+                [ -n "$3" ] && export LR4_BASE="$3"
+                bat "lab4/dump-${2#dump}.bat"
+                ;;
+            dump3)
+                [ -n "$4" ] && export LR4_BASE="$4"
+                bat lab4/dump-3.bat "$3"
+                ;;
             *) echo "ОШИБКА: ./h lr4 all|base|tasks|dump1|dump2|dump3" ;;
         esac
         ;;
