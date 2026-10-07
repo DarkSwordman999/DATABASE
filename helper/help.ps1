@@ -178,14 +178,10 @@ function Show-Menu {
 $Argv = @($args)
 $A = $Argv + @('', '', '', '', '', '', '', '') | ForEach-Object { [string]$_ }
 
-if (-not $A[0]) {
-    Say @'
-=============================================
-  ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22
-=============================================
-  В [] - файл, который выполняет команда; при запуске он выводится строкой ">>> Файл: ...".
-  Обработчик каждой команды - helper/help.ps1 (switch, ветвь с именем команды).
-
+# справка по блокам: $Help.<блок> - один раздел (./help short <блок>), ./help - все разделы;
+# блок taxi - таблица helper/menu.txt (Show-Menu)
+$Help = [ordered]@{}
+$Help.lr1 = @'
 ================== ЛР1: БАЗА И ЗАДАНИЯ ==================
   ./help db              - создать БД sales, таблицы и загрузить данные  [DATA/create_DB, DATA/create_tables, DATA/load_data]
   ./help counts          - количество строк в таблицах  [helper/counts.sql]
@@ -209,7 +205,8 @@ if (-not $A[0]) {
                                                  ./help srv stud@192.168.1.50:5432 v22 2 2018 2022 зима
   ./help srv [адрес] all       - проверка и все 4 задания на сервере; ./help srv [адрес] psql - консоль
   (адрес - [пользователь@]хост[:порт]; пароль - $env:SRV_PASS или pgpass.conf)
-
+'@
+$Help.lr2 = @'
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
   ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]
                                          пример: ./help lr2 gen 2000000
@@ -239,7 +236,8 @@ if (-not $A[0]) {
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
                                          пример: ./help lr2 results 20      ./help lr2 results 22
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
-
+'@
+$Help.zas = @'
 ================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
   ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
@@ -255,12 +253,14 @@ if (-not $A[0]) {
                                          пример: ./help zas 20 idx      ./help zas 22 idx
   ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
-
+'@
+$Help.lr3 = @'
 ================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ ==================
   ./help lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]
   ./help lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]
   ./help lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]
-
+'@
+$Help.lr4 = @'
 ================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ ==================
   ./help lr4 all [20|22 [каталог]] - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]
                                          пример: ./help lr4 all 20      ./help lr4 all 22 D:/LR4_WORK
@@ -273,13 +273,15 @@ if (-not $A[0]) {
   ./help lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]
                                          пример: ./help lr4 dump3 10k base
   (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)
-
+'@
+$Help.lr5 = @'
 ================== ЛР5: ФУНКЦИИ НА C ==================
   ./help lr5 build 20|22 [каталог] - компиляция и сборка vNN.dll в каталог (по умолч. D:\PG_DLL)  [lab5/build.bat]
                                          пример: ./help lr5 build 20 D:/PG_DLL      ./help lr5 build 22 D:/PG_DLL
   ./help lr5 20|22 [каталог]   - регистрация функций из каталога (по умолч. D:/PG_DLL) и демонстрация на таблице T  [lab5/vNN_test.sql]
                                          пример: ./help lr5 20 D:/PG_DLL      ./help lr5 22 D:/PG_DLL
-
+'@
+$Help.lr6 = @'
 ================== ЛР6: КОПИРОВАНИЕ В MS SQL SERVER ==================
   ./help lr6 setup             - проверка сервера (база NEW1, таблица temp1)  [lab6/s_TCP.bat + lab6/SETUP/*]
   ./help lr6 sel2              - собрать фильтр sel2.exe  [lab6/COPY/make_sel2.bat]
@@ -290,14 +292,16 @@ if (-not $A[0]) {
                                          пример: ./help lr6 v20 1 21.08.2020 20.08.2023 мебель      ./help lr6 v20 2 2019 2023 пн
                                                  ./help lr6 v22 1 01.07.2019 30.06.2023 "ООО Турман"      ./help lr6 v22 2 2018 2022 зима
   ./help lr6 console           - консоль sqlcmd  [lab6/s0.bat]
-
+'@
+$Help.lr7 = @'
 ================== ЛР7: ПРЕДСТАВЛЕНИЯ И ФУНКЦИИ MS SQL SERVER ==================
   ./help lr7 create            - создать представления и функции  [lab7/create_objects.sql]
   ./help lr7 1 [D1 D2 P M [N]] - премия сотрудников (N - имя сотрудника)  [lab7/calculate1.sql]
                                          пример: ./help lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван
   ./help lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)  [lab7/calculate2.sql]
                                          пример: ./help lr7 2 01.01.2021 30.06.2021 0.5 плащ
-
+'@
+$Help.lr8 = @'
 ================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER ==================
   ./help lr8 build [файл.cs]   - компиляция программы C# варианта 20 (по умолч. Lab08.cs)  [lab8/v20/cs.bat]
                                          пример: ./help lr8 build Lab08.cs
@@ -306,14 +310,62 @@ if (-not $A[0]) {
   ./help lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде  [lab8/v22/run.bat]
                                          пример: ./help lr8 22 01.10.2021 31.01.2024 "ООО Турман"
 '@
-    Show-Menu
-    Say @'
-
+$Help.sql = @'
 ================== ЗАПУСК SQL-ФАЙЛОВ ==================
   ./help файл.sql [a1 .. a5]   - выполнить любой psql-сценарий с параметрами arg1..arg5
   ./help psql                  - консоль psql (база sales)
   ./help reports [N ...]       - пересобрать отчёты .docx  [reports/make_reports.py]
 '@
+
+# ./help short - список блоков справки и команды для вывода каждого из них
+function Show-Short {
+    Say @'
+=============================================
+  ПАБД: КРАТКАЯ СПРАВКА ПО БЛОКАМ (ВАРИАНТЫ 20 И 22)
+=============================================
+  Вывести подсказку только по одному блоку (лабораторной):
+  ./help short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)
+  ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN (lr2 ...)
+  ./help short zas       - защита ЛР2: индексы и время запроса (zas ...)
+  ./help short lr3       - ЛР3: пользовательские типы (lr3 ...)
+  ./help short lr4       - ЛР4: резервное копирование (lr4 ...)
+  ./help short lr5       - ЛР5: функции на C (lr5 ...)
+  ./help short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)
+  ./help short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)
+  ./help short lr8       - ЛР8: программы с данными MS SQL Server (lr8 ...)
+  ./help short taxi      - база SALES: аналоги команд TAXI-db (01 ... 204)  [helper/menu.txt]
+  ./help short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)
+
+  пример: ./help short lr2      ./help short 2   (номер лабораторной 1-8 = lr1-lr8)
+  ./help                 - вся справка сразу
+'@
+}
+
+if ($A[0] -eq 'short') {
+    $blk = if ($A[1] -match '^[1-8]$') { 'lr' + $A[1] } else { $A[1] }
+    if (-not $blk) { Show-Short }
+    elseif ($blk -eq 'taxi') { Show-Menu }
+    elseif ($Help.Contains($blk)) { Say $Help[$blk] }
+    else {
+        Say "ОШИБКА: Неизвестный блок справки $blk (./help short - список блоков)"
+        exit 1
+    }
+    exit 0
+}
+
+if (-not $A[0]) {
+    Say @'
+=============================================
+  ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22
+=============================================
+  В [] - файл, который выполняет команда; при запуске он выводится строкой ">>> Файл: ...".
+  Обработчик каждой команды - helper/help.ps1 (switch, ветвь с именем команды).
+  Справка по одному блоку (лабораторной): ./help short - список блоков, ./help short lr2 - только ЛР2.
+'@
+    foreach ($k in 'lr1', 'lr2', 'zas', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say $Help[$k] }
+    Show-Menu
+    Say ''
+    Say $Help.sql
     exit 1
 }
 
