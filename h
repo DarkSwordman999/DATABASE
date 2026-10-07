@@ -46,6 +46,14 @@ bat() {
     cmd.exe /c "$file" "$@"
 }
 
+# адрес сервера [пользователь@]хост[:порт] -> переменные ${1}HOST, ${1}PORT, ${1}USER
+set_addr() {
+    local addr=$2
+    if [[ "$addr" == *@* ]]; then export "${1}USER=${addr%%@*}"; addr=${addr#*@}; fi
+    if [[ "$addr" == *:* ]]; then export "${1}PORT=${addr##*:}"; addr=${addr%:*}; fi
+    export "${1}HOST=$addr"
+}
+
 need_variant() {
     if [ "$1" != "20" ] && [ "$1" != "22" ]; then
         echo "ОШИБКА: Укажите вариант 20 или 22"
@@ -92,11 +100,16 @@ if [ -z "$1" ]; then
     echo "  ./h v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу  [tasks/v22_task2.sql]"
     echo "  ./h all             - все 4 задания с параметрами по умолчанию  [tasks/*.sql]"
     echo "  ./h lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lab1/setup_lan.ps1]"
-    echo "  ./h lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)  [lab1/s_lan.bat]"
-    echo "  ./h srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы  [lab1/check_server.sql]"
-    echo "  ./h srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]"
-    echo "  ./h srv all         - проверка и все 4 задания на сервере; ./h srv psql - консоль"
-    echo "  (другой адрес/пользователь: SRV_HOST, SRV_PORT, SRV_USER, SRV_PASS)"
+    echo "  ./h lr1 client [адрес] сценарий [a1 a2 a3] - сценарий через s_lan.bat на сервере в сети (по умолч. postgres@192.168.0.102:5432)  [lab1/s_lan.bat]"
+    echo "                                         пример: ./h lr1 client 192.168.0.102 tasks/v20_task1.sql 01.01.2021 31.12.2022 мебель"
+    echo "                                                 ./h lr1 client postgres@192.168.0.102:5432 tasks/v22_task1.sql 01.07.2019 30.06.2023 \"ООО Турман\""
+    echo "  ./h srv [адрес] [check]   - сервер в сети PMII (по умолч. stud@192.168.1.50:5432): подключение и таблицы  [lab1/check_server.sql]"
+    echo "                                         пример: ./h srv 192.168.1.50 check"
+    echo "  ./h srv [адрес] v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]"
+    echo "                                         пример: ./h srv 192.168.1.50 v20 1 01.01.2021 31.12.2022 мебель"
+    echo "                                                 ./h srv stud@192.168.1.50:5432 v22 2 2018 2022 зима"
+    echo "  ./h srv [адрес] all       - проверка и все 4 задания на сервере; ./h srv [адрес] psql - консоль"
+    echo "  (адрес - [пользователь@]хост[:порт]; пароль - SRV_PASS или pgpass.conf)"
     echo "  Пример: ./h v20 1 01.01.2021 31.12.2022 мебель"
     echo ""
     echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN =================="
@@ -239,7 +252,12 @@ case "$1" in
         case "$2" in
             lan)    powershell -ExecutionPolicy Bypass -File lab1/setup_lan.ps1 ;;
             client)
-                if [ -z "$3" ]; then echo "Использование: ./h lr1 client сценарий [a1 a2 a3]"; exit 1; fi
+                # необязательный адрес сервера перед сценарием: [пользователь@]хост[:порт]
+                if [ -n "$4" ] && [ ! -f "$3" ] && [ -f "$4" ]; then
+                    set_addr LAN_ "$3"
+                    set -- "$1" "$2" "${@:4}"
+                fi
+                if [ -z "$3" ]; then echo "Использование: ./h lr1 client [пользователь@]хост[:порт] сценарий [a1 a2 a3]"; exit 1; fi
                 bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
                 ;;
             *) echo "ОШИБКА: ./h lr1 lan|client" ;;
@@ -254,6 +272,11 @@ case "$1" in
         export PGPASSWORD=${SRV_PASS:-12345}
         export PGDATABASE=sales
         export PGCONNECT_TIMEOUT=10
+        # необязательный адрес сервера: [пользователь@]хост[:порт] (содержит . @ или :)
+        if [[ "$2" == *[.@:]* ]]; then
+            set_addr PG "$2"
+            set -- "$1" "${@:3}"
+        fi
         echo "Сервер: $PGHOST:$PGPORT, база $PGDATABASE, пользователь $PGUSER"
         case "$2" in
             ""|check) run lab1/check_server.sql ;;

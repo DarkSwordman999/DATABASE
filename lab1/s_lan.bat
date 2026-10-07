@@ -4,11 +4,14 @@ REM Каталог клиента (например D:\TO_PG) содержит �
 REM набором файлов psql (см. lab1\client_files.txt). Адрес сервера - IPv4 компьютера с PostgreSQL.
 REM Пароль лучше хранить в %APPDATA%\postgresql\pgpass.conf, а не в командном файле.
 CHCP 65001 >NUL
-REM адрес сервера: переменная LAN_HOST или 192.168.0.102 (IPv4 сервера при выполнении работы)
+REM адрес сервера: переменная LAN_HOST или 192.168.0.102 (IPv4 сервера при выполнении работы);
+REM порт и пользователь - LAN_PORT, LAN_USER (./help lr1 client [пользователь@]хост[:порт] ...)
 SET PGHOST=192.168.0.102
 IF NOT "%LAN_HOST%"=="" SET "PGHOST=%LAN_HOST%"
 SET PGPORT=5432
+IF NOT "%LAN_PORT%"=="" SET "PGPORT=%LAN_PORT%"
 SET PGUSER=postgres
+IF NOT "%LAN_USER%"=="" SET "PGUSER=%LAN_USER%"
 SET PGDATABASE=sales
 SET PGCLIENTENCODING=UTF8
 SET "PATH=C:\Windows\System32;%~dp0bin"

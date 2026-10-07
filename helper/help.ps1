@@ -127,6 +127,13 @@ function Bat([string]$file, [string[]]$params, [string]$Cp, [string]$Tee) {
     Invoke-Raw $line $null $Cp $Tee
 }
 
+# адрес сервера [пользователь@]хост[:порт] -> переменные окружения ${prefix}HOST, PORT, USER
+function Set-Addr([string]$prefix, [string]$addr) {
+    if ($addr -match '^(.+?)@(.+)$') { Set-Item "env:$($prefix)USER" $Matches[1]; $addr = $Matches[2] }
+    if ($addr -match '^(.+):(\d+)$') { Set-Item "env:$($prefix)PORT" $Matches[2]; $addr = $Matches[1] }
+    Set-Item "env:$($prefix)HOST" $addr
+}
+
 function Need-Variant([string]$v) {
     if ($v -ne '20' -and $v -ne '22') {
         Say 'ОШИБКА: Укажите вариант 20 или 22'
@@ -188,11 +195,16 @@ if (-not $A[0]) {
   ./help v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу  [tasks/v22_task2.sql]
   ./help all             - все 4 задания с параметрами по умолчанию  [tasks/*.sql]
   ./help lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lab1/setup_lan.ps1]
-  ./help lr1 client сценарий [a1 a2 a3] - выполнить сценарий через s_lan.bat (сервер по IP)  [lab1/s_lan.bat]
-  ./help srv [check]     - сервер в сети PMII (192.168.1.50, stud): подключение и таблицы  [lab1/check_server.sql]
-  ./help srv v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]
-  ./help srv all         - проверка и все 4 задания на сервере; ./help srv psql - консоль
-  (другой адрес/пользователь: $env:SRV_HOST, SRV_PORT, SRV_USER, SRV_PASS)
+  ./help lr1 client [адрес] сценарий [a1 a2 a3] - сценарий через s_lan.bat на сервере в сети (по умолч. postgres@192.168.0.102:5432)  [lab1/s_lan.bat]
+                                         пример: ./help lr1 client 192.168.0.102 tasks/v20_task1.sql 01.01.2021 31.12.2022 мебель
+                                                 ./help lr1 client postgres@192.168.0.102:5432 tasks/v22_task1.sql 01.07.2019 30.06.2023 "ООО Турман"
+  ./help srv [адрес] [check]   - сервер в сети PMII (по умолч. stud@192.168.1.50:5432): подключение и таблицы  [lab1/check_server.sql]
+                                         пример: ./help srv 192.168.1.50 check
+  ./help srv [адрес] v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]
+                                         пример: ./help srv 192.168.1.50 v20 1 01.01.2021 31.12.2022 мебель
+                                                 ./help srv stud@192.168.1.50:5432 v22 2 2018 2022 зима
+  ./help srv [адрес] all       - проверка и все 4 задания на сервере; ./help srv [адрес] psql - консоль
+  (адрес - [пользователь@]хост[:порт]; пароль - $env:SRV_PASS или pgpass.conf)
   Пример: ./help v20 1 01.01.2021 31.12.2022 мебель
 
 ================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
@@ -337,7 +349,13 @@ switch ($A[0]) {
         switch ($A[1]) {
             'lan'    { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File lab1/setup_lan.ps1 }
             'client' {
-                if (-not $A[2]) { Say 'Использование: ./help lr1 client сценарий [a1 a2 a3]'; exit 1 }
+                # необязательный адрес сервера перед сценарием: [пользователь@]хост[:порт]
+                if ($A[3] -and -not (Test-Path -LiteralPath $A[2] -PathType Leaf) -and
+                    (Test-Path -LiteralPath $A[3] -PathType Leaf)) {
+                    Set-Addr 'LAN_' $A[2]
+                    $A = @($A[0], $A[1]) + $A[3..($A.Count - 1)]
+                }
+                if (-not $A[2]) { Say 'Использование: ./help lr1 client [пользователь@]хост[:порт] сценарий [a1 a2 a3]'; exit 1 }
                 Bat 'lab1/s_lan.bat' @(($A[2] -replace '/', '\'), $A[3], $A[4], $A[5])
             }
             default  { Say 'ОШИБКА: ./help lr1 lan|client' }
@@ -352,6 +370,11 @@ switch ($A[0]) {
         $env:PGPASSWORD = if ($env:SRV_PASS) { $env:SRV_PASS } else { '12345' }
         $env:PGDATABASE = 'sales'
         $env:PGCONNECT_TIMEOUT = '10'
+        # необязательный адрес сервера: [пользователь@]хост[:порт] (содержит . @ или :)
+        if ($A[1] -match '[.@:]') {
+            Set-Addr 'PG' $A[1]
+            $A = @($A[0]) + $A[2..($A.Count - 1)]
+        }
         Say "Сервер: $($env:PGHOST):$($env:PGPORT), база $($env:PGDATABASE), пользователь $($env:PGUSER)"
         switch ($A[1]) {
             { $_ -in '', 'check' } { Run 'lab1/check_server.sql' }
