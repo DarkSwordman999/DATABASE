@@ -84,13 +84,8 @@ need_task() {
     fi
 }
 
-if [ -z "$1" ]; then
-    echo "============================================="
-    echo "  ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22"
-    echo "============================================="
-    echo "  В [] - файл, который выполняет команда; при запуске он выводится строкой \">>> Файл: ...\"."
-    echo "  Обработчик каждой команды - сценарий h (case, ветвь с именем команды)."
-    echo ""
+# справка по блокам: help_<блок> выводит один раздел (./h short <блок>), ./h - все разделы
+help_lr1() {
     echo "================== ЛР1: БАЗА И ЗАДАНИЯ =================="
     echo "  ./h db              - создать БД sales, таблицы и загрузить данные  [DATA/create_DB, DATA/create_tables, DATA/load_data]"
     echo "  ./h counts          - количество строк в таблицах  [helper/counts.sql]"
@@ -114,7 +109,9 @@ if [ -z "$1" ]; then
     echo "                                                 ./h srv stud@192.168.1.50:5432 v22 2 2018 2022 зима"
     echo "  ./h srv [адрес] all       - проверка и все 4 задания на сервере; ./h srv [адрес] psql - консоль"
     echo "  (адрес - [пользователь@]хост[:порт]; пароль - SRV_PASS или pgpass.conf)"
-    echo ""
+}
+
+help_lr2() {
     echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN =================="
     echo "  ./h lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]"
     echo "                                         пример: ./h lr2 gen 2000000"
@@ -144,7 +141,9 @@ if [ -z "$1" ]; then
     echo "  ./h lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]"
     echo "                                         пример: ./h lr2 results 20      ./h lr2 results 22"
     echo "  (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)"
-    echo ""
+}
+
+help_zas() {
     echo "================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА =================="
     echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 all \"ООО Турман\" \"ЧП Загорье\""
@@ -160,12 +159,16 @@ if [ -z "$1" ]; then
     echo "                                         пример: ./h zas 20 idx      ./h zas 22 idx"
     echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]"
     echo "  (нужна объёмная ПРОДАЖА: ./h lr2 gen; в.20 по умолч. \"ООО Турман\" \"ЧП Загорье\", в.22 - мебель)"
-    echo ""
+}
+
+help_lr3() {
     echo "================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ =================="
     echo "  ./h lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]"
     echo "  ./h lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]"
     echo "  ./h lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]"
-    echo ""
+}
+
+help_lr4() {
     echo "================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ =================="
     echo "  ./h lr4 all [20|22 [каталог]] - пп. 1-10 целиком -> results/lr4_vNN_protocol.txt  [lab4/run_all.bat]"
     echo "                                         пример: ./h lr4 all 20      ./h lr4 all 22 D:/LR4_WORK"
@@ -178,13 +181,17 @@ if [ -z "$1" ]; then
     echo "  ./h lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]"
     echo "                                         пример: ./h lr4 dump3 10k base"
     echo "  (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)"
-    echo ""
+}
+
+help_lr5() {
     echo "================== ЛР5: ФУНКЦИИ НА C =================="
     echo "  ./h lr5 build 20|22 [каталог] - компиляция и сборка vNN.dll в каталог (по умолч. D:\\PG_DLL)  [lab5/build.bat]"
     echo "                                         пример: ./h lr5 build 20 D:/PG_DLL      ./h lr5 build 22 D:/PG_DLL"
     echo "  ./h lr5 20|22 [каталог]   - регистрация функций из каталога (по умолч. D:/PG_DLL) и демонстрация на таблице T  [lab5/vNN_test.sql]"
     echo "                                         пример: ./h lr5 20 D:/PG_DLL      ./h lr5 22 D:/PG_DLL"
-    echo ""
+}
+
+help_lr6() {
     echo "================== ЛР6: КОПИРОВАНИЕ В MS SQL SERVER =================="
     echo "  ./h lr6 setup             - проверка сервера (база NEW1, таблица temp1)  [lab6/s_TCP.bat + lab6/SETUP/*]"
     echo "  ./h lr6 sel2              - собрать фильтр sel2.exe  [lab6/COPY/make_sel2.bat]"
@@ -195,14 +202,18 @@ if [ -z "$1" ]; then
     echo "                                         пример: ./h lr6 v20 1 21.08.2020 20.08.2023 мебель      ./h lr6 v20 2 2019 2023 пн"
     echo "                                                 ./h lr6 v22 1 01.07.2019 30.06.2023 \"ООО Турман\"      ./h lr6 v22 2 2018 2022 зима"
     echo "  ./h lr6 console           - консоль sqlcmd  [lab6/s0.bat]"
-    echo ""
+}
+
+help_lr7() {
     echo "================== ЛР7: ПРЕДСТАВЛЕНИЯ И ФУНКЦИИ MS SQL SERVER =================="
     echo "  ./h lr7 create            - создать представления и функции  [lab7/create_objects.sql]"
     echo "  ./h lr7 1 [D1 D2 P M [N]] - премия сотрудников (N - имя сотрудника)  [lab7/calculate1.sql]"
     echo "                                         пример: ./h lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван"
     echo "  ./h lr7 2 [D1 D2 alpha [G]] - затраты на хранение (G - товар)  [lab7/calculate2.sql]"
     echo "                                         пример: ./h lr7 2 01.01.2021 30.06.2021 0.5 плащ"
-    echo ""
+}
+
+help_lr8() {
     echo "================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER =================="
     echo "  ./h lr8 build [файл.cs]   - компиляция программы C# варианта 20 (по умолч. Lab08.cs)  [lab8/v20/cs.bat]"
     echo "                                         пример: ./h lr8 build Lab08.cs"
@@ -210,12 +221,80 @@ if [ -z "$1" ]; then
     echo "                                         пример: ./h lr8 20 01.07.2019 30.06.2023 мебель"
     echo "  ./h lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде  [lab8/v22/run.bat]"
     echo "                                         пример: ./h lr8 22 01.10.2021 31.01.2024 \"ООО Турман\""
-    show_menu
-    echo ""
+}
+
+help_taxi() { show_menu; }
+
+help_sql() {
     echo "================== ЗАПУСК SQL-ФАЙЛОВ =================="
     echo "  ./h файл.sql [a1 .. a5]   - выполнить любой psql-сценарий с параметрами arg1..arg5"
     echo "  ./h psql                  - консоль psql (база sales)"
     echo "  ./h reports [N ...]       - пересобрать отчёты .docx  [reports/make_reports.py]"
+}
+
+# ./h short - список блоков справки и команды для вывода каждого из них
+show_short() {
+    echo "============================================="
+    echo "  ПАБД: КРАТКАЯ СПРАВКА ПО БЛОКАМ (ВАРИАНТЫ 20 И 22)"
+    echo "============================================="
+    echo "  Вывести подсказку только по одному блоку (лабораторной):"
+    echo "  ./h short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)"
+    echo "  ./h short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN (lr2 ...)"
+    echo "  ./h short zas       - защита ЛР2: индексы и время запроса (zas ...)"
+    echo "  ./h short lr3       - ЛР3: пользовательские типы (lr3 ...)"
+    echo "  ./h short lr4       - ЛР4: резервное копирование (lr4 ...)"
+    echo "  ./h short lr5       - ЛР5: функции на C (lr5 ...)"
+    echo "  ./h short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)"
+    echo "  ./h short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)"
+    echo "  ./h short lr8       - ЛР8: программы с данными MS SQL Server (lr8 ...)"
+    echo "  ./h short taxi      - база SALES: аналоги команд TAXI-db (01 ... 204)  [helper/menu.txt]"
+    echo "  ./h short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)"
+    echo ""
+    echo "  пример: ./h short lr2      ./h short 2   (номер лабораторной 1-8 = lr1-lr8)"
+    echo "  ./h                 - вся справка сразу"
+}
+
+if [ "$1" = "short" ]; then
+    [[ "$2" =~ ^[1-8]$ ]] && set -- "$1" "lr$2"
+    if [ -z "$2" ]; then
+        show_short
+    elif declare -F "help_$2" >/dev/null; then
+        "help_$2"
+    else
+        echo "ОШИБКА: Неизвестный блок справки $2 (./h short - список блоков)"
+        exit 1
+    fi
+    exit 0
+fi
+
+if [ -z "$1" ]; then
+    echo "============================================="
+    echo "  ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22"
+    echo "============================================="
+    echo "  В [] - файл, который выполняет команда; при запуске он выводится строкой \">>> Файл: ...\"."
+    echo "  Обработчик каждой команды - сценарий h (case, ветвь с именем команды)."
+    echo "  Справка по одному блоку (лабораторной): ./h short - список блоков, ./h short lr2 - только ЛР2."
+    echo ""
+    help_lr1
+    echo ""
+    help_lr2
+    echo ""
+    help_zas
+    echo ""
+    help_lr3
+    echo ""
+    help_lr4
+    echo ""
+    help_lr5
+    echo ""
+    help_lr6
+    echo ""
+    help_lr7
+    echo ""
+    help_lr8
+    help_taxi
+    echo ""
+    help_sql
     exit 1
 fi
 
