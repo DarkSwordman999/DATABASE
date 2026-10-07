@@ -177,8 +177,10 @@ if [ -z "$1" ]; then
     echo "  (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)"
     echo ""
     echo "================== ЛР5: ФУНКЦИИ НА C =================="
-    echo "  ./h lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\\PG_DLL)  [lab5/build.bat]"
-    echo "  ./h lr5 20|22 [каталог]   - регистрация функций и демонстрация на таблице T  [lab5/vNN_test.sql]"
+    echo "  ./h lr5 build 20|22 [каталог] - компиляция и сборка vNN.dll в каталог (по умолч. D:\\PG_DLL)  [lab5/build.bat]"
+    echo "                                         пример: ./h lr5 build 20 D:/PG_DLL      ./h lr5 build 22 D:/PG_DLL"
+    echo "  ./h lr5 20|22 [каталог]   - регистрация функций из каталога (по умолч. D:/PG_DLL) и демонстрация на таблице T  [lab5/vNN_test.sql]"
+    echo "                                         пример: ./h lr5 20 D:/PG_DLL      ./h lr5 22 D:/PG_DLL"
     echo ""
     echo "================== ЛР6: КОПИРОВАНИЕ В MS SQL SERVER =================="
     echo "  ./h lr6 setup             - проверка сервера (база NEW1, таблица temp1)  [lab6/s_TCP.bat + lab6/SETUP/*]"
@@ -196,9 +198,12 @@ if [ -z "$1" ]; then
     echo "  Пример: ./h lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван"
     echo ""
     echo "================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER =================="
-    echo "  ./h lr8 build             - компиляция программы C# варианта 20  [lab8/v20/cs.bat]"
+    echo "  ./h lr8 build [файл.cs]   - компиляция программы C# варианта 20 (по умолч. Lab08.cs)  [lab8/v20/cs.bat]"
+    echo "                                         пример: ./h lr8 build Lab08.cs"
     echo "  ./h lr8 20 [D1 D2 [категория]] - в.20 (C#): продажи (шт) по категории и кварталу  [lab8/v20/run.bat]"
+    echo "                                         пример: ./h lr8 20 01.07.2019 30.06.2023 мебель"
     echo "  ./h lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде  [lab8/v22/run.bat]"
+    echo "                                         пример: ./h lr8 22 01.10.2021 31.01.2024 \"ООО Турман\""
     show_menu
     echo ""
     echo "================== ЗАПУСК SQL-ФАЙЛОВ =================="
@@ -367,7 +372,7 @@ case "$1" in
     # ------------------------------ ЛР5 ------------------------------
     lr5)
         case "$2" in
-            build) need_variant "$3"; bat lab5/build.bat "$3" "$4" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
+            build) need_variant "$3"; bat lab5/build.bat "$3" "${4:+$(cygpath -w "$4")}" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
             20|22) run "lab5/v$2_test.sql" "$3" ;;
             *) echo "ОШИБКА: ./h lr5 build 20|22  или  ./h lr5 20|22" ;;
         esac
@@ -407,7 +412,7 @@ case "$1" in
     # ------------------------------ ЛР8 ------------------------------
     lr8)
         case "$2" in
-            build) bat lab8/v20/cs.bat 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
+            build) bat lab8/v20/cs.bat "$3" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
             20)    shift 2; bat lab8/v20/run.bat "$@" ;;
             22)    shift 2; bat lab8/v22/run.bat "$@" ;;
             *) echo "ОШИБКА: ./h lr8 build|20|22" ;;

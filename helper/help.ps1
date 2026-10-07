@@ -272,8 +272,10 @@ if (-not $A[0]) {
   (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)
 
 ================== ЛР5: ФУНКЦИИ НА C ==================
-  ./help lr5 build 20|22       - компиляция и сборка vNN.dll (-> D:\PG_DLL)  [lab5/build.bat]
-  ./help lr5 20|22 [каталог]   - регистрация функций и демонстрация на таблице T  [lab5/vNN_test.sql]
+  ./help lr5 build 20|22 [каталог] - компиляция и сборка vNN.dll в каталог (по умолч. D:\PG_DLL)  [lab5/build.bat]
+                                         пример: ./help lr5 build 20 D:/PG_DLL      ./help lr5 build 22 D:/PG_DLL
+  ./help lr5 20|22 [каталог]   - регистрация функций из каталога (по умолч. D:/PG_DLL) и демонстрация на таблице T  [lab5/vNN_test.sql]
+                                         пример: ./help lr5 20 D:/PG_DLL      ./help lr5 22 D:/PG_DLL
 
 ================== ЛР6: КОПИРОВАНИЕ В MS SQL SERVER ==================
   ./help lr6 setup             - проверка сервера (база NEW1, таблица temp1)  [lab6/s_TCP.bat + lab6/SETUP/*]
@@ -291,9 +293,12 @@ if (-not $A[0]) {
   Пример: ./help lr7 1 01.01.2021 30.06.2021 8.5 10.5 Иван
 
 ================== ЛР8: ПРОГРАММЫ С ДАННЫМИ MS SQL SERVER ==================
-  ./help lr8 build             - компиляция программы C# варианта 20  [lab8/v20/cs.bat]
+  ./help lr8 build [файл.cs]   - компиляция программы C# варианта 20 (по умолч. Lab08.cs)  [lab8/v20/cs.bat]
+                                         пример: ./help lr8 build Lab08.cs
   ./help lr8 20 [D1 D2 [категория]] - в.20 (C#): продажи (шт) по категории и кварталу  [lab8/v20/run.bat]
+                                         пример: ./help lr8 20 01.07.2019 30.06.2023 мебель
   ./help lr8 22 [D1 D2 [поставщик]] - в.22 (Python): затраты клиентов по поставщику и декаде  [lab8/v22/run.bat]
+                                         пример: ./help lr8 22 01.10.2021 31.01.2024 "ООО Турман"
 '@
     Show-Menu
     Say @'
@@ -464,7 +469,7 @@ switch ($A[0]) {
     # ------------------------------ ЛР5 ------------------------------
     'lr5' {
         switch ($A[1]) {
-            'build' { Need-Variant $A[2]; Bat 'lab5/build.bat' @($A[2], $A[3]) 'cp866' }
+            'build' { Need-Variant $A[2]; Bat 'lab5/build.bat' @($A[2], ($A[3] -replace '/', '\')) 'cp866' }
             { $_ -in '20', '22' } { Run "lab5/v$($A[1])_test.sql" $A[2] }
             default { Say 'ОШИБКА: ./help lr5 build 20|22  или  ./help lr5 20|22' }
         }
@@ -504,7 +509,7 @@ switch ($A[0]) {
     # ------------------------------ ЛР8 ------------------------------
     'lr8' {
         switch ($A[1]) {
-            'build' { Bat 'lab8/v20/cs.bat' @() 'cp866' }
+            'build' { Bat 'lab8/v20/cs.bat' @($A[2]) 'cp866' }
             '20'    { Bat 'lab8/v20/run.bat' @($Argv | Select-Object -Skip 2) }
             '22'    { Bat 'lab8/v22/run.bat' @($Argv | Select-Object -Skip 2) }
             default { Say 'ОШИБКА: ./help lr8 build|20|22' }
