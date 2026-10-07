@@ -14,7 +14,6 @@
 \set note2 'с индексом ПРОДАЖА(товар) btree, минимум из 5'
 \set note3 'с индексами задания 3, минимум из 5'
 \endif
-SELECT 'задание 2' AS "задание", :'note2' AS "условия", :'min2'::numeric AS "время, мс",
-       round(:'min2'::numeric / 60000, 6) AS "время, мин"
+SELECT 'задание 2' AS "задание", :'note2' AS "условия", :'min2'::numeric AS "время, мс"
 UNION ALL
-SELECT 'задание 3', :'note3', :'min3'::numeric, round(:'min3'::numeric / 60000, 6);
+SELECT 'задание 3', :'note3', :'min3'::numeric;
