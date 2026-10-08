@@ -267,7 +267,7 @@ function Show-Text([string]$file) {
     $StdOut.Write($b, 0, $b.Length)
 }
 
-# команды-аналоги TAXI-db: таблица helper/menu.txt (код|файл|параметры|обязательных|описание)
+# команды-аналоги TAXI-db: таблица helper/menu.txt (код|файл|параметры|обязательных|описание|пример|типы)
 $MenuFile = 'helper/menu.txt'
 function Read-Menu {
     [IO.File]::ReadAllLines((Join-Path $Root $MenuFile), $Utf8) |
@@ -476,6 +476,8 @@ if (-not $A[0]) {
   В [] - файл, который выполняет команда; при запуске он выводится строкой ">>> Файл: ...".
   Обработчик каждой команды - helper/help.ps1 (switch, ветвь с именем команды).
   Справка по одному блоку (лабораторной): ./help short - список блоков, ./help short lr2 - только ЛР2.
+  Параметры проверяются до запуска: число, формат (даты, годы, числа, 20|22), значения из базы
+  (категория, поставщик, коды); при ошибке команда не выполняется [helper/args.txt, helper/menu.txt].
 '@
     foreach ($k in 'lr1', 'lr2', 'zas', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say $Help[$k] }
     Show-Menu
