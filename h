@@ -445,7 +445,7 @@ case "$1" in
                 if [ -n "$7" ]; then echo "ОШИБКА: лишние параметры: ${*:7} (у сценария не больше трёх)"; exit 1; fi
                 bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
                 ;;
-            *) echo "ОШИБКА: ./h lr1 lan|client" ;;
+            *) echo "ОШИБКА: ./h lr1 lan|client"; exit 1 ;;
         esac
         ;;
 
@@ -477,7 +477,7 @@ case "$1" in
                 done
                 ;;
             psql) psql ;;
-            *) echo "ОШИБКА: ./h srv [check|all|psql|v20 N|v22 N [параметры]]" ;;
+            *) echo "ОШИБКА: ./h srv [check|all|psql|v20 N|v22 N [параметры]]"; exit 1 ;;
         esac
         ;;
 
@@ -499,7 +499,7 @@ case "$1" in
             measure)  need_variant "$3"; run lab2/measure.sql "$3" "$4"
                       cat "results/lr2_v$3_results.txt" ;;
             results)  need_variant "$3"; cat "results/lr2_v$3_results.txt" ;;
-            *) echo "ОШИБКА: ./h lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results" ;;
+            *) echo "ОШИБКА: ./h lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results"; exit 1 ;;
         esac
         ;;
 
@@ -509,7 +509,7 @@ case "$1" in
             cmplx) run lab3/cmplx.sql ;;
             20)    run lab3/v20_vector3.sql ;;
             22)    run lab3/v22_rational.sql ;;
-            *) echo "ОШИБКА: ./h lr3 cmplx|20|22" ;;
+            *) echo "ОШИБКА: ./h lr3 cmplx|20|22"; exit 1 ;;
         esac
         ;;
 
@@ -547,7 +547,7 @@ case "$1" in
                 [ -n "$4" ] && export LR4_BASE="$4"
                 bat lab4/dump-3.bat "$3"
                 ;;
-            *) echo "ОШИБКА: ./h lr4 all|base|tasks|dump1|dump2|dump3" ;;
+            *) echo "ОШИБКА: ./h lr4 all|base|tasks|dump1|dump2|dump3"; exit 1 ;;
         esac
         ;;
 
@@ -556,7 +556,7 @@ case "$1" in
         case "$2" in
             build) need_variant "$3"; bat lab5/build.bat "$3" "${4:+$(cygpath -w "$4")}" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
             20|22) run "lab5/v$2_test.sql" "$3" ;;
-            *) echo "ОШИБКА: ./h lr5 build 20|22  или  ./h lr5 20|22" ;;
+            *) echo "ОШИБКА: ./h lr5 build 20|22  или  ./h lr5 20|22"; exit 1 ;;
         esac
         ;;
 
@@ -577,7 +577,7 @@ case "$1" in
                 bat lab6/s.bat "lab6\\tasks\\$2_task$3.sql" "$4" "$5" "$6"
                 ;;
             console)  bat lab6/s0.bat ;;
-            *) echo "ОШИБКА: ./h lr6 setup|sel2|createdb|copy|disp|v20|v22|console" ;;
+            *) echo "ОШИБКА: ./h lr6 setup|sel2|createdb|copy|disp|v20|v22|console"; exit 1 ;;
         esac
         ;;
 
@@ -587,7 +587,7 @@ case "$1" in
             create) bat lab7/s.bat 'lab7\create_objects.sql' ;;
             1)      bat lab7/s.bat 'lab7\calculate1.sql' "$3" "$4" "$5" "$6" "$7" ;;
             2)      bat lab7/s.bat 'lab7\calculate2.sql' "$3" "$4" "$5" "$6" ;;
-            *) echo "ОШИБКА: ./h lr7 create|1|2" ;;
+            *) echo "ОШИБКА: ./h lr7 create|1|2"; exit 1 ;;
         esac
         ;;
 
@@ -597,7 +597,7 @@ case "$1" in
             build) bat lab8/v20/cs.bat "$3" 2>&1 | FIXENC_CP=cp866 perl helper/fixenc.pl ;;
             20)    shift 2; bat lab8/v20/run.bat "$@" ;;
             22)    shift 2; bat lab8/v22/run.bat "$@" ;;
-            *) echo "ОШИБКА: ./h lr8 build|20|22" ;;
+            *) echo "ОШИБКА: ./h lr8 build|20|22"; exit 1 ;;
         esac
         ;;
 
@@ -632,5 +632,5 @@ case "$1" in
         RUN_STOP=1 run zashita/check_args.sql "$2" "$4" "$5" || exit 1
         run "$f" "$2" "$4" "$5"
         ;;
-    *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)" ;;
+    *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)"; exit 1 ;;
 esac

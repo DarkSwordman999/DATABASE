@@ -540,7 +540,7 @@ switch ($A[0]) {
                 }
                 Bat 'lab1/s_lan.bat' @(($A[2] -replace '/', '\'), $A[3], $A[4], $A[5])
             }
-            default  { Say 'ОШИБКА: ./help lr1 lan|client' }
+            default  { Say 'ОШИБКА: ./help lr1 lan|client'; exit 1 }
         }
     }
 
@@ -574,7 +574,7 @@ switch ($A[0]) {
                 }
             }
             'psql'  { & psql.exe }
-            default { Say 'ОШИБКА: ./help srv [check|all|psql|v20 N|v22 N [параметры]]' }
+            default { Say 'ОШИБКА: ./help srv [check|all|psql|v20 N|v22 N [параметры]]'; exit 1 }
         }
     }
 
@@ -597,7 +597,7 @@ switch ($A[0]) {
             'measure' { Need-Variant $v; Run 'lab2/measure.sql' $v $A[3]
                         Show-Text "results/lr2_v$($v)_results.txt" }
             'results' { Need-Variant $v; Show-Text "results/lr2_v$($v)_results.txt" }
-            default   { Say 'ОШИБКА: ./help lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results' }
+            default   { Say 'ОШИБКА: ./help lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results'; exit 1 }
         }
     }
 
@@ -607,7 +607,7 @@ switch ($A[0]) {
             'cmplx' { Run 'lab3/cmplx.sql' }
             '20'    { Run 'lab3/v20_vector3.sql' }
             '22'    { Run 'lab3/v22_rational.sql' }
-            default { Say 'ОШИБКА: ./help lr3 cmplx|20|22' }
+            default { Say 'ОШИБКА: ./help lr3 cmplx|20|22'; exit 1 }
         }
     }
 
@@ -643,7 +643,7 @@ switch ($A[0]) {
                 if ($A[3]) { $env:LR4_BASE = $A[3] }
                 Bat 'lab4/dump-3.bat' @($A[2])
             }
-            default { Say 'ОШИБКА: ./help lr4 all|base|tasks|dump1|dump2|dump3' }
+            default { Say 'ОШИБКА: ./help lr4 all|base|tasks|dump1|dump2|dump3'; exit 1 }
         }
     }
 
@@ -652,7 +652,7 @@ switch ($A[0]) {
         switch ($A[1]) {
             'build' { Need-Variant $A[2]; Bat 'lab5/build.bat' @($A[2], ($A[3] -replace '/', '\')) 'cp866' }
             { $_ -in '20', '22' } { Run "lab5/v$($A[1])_test.sql" $A[2] }
-            default { Say 'ОШИБКА: ./help lr5 build 20|22  или  ./help lr5 20|22' }
+            default { Say 'ОШИБКА: ./help lr5 build 20|22  или  ./help lr5 20|22'; exit 1 }
         }
     }
 
@@ -673,7 +673,7 @@ switch ($A[0]) {
                 Bat 'lab6/s.bat' @("lab6\tasks\$($A[1])_task$($A[2]).sql", $A[3], $A[4], $A[5])
             }
             'console'  { & .\lab6\s0.bat }
-            default    { Say 'ОШИБКА: ./help lr6 setup|sel2|createdb|copy|disp|v20|v22|console' }
+            default    { Say 'ОШИБКА: ./help lr6 setup|sel2|createdb|copy|disp|v20|v22|console'; exit 1 }
         }
     }
 
@@ -683,7 +683,7 @@ switch ($A[0]) {
             'create' { Bat 'lab7/s.bat' @('lab7\create_objects.sql') }
             '1'      { Bat 'lab7/s.bat' @('lab7\calculate1.sql', $A[2], $A[3], $A[4], $A[5], $A[6]) }
             '2'      { Bat 'lab7/s.bat' @('lab7\calculate2.sql', $A[2], $A[3], $A[4], $A[5]) }
-            default  { Say 'ОШИБКА: ./help lr7 create|1|2' }
+            default  { Say 'ОШИБКА: ./help lr7 create|1|2'; exit 1 }
         }
     }
 
@@ -693,7 +693,7 @@ switch ($A[0]) {
             'build' { Bat 'lab8/v20/cs.bat' @($A[2]) 'cp866' }
             '20'    { Bat 'lab8/v20/run.bat' @($Argv | Select-Object -Skip 2) }
             '22'    { Bat 'lab8/v22/run.bat' @($Argv | Select-Object -Skip 2) }
-            default { Say 'ОШИБКА: ./help lr8 build|20|22' }
+            default { Say 'ОШИБКА: ./help lr8 build|20|22'; exit 1 }
         }
     }
 
@@ -735,6 +735,6 @@ switch ($A[0]) {
             }
         }
     }
-    default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)" }
+    default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)"; exit 1 }
 }
 exit 0
