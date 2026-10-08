@@ -1,5 +1,6 @@
 # Команды-аналоги TAXI-db для базы SALES: ./help <код> [параметры] и ./h <код> [параметры]
-# Формат строки: код|файл сценария psql|параметры (для справки)|число обязательных параметров|описание|пример параметров
+# Формат строки: код|файл сценария psql|параметры (для справки)|число обязательных параметров|описание|пример параметров|типы параметров
+# Типы параметров (через пробел) - как в helper/args.txt; без типов - команда без параметров.
 # Строка "== заголовок" начинает раздел справки. Параметры передаются в сценарий как arg1..arg5.
 == ПРОСМОТР ДАННЫХ
 01|helper/01_show_goods.sql||0|все товары (категория, поставщик)
@@ -40,18 +41,18 @@
 29|helper/29_avg_receipt_by_hour.sql||0|средний чек по часам
 30|helper/30_revenue_by_provider.sql||0|выручка по поставщикам с районом
 == ЗАПРОСЫ С ПАРАМЕТРАМИ
-31|queries/select/31_goods_by_category.sql|категория|1|товары категории (мебель, одежда)|мебель
-32|queries/select/32_manager_info.sql|код|1|информация о сотруднике и его сменах|1
-33|queries/select/33_goods_sales_history.sql|код|1|история продаж товара|1
-34|queries/select/34_sales_above_sum.sql|сумма|1|продажи дороже суммы|3000
-35|queries/select/35_shops_above_revenue.sql|сумма|1|магазины с выручкой выше суммы|100000
-40|queries/update/40_update_goods_price.sql|код цена|2|изменить розничную цену товара|1 360
-41|queries/update/41_update_manager_name.sql|код имя|2|изменить имя сотрудника|1 Николай
-42|queries/delete/42_delete_client.sql|код|1|удалить клиента и его продажи|23
-43|queries/insert/43_insert_goods.sql|наименование категория цена|3|добавить товар|тумба мебель 120
-44|queries/insert/44_insert_client.sql|фамилия имя [район]|2|добавить клиента|Иванов Пётр 2
-45|queries/update/45_update_goods_category.sql|код категория|2|изменить категорию товара|7 одежда
-46|queries/update/46_update_goods_provider.sql|код поставщик|2|изменить поставщика товара|1 3
+31|queries/select/31_goods_by_category.sql|категория|1|товары категории (мебель, одежда)|мебель|cat~
+32|queries/select/32_manager_info.sql|код|1|информация о сотруднике и его сменах|1|emp#
+33|queries/select/33_goods_sales_history.sql|код|1|история продаж товара|1|goods#
+34|queries/select/34_sales_above_sum.sql|сумма|1|продажи дороже суммы|3000|num
+35|queries/select/35_shops_above_revenue.sql|сумма|1|магазины с выручкой выше суммы|100000|num
+40|queries/update/40_update_goods_price.sql|код цена|2|изменить розничную цену товара|1 360|goods# num
+41|queries/update/41_update_manager_name.sql|код имя|2|изменить имя сотрудника|1 Николай|emp# text
+42|queries/delete/42_delete_client.sql|код|1|удалить клиента и его продажи|23|client#
+43|queries/insert/43_insert_goods.sql|наименование категория цена|3|добавить товар|тумба мебель 120|text cat num
+44|queries/insert/44_insert_client.sql|фамилия имя [район]|2|добавить клиента|Иванов Пётр 2|text text district#
+45|queries/update/45_update_goods_category.sql|код категория|2|изменить категорию товара|7 одежда|goods# cat
+46|queries/update/46_update_goods_provider.sql|код поставщик|2|изменить поставщика товара|1 3|goods# prov#
 == ПРЕДСТАВЛЕНИЯ
 100|queries/views/01_create_sales_view.sql||0|создать пользовательское представление V_ПРОДАЖИ
 101|queries/views/02_create_sales_tech.sql||0|создать технологическое представление V_ПРОДАЖИ_ТЕХ
@@ -62,7 +63,7 @@
 112|queries/subqueries/03_sales_above_avg.sql||0|2.1 продажи дороже средней по категории
 113|queries/subqueries/04_category_stats.sql||0|2.2 статистика по категориям
 114|queries/subqueries/05_top_goods_lateral.sql||0|3.1 топ-3 товара в каждом магазине (LATERAL)
-115|queries/subqueries/06_sales_above_avg_param.sql|фамилия|1|4.1 покупки клиента дороже его средней|Воронов
+115|queries/subqueries/06_sales_above_avg_param.sql|фамилия|1|4.1 покупки клиента дороже его средней|Воронов|surname
 116|queries/subqueries/07_good_clients_exists.sql||0|4.2 клиенты без мелких покупок (NOT EXISTS)
 117|queries/subqueries/08_best_shops_all.sql||0|4.3 лучший магазин (>= ALL)
 118|control/inserts/add_expensive_sales.sql||0|добавить дорогие продажи (для теста 4.2, 4.3)
@@ -70,7 +71,7 @@
 199|queries/subqueries/09_run_all.sql||0|выполнить все задачи с подзапросами
 == ФУНКЦИИ
 200|queries/functions/00_create_all.sql||0|создать все функции
-201|queries/functions/11_call_task1.sql|[порог]|0|shops_above_revenue(порог): магазины с выручкой выше порога|100000
+201|queries/functions/11_call_task1.sql|[порог]|0|shops_above_revenue(порог): магазины с выручкой выше порога|100000|num
 202|queries/functions/12_call_task2.sql||0|revenue_by_category_and_season(): выручка по категориям и сезонам
 203|queries/functions/13_call_task3.sql||0|display_pivot_table(): сводная таблица магазины x категории
 204|queries/functions/04_run_all.sql||0|создать функции и выполнить задачи 1-3

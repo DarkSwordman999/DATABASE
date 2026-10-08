@@ -1,0 +1,65 @@
+# Параметры команд ./help и ./h (кроме аналогов TAXI-db - их типы в helper/menu.txt, столбец 7)
+# Формат: команда|обязательных|типы параметров через пробел|использование (до конца строки, может содержать |)
+# Команда без строки здесь не проверяется (zas - zashita/check_args.sql, lr1 client, reports,
+# файл.sql). Параметров больше, чем типов, - ошибка; пустой параметр ("") - значение по умолчанию.
+# Типы (формат проверяет обёртка):
+#   variant - 20|22;  int - целое > 0;  n - целое >= 0;  num - число (8.5);  year - год ГГГГ;
+#   date - дата ДД.ММ.ГГГГ;  dow - пн..вс;  season - зима|весна|лето|осень;  idx - btree|hash;
+#   one - 1;  size - размер тома rar (8k, 10k, 1m);  cs - файл .cs в lab8/v20;  text - любой
+#   (две даты/два года подряд: первый не позже второго)
+# Типы со значением из базы (# - код, целое): проверяет helper/check_db.sql в PostgreSQL,
+# для lr6, lr7, lr8 - lab6/check_db.sql в MS SQL Server:
+#   cat - категория;  cat~ - часть наименования категории;  prov - поставщик;  goods - товар;
+#   surname - фамилия клиента;  emp - имя сотрудника;  prov#, goods#, client#, emp#, district#
+db|0||
+counts|0||
+all|0||
+psql|0||
+v20 1|0|date date cat|[дата1 дата2 [категория]]
+v20 2|0|year year dow|[год1 год2 [день недели]]
+v22 1|0|date date prov|[дата1 дата2 [поставщик]]
+v22 2|0|year year season|[год1 год2 [время года]]
+check|0||
+lr1 lan|0||
+lr2 gen|0|int|[N]
+lr2 restore|0||
+lr2 tbs|0|text|[каталог]
+lr2 time|1|variant int|20|22 [замеров]
+lr2 timing|1|variant int|20|22 [замеров]
+lr2 idx|1|variant|20|22
+lr2 idx1|1|variant idx|20|22 [btree|hash]
+lr2 idx0|1|variant|20|22
+lr2 pk1|1|variant|20|22
+lr2 pk0|1|variant|20|22
+lr2 copy|1|variant|20|22
+lr2 explain|1|variant one|20|22 [1]
+lr2 measure|1|variant int|20|22 [прогонов]
+lr2 results|1|variant|20|22
+lr3 cmplx|0||
+lr3 20|0||
+lr3 22|0||
+lr4 all|0|variant text|[20|22 [каталог]]
+lr4 base|0|text|[база]
+lr4 tasks|1|n text text|N [база] [20|22]
+lr4 dump1|0|text|[база]
+lr4 dump2|0|text|[база]
+lr4 dump3|0|size text|[том [база]]
+lr5 build|1|variant text|20|22 [каталог]
+lr5 20|0|text|[каталог]
+lr5 22|0|text|[каталог]
+lr6 setup|0||
+lr6 sel2|0||
+lr6 createdb|0||
+lr6 copy|0||
+lr6 disp|0||
+lr6 console|0||
+lr6 v20 1|0|date date cat|[дата1 дата2 [категория]]
+lr6 v20 2|0|year year dow|[год1 год2 [день недели]]
+lr6 v22 1|0|date date prov|[дата1 дата2 [поставщик]]
+lr6 v22 2|0|year year season|[год1 год2 [время года]]
+lr7 create|0||
+lr7 1|0|date date num num emp|[D1 D2 P M [N]]
+lr7 2|0|date date num goods|[D1 D2 alpha [G]]
+lr8 build|0|cs|[файл.cs]
+lr8 20|0|date date cat|[D1 D2 [категория]]
+lr8 22|0|date date prov|[D1 D2 [поставщик]]
