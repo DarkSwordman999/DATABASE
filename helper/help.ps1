@@ -150,6 +150,118 @@ function Need-Task([string]$t) {
     }
 }
 
+# ---------------- проверка параметров (helper/args.txt, helper/menu.txt) ----------------
+# Param-Error тип значение - текст ошибки формата (пусто - значение подходит); типы - helper/args.txt
+function Param-Error([string]$type, [string]$v) {
+    $d = [datetime]::MinValue
+    if ($type -eq 'variant') { if ($v -cnotin '20', '22') { return 'нужен вариант 20 или 22' } }
+    elseif ($type -eq 'int') { if ($v -cnotmatch '^[1-9][0-9]*$') { return 'нужно целое число больше 0' } }
+    elseif ($type -eq 'n')   { if ($v -cnotmatch '^[0-9]+$') { return 'нужно целое число (0 и больше)' } }
+    elseif ($type.EndsWith('#')) { if ($v -cnotmatch '^[0-9]+$') { return 'нужен код - целое число' } }
+    elseif ($type -eq 'num') {
+        if ($v -cnotmatch '^[0-9]+(\.[0-9]+)?$') { return 'нужно число, дробная часть через точку (например 8.5)' }
+    }
+    elseif ($type -eq 'year') { if ($v -cnotmatch '^(19|20)[0-9]{2}$') { return 'нужен год ГГГГ (например 2019)' } }
+    elseif ($type -eq 'date') {
+        if (-not [datetime]::TryParseExact($v, 'dd.MM.yyyy', [Globalization.CultureInfo]::InvariantCulture,
+                                           [Globalization.DateTimeStyles]::None, [ref]$d)) {
+            return 'нужна дата ДД.ММ.ГГГГ (например 01.07.2019)'
+        }
+    }
+    elseif ($type -eq 'dow') {
+        if ($v -cnotin 'пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс') { return 'нужен день недели: пн вт ср чт пт сб вс' }
+    }
+    elseif ($type -eq 'season') {
+        if ($v -cnotin 'зима', 'весна', 'лето', 'осень') { return 'нужно время года: зима весна лето осень' }
+    }
+    elseif ($type -eq 'idx')  { if ($v -cnotin 'btree', 'hash') { return 'нужен тип индекса btree или hash' } }
+    elseif ($type -eq 'one')  { if ($v -cne '1') { return 'допустимо только 1 (с условием WHERE)' } }
+    elseif ($type -eq 'size') {
+        if ($v -cnotmatch '^[1-9][0-9]*[kKmMgG]?$') { return 'нужен размер тома: число с k, m или g (например 8k)' }
+    }
+    elseif ($type -eq 'cs') {
+        if (-not ($v.EndsWith('.cs') -and ((Test-Path -LiteralPath "lab8/v20/$v" -PathType Leaf) -or
+                                           (Test-Path -LiteralPath $v -PathType Leaf)))) {
+            return 'нужен существующий файл .cs (в lab8/v20)'
+        }
+    }
+    ''
+}
+
+# ключ сравнения начала и конца периода: дата ДД.ММ.ГГГГ -> ГГГГММДД, год - как есть
+function Period-Key([string]$type, [string]$v) {
+    if ($type -eq 'date') { $v.Substring(6, 4) + $v.Substring(3, 2) + $v.Substring(0, 2) } else { $v }
+}
+
+# Check-Params команда обязательных "типы" "использование" "пример" параметры
+# Число и формат параметров, порядок дат/годов; значения из базы - helper/check_db.sql
+# (PostgreSQL) или lab6/check_db.sql (MS SQL Server, команды lr6, lr7, lr8).
+# При ошибке - сообщение, использование и выход с кодом 1
+function Check-Params([string]$cmd, [int]$req, [string]$types, [string]$usage, [string]$ex, [string[]]$params) {
+    $t = @($types -split ' ' | Where-Object { $_ })
+    $params = if ($null -eq $params) { @() } else { @($params | ForEach-Object { [string]$_ }) }
+    $given = @($params | Where-Object { $_ }).Count
+    $err = ''
+    $db = @()
+    if ($params.Count -gt $t.Count) {
+        $err = 'лишние параметры: ' + ($params[$t.Count..($params.Count - 1)] -join ' ')
+    }
+    elseif ($given -lt $req) { $err = "не хватает параметров (обязательных: $req)" }
+    $prev = ''; $pv = ''
+    for ($i = 0; -not $err -and $i -lt $params.Count; $i++) {
+        $v = $params[$i]
+        if ($v) {
+            $e = Param-Error $t[$i] $v
+            if ($e) { $err = "параметр $($i + 1) «$v»: $e"; break }
+            # две даты или два года подряд: первый не позже второго
+            if ($t[$i] -eq $prev -and $pv -and $prev -in 'date', 'year' -and
+                [string]::CompareOrdinal((Period-Key $prev $pv), (Period-Key $prev $v)) -gt 0) {
+                $err = "начало периода $pv позже конца $v"; break
+            }
+            if ($t[$i] -in 'cat', 'cat~', 'prov', 'prov#', 'goods', 'goods#', 'client#', 'surname', 'emp', 'emp#', 'district#') {
+                $db += $t[$i], $v
+            }
+        }
+        $prev = $t[$i]; $pv = $v
+    }
+    if ($err) {
+        Say "ОШИБКА: $err"
+        if ($usage) { Say "Использование: $cmd $usage" } else { Say "Использование: $cmd" }
+        if ($ex) { Say "Пример:        $cmd $ex" }
+        exit 1
+    }
+    if ($db.Count -eq 0) { return }
+    $db += @('', '', '', '')
+    # ЛР6-ЛР8 работают с MS SQL Server - значения проверяются там (данные могут отличаться)
+    if ($cmd -match ' lr[678] ') {
+        Say '>>> Файл: lab6/check_db.sql (MS SQL Server)'
+        $line = (Q (Join-Path $Root 'lab6\s.bat')) + ' ' + (Q (Join-Path $Root 'lab6\check_db.sql'))
+        foreach ($a in $db[0..3]) { $line += ' ' + (Q $a) }
+        Invoke-Raw $line $null
+    }
+    else { Run 'helper/check_db.sql' $db[0] $db[1] $db[2] $db[3] -Stop }
+    if ($script:ExitCode -eq 3) { exit 1 }
+    if ($script:ExitCode -ne 0) { Say 'ВНИМАНИЕ: значения параметров не проверены по базе (нет подключения)' }
+}
+
+# Check-Cmd префикс слова: строка helper/args.txt по первым 3, 2 или 1 словам
+# (префикс - для подсказки: "./help" или "./help srv"); команда без строки не проверяется
+function Check-Cmd([string]$pre, [string[]]$words) {
+    $words = @($words | ForEach-Object { [string]$_ })
+    $lines = @([IO.File]::ReadAllLines((Join-Path $Root 'helper/args.txt'), $Utf8) |
+               Where-Object { $_ -and -not $_.StartsWith('#') })
+    foreach ($n in 3, 2, 1) {
+        if ($words.Count -lt $n) { continue }
+        $key = $words[0..($n - 1)] -join ' '
+        foreach ($l in $lines) {
+            $f = $l.Split([char[]]'|', 4) + @('', '', '')
+            if ($f[0] -cne $key) { continue }
+            Check-Params "$pre $key" ([int]$f[1]) $f[2] $f[3] '' @($words | Select-Object -Skip $n)
+            return
+        }
+    }
+}
+
 function Show-Text([string]$file) {
     $b = [IO.File]::ReadAllBytes((Join-Path $Root $file))
     $StdOut.Write($b, 0, $b.Length)
@@ -381,17 +493,16 @@ if ($A[0] -like '*.sql') {
 $hit = Read-Menu | Where-Object { -not $_.StartsWith('== ') -and $_.Split('|')[0] -eq $A[0] } |
        Select-Object -First 1
 if ($hit) {
-    $f = $hit.Split('|')
-    $given = @($A[1..5] | Where-Object { $_ }).Count
-    if ($given -lt [int]$f[3]) {
-        Say "Использование: ./help $($f[0]) $($f[2])   ($($f[4]))"
-        if ($f.Count -gt 5 -and $f[5]) { Say "Пример:        ./help $($f[0]) $($f[5])" }
-        exit 1
-    }
+    $f = $hit.Split('|') + @('', '')
+    $usage = $(if ($f[2]) { "$($f[2])   " } else { '' }) + "($($f[4]))"
+    Check-Params "./help $($f[0])" ([int]$f[3]) $f[6] $usage $f[5] @($Argv | Select-Object -Skip 1)
     Say ">>> ./help $($f[0]) - $($f[4])"
     Run $f[1] $A[1] $A[2] $A[3] $A[4] $A[5]
     exit 0
 }
+
+# число и формат параметров команды - по helper/args.txt
+Check-Cmd './help' $Argv
 
 switch ($A[0]) {
     # ------------------------------ ЛР1 ------------------------------
@@ -422,6 +533,11 @@ switch ($A[0]) {
                     $A = @($A[0], $A[1]) + $A[3..($A.Count - 1)]
                 }
                 if (-not $A[2]) { Say 'Использование: ./help lr1 client [пользователь@]хост[:порт] сценарий [a1 a2 a3]'; exit 1 }
+                if (-not (Test-Path -LiteralPath $A[2] -PathType Leaf)) { Say "ОШИБКА: сценарий $($A[2]) не найден"; exit 1 }
+                if ($A[6]) {
+                    Say ('ОШИБКА: лишние параметры: ' + (($A[6..($A.Count - 1)] | Where-Object { $_ }) -join ' ') + ' (у сценария не больше трёх)')
+                    exit 1
+                }
                 Bat 'lab1/s_lan.bat' @(($A[2] -replace '/', '\'), $A[3], $A[4], $A[5])
             }
             default  { Say 'ОШИБКА: ./help lr1 lan|client' }
@@ -437,11 +553,14 @@ switch ($A[0]) {
         $env:PGDATABASE = 'sales'
         $env:PGCONNECT_TIMEOUT = '10'
         # необязательный адрес сервера: [пользователь@]хост[:порт] (содержит . @ или :)
+        $sa = @($Argv | Select-Object -Skip 1)
         if ($A[1] -match '[.@:]') {
             Set-Addr 'PG' $A[1]
             $A = @($A[0]) + $A[2..($A.Count - 1)]
+            $sa = @($sa | Select-Object -Skip 1)
         }
         Say "Сервер: $($env:PGHOST):$($env:PGPORT), база $($env:PGDATABASE), пользователь $($env:PGUSER)"
+        Check-Cmd './help srv' $sa
         switch ($A[1]) {
             { $_ -in '', 'check' } { Run 'lab1/check_server.sql' }
             { $_ -in 'v20', 'v22' } {
@@ -511,6 +630,7 @@ switch ($A[0]) {
                 $db = ''
                 foreach ($p in $A[3], $A[4]) {
                     if ($p -in '20', '22') { $env:LR4_VARIANT = $p }
+                    elseif ($p -and $db) { Say "ОШИБКА: две базы ($db, $p) - укажите базу и вариант 20|22"; exit 1 }
                     elseif ($p) { $db = $p }
                 }
                 Bat 'lab4/tasks.bat' @($A[2], $db)
