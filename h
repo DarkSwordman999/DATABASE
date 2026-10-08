@@ -68,7 +68,7 @@ need_variant() {
 show_menu() {
     local code file params req desc ex cmd pad
     local LC_ALL=C.UTF-8     # длина строки ${#cmd} - в символах, а не в байтах
-    while IFS='|' read -r code file params req desc ex; do
+    while IFS='|' read -r code file params req desc ex types; do
         case "$code" in
             ''|'#'*) continue ;;
             '== '*) echo ""; echo "================== БАЗА SALES: ${code#== } =================="; continue ;;
@@ -85,6 +85,98 @@ need_task() {
         echo "ОШИБКА: Укажите номер задания 1 или 2"
         exit 1
     fi
+}
+
+# ---------------- проверка параметров (helper/args.txt, helper/menu.txt) ----------------
+# param_error тип значение - текст ошибки формата (пусто - значение подходит); типы - helper/args.txt
+param_error() {
+    local v=$2 re_date='^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$' re_year='^(19|20)[0-9]{2}$'
+    case "$1" in
+        variant) [[ $v == 20 || $v == 22 ]] || echo "нужен вариант 20 или 22" ;;
+        int)     [[ $v =~ ^[1-9][0-9]*$ ]] || echo "нужно целое число больше 0" ;;
+        n)       [[ $v =~ ^[0-9]+$ ]] || echo "нужно целое число (0 и больше)" ;;
+        *#)      [[ $v =~ ^[0-9]+$ ]] || echo "нужен код - целое число" ;;
+        num)     [[ $v =~ ^[0-9]+(\.[0-9]+)?$ ]] || echo "нужно число, дробная часть через точку (например 8.5)" ;;
+        year)    [[ $v =~ $re_year ]] || echo "нужен год ГГГГ (например 2019)" ;;
+        date)    [[ $v =~ $re_date ]] &&
+                 [ "$(date -d "${v:6:4}-${v:3:2}-${v:0:2}" +%d.%m.%Y 2>/dev/null)" = "$v" ] ||
+                 echo "нужна дата ДД.ММ.ГГГГ (например 01.07.2019)" ;;
+        dow)     case $v in пн|вт|ср|чт|пт|сб|вс) ;; *) echo "нужен день недели: пн вт ср чт пт сб вс" ;; esac ;;
+        season)  case $v in зима|весна|лето|осень) ;; *) echo "нужно время года: зима весна лето осень" ;; esac ;;
+        idx)     [[ $v == btree || $v == hash ]] || echo "нужен тип индекса btree или hash" ;;
+        one)     [ "$v" = 1 ] || echo "допустимо только 1 (с условием WHERE)" ;;
+        size)    [[ $v =~ ^[1-9][0-9]*[kKmMgG]?$ ]] || echo "нужен размер тома: число с k, m или g (например 8k)" ;;
+        cs)      [[ $v == *.cs ]] && { [ -f "lab8/v20/$v" ] || [ -f "$v" ]; } ||
+                 echo "нужен существующий файл .cs (в lab8/v20)" ;;
+    esac
+}
+
+# check_params команда обязательных "типы" "использование" "пример" параметры...
+# Число и формат параметров, порядок дат/годов; значения из базы - helper/check_db.sql
+# (PostgreSQL) или lab6/check_db.sql (MS SQL Server, команды lr6, lr7, lr8).
+# При ошибке - сообщение, использование и выход с кодом 1
+check_params() {
+    local cmd=$1 req=$2 usage=$4 ex=$5 err="" v i=0 given=0 prev="" pv=""
+    local -a t=($3) db=()
+    shift 5
+    for v in "$@"; do [ -n "$v" ] && given=$((given + 1)); done
+    if [ $# -gt ${#t[@]} ]; then
+        err="лишние параметры: ${*:${#t[@]}+1}"
+    elif [ "$given" -lt "$req" ]; then
+        err="не хватает параметров (обязательных: $req)"
+    fi
+    for v in "$@"; do
+        [ -n "$err" ] && break
+        if [ -n "$v" ]; then
+            err=$(param_error "${t[$i]}" "$v")
+            if [ -n "$err" ]; then err="параметр $((i + 1)) «$v»: $err"; break; fi
+            # две даты или два года подряд: первый не позже второго
+            if [ "${t[$i]}" = "$prev" ] && [ -n "$pv" ] &&
+               { [[ $prev == date && "${pv:6:4}${pv:3:2}${pv:0:2}" > "${v:6:4}${v:3:2}${v:0:2}" ]] ||
+                 [[ $prev == year && $pv > $v ]]; }; then
+                err="начало периода $pv позже конца $v"; break
+            fi
+            case "${t[$i]}" in
+                cat|cat~|prov|prov#|goods|goods#|client#|surname|emp|emp#|district#) db+=("${t[$i]}" "$v") ;;
+            esac
+        fi
+        prev=${t[$i]}; pv=$v; i=$((i + 1))
+    done
+    if [ -n "$err" ]; then
+        echo "ОШИБКА: $err"
+        echo "Использование: $cmd${usage:+ $usage}"
+        [ -n "$ex" ] && echo "Пример:        $cmd $ex"
+        exit 1
+    fi
+    [ ${#db[@]} -eq 0 ] && return
+    # ЛР6-ЛР8 работают с MS SQL Server - значения проверяются там (данные могут отличаться)
+    if [[ $cmd =~ \ lr[678]\  ]]; then
+        echo ">>> Файл: lab6/check_db.sql (MS SQL Server)"
+        cmd.exe /c "$(cygpath -w lab6/s.bat)" "$(cygpath -w lab6/check_db.sql)" "${db[@]}"
+    else
+        RUN_STOP=1 run helper/check_db.sql "${db[@]}"
+    fi
+    case $? in
+        0) ;;
+        3) exit 1 ;;
+        *) echo "ВНИМАНИЕ: значения параметров не проверены по базе (нет подключения)" ;;
+    esac
+}
+
+# check_cmd префикс слова команды и параметры: строка helper/args.txt по первым 3, 2 или 1
+# словам (префикс - для подсказки: "./h" или "./h srv"); команда без строки не проверяется
+check_cmd() {
+    local pre=$1 n key line req types usage
+    shift
+    for n in 3 2 1; do
+        [ $# -lt $n ] && continue
+        key="${*:1:$n}"
+        line=$(awk -F'|' -v k="$key" '$1 == k { print; exit }' helper/args.txt)
+        [ -z "$line" ] && continue
+        IFS='|' read -r key req types usage <<< "$line"
+        check_params "$pre $key" "$req" "$types" "$usage" "" "${@:n+1}"
+        return
+    done
 }
 
 # справка по блокам: help_<блок> выводит один раздел (./h short <блок>), ./h - все разделы
@@ -310,19 +402,16 @@ fi
 
 # команды-аналоги TAXI-db (./h 01 ... ./h 204): файл и параметры - из helper/menu.txt
 if [[ "$1" =~ ^[0-9]+$ ]] && line=$(grep -m1 "^$1|" helper/menu.txt); then
-    IFS='|' read -r code file params req desc ex <<< "$line"
+    IFS='|' read -r code file params req desc ex types <<< "$line"
     shift
-    given=0
-    for a in "$@"; do [ -n "$a" ] && given=$((given + 1)); done
-    if [ "$given" -lt "$req" ]; then
-        echo "Использование: ./h $code $params   ($desc)"
-        [ -n "$ex" ] && echo "Пример:        ./h $code $ex"
-        exit 1
-    fi
+    check_params "./h $code" "$req" "$types" "${params:+$params   }($desc)" "$ex" "$@"
     echo ">>> ./h $code - $desc"
     run "$file" "$@"
     exit 0
 fi
+
+# число и формат параметров команды - по helper/args.txt
+check_cmd ./h "$@"
 
 case "$1" in
     # ------------------------------ ЛР1 ------------------------------
@@ -352,6 +441,8 @@ case "$1" in
                     set -- "$1" "$2" "${@:4}"
                 fi
                 if [ -z "$3" ]; then echo "Использование: ./h lr1 client [пользователь@]хост[:порт] сценарий [a1 a2 a3]"; exit 1; fi
+                if [ ! -f "$3" ]; then echo "ОШИБКА: сценарий $3 не найден"; exit 1; fi
+                if [ -n "$7" ]; then echo "ОШИБКА: лишние параметры: ${*:7} (у сценария не больше трёх)"; exit 1; fi
                 bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
                 ;;
             *) echo "ОШИБКА: ./h lr1 lan|client" ;;
@@ -372,6 +463,7 @@ case "$1" in
             set -- "$1" "${@:3}"
         fi
         echo "Сервер: $PGHOST:$PGPORT, база $PGDATABASE, пользователь $PGUSER"
+        check_cmd "./h srv" "${@:2}"
         case "$2" in
             ""|check) run lab1/check_server.sql ;;
             v20|v22)
