@@ -533,7 +533,8 @@ case "$1" in
                     case "$a" in
                         '') ;;
                         20|22) export LR4_VARIANT="$a" ;;
-                        *) db="$a" ;;
+                        *) if [ -n "$db" ]; then echo "ОШИБКА: две базы ($db, $a) - укажите базу и вариант 20|22"; exit 1; fi
+                           db="$a" ;;
                     esac
                 done
                 bat lab4/tasks.bat "$3" "$db"
