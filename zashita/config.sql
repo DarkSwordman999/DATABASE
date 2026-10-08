@@ -29,7 +29,7 @@ SET client_min_messages TO warning;
         \echo 'ОШИБКА:' :err
         \echo 'Допустимые поставщики (пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"):'
         SELECT название AS "поставщик" FROM ПОСТАВЩИК ORDER BY название;
-        \ir abort.sql
+        \ir ../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,ПОСТАВЩИК}'
     \set q_file zashita/v20_query.sql
@@ -51,7 +51,7 @@ SET client_min_messages TO warning;
         \echo 'ОШИБКА:' :err
         \echo 'Допустимые категории (пример: ./help zas 22 1 мебель):'
         SELECT наименование AS "категория" FROM КАТЕГОРИЯ ORDER BY наименование;
-        \ir abort.sql
+        \ir ../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,КАТЕГОРИЯ}'
     \set q_file zashita/v22_query.sql
