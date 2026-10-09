@@ -68,9 +68,9 @@ SELECT (NULL,2)::rational AS "нет числителя";
 -- ---------------------------------------------------------------------
 -- наибольший общий делитель целых чисел, записанных в double (алгоритм Евклида)
 CREATE OR REPLACE FUNCTION rat_gcd(x float, y float) RETURNS float AS $$
-DECLARE t numeric;
-        p numeric := abs(x::numeric);
-        q numeric := abs(y::numeric);
+DECLARE t bigint;            -- bigint точно хранит целые до 2^53 (float -> numeric округляет до 15 цифр)
+        p bigint := abs(x::bigint);
+        q bigint := abs(y::bigint);
 BEGIN
   WHILE q <> 0 LOOP
     t := mod(p, q); p := q; q := t;
@@ -106,9 +106,14 @@ CREATE OR REPLACE FUNCTION rat_sub(x rational, y rational) RETURNS rational AS $
 $$ LANGUAGE sql IMMUTABLE STRICT;
 CREATE OPERATOR - (leftarg = rational, rightarg = rational, procedure = rat_sub);
 
+-- произведение с сокращением крест-накрест: (a1/g1 * a2/g2) / (b1/g2 * b2/g1), g1 = НОД(a1, b2),
+-- g2 = НОД(a2, b1) - промежуточные значения не выходят за 2^53 (x * 1/x = 1/1 при любых a, b домена)
 CREATE OR REPLACE FUNCTION rat_mul(x rational, y rational) RETURNS rational AS $$
-  SELECT rat(x.a * y.a, x.b * y.b)
-$$ LANGUAGE sql IMMUTABLE STRICT;
+DECLARE g1 float := greatest(rat_gcd(x.a, y.b), 1);
+        g2 float := greatest(rat_gcd(y.a, x.b), 1);
+BEGIN
+  RETURN rat((x.a / g1) * (y.a / g2), (x.b / g2) * (y.b / g1));
+END $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 CREATE OPERATOR * (leftarg = rational, rightarg = rational, procedure = rat_mul, commutator = *);
 
 CREATE OR REPLACE FUNCTION rat_div(x rational, y rational) RETURNS rational AS $$
