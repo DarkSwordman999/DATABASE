@@ -274,7 +274,7 @@ function Read-Menu {
         Where-Object { $_ -and -not $_.StartsWith('#') }
 }
 
-function Show-Menu {
+function Show-Menu([switch]$NoExample) {
     foreach ($l in Read-Menu) {
         if ($l.StartsWith('== ')) {
             Say ''
@@ -285,7 +285,7 @@ function Show-Menu {
         $cmd = "./help $($f[0])"
         if ($f[2]) { $cmd += " $($f[2])" }
         Say ('  {0,-36} - {1}  [{2}]' -f $cmd, $f[4], $f[1])
-        if ($f.Count -gt 5 -and $f[5]) { Say ('  {0,-36}   пример: ./help {1} {2}' -f '', $f[0], $f[5]) }
+        if (-not $NoExample -and $f.Count -gt 5 -and $f[5]) { Say ('  {0,-36}   пример: ./help {1} {2}' -f '', $f[0], $f[5]) }
     }
 }
 
@@ -456,7 +456,8 @@ function Show-Short {
   ./help short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)
 
   пример: ./help short lr2      ./help short 2   (номер лабораторной 1-8 = lr1-lr8)
-  ./help                 - вся справка сразу
+  ./help                 - вся справка сразу (без примеров запуска)
+  ./help example         - вся справка сразу с примерами запуска
 '@
 }
 
@@ -472,7 +473,18 @@ if ($A[0] -eq 'short') {
     exit 0
 }
 
-if (-not $A[0]) {
+# ./help - вся справка без строк "пример: ...", ./help example - с примерами
+if (-not $A[0] -or $A[0] -eq 'example') {
+    $Ex = $A[0] -eq 'example'
+    if ($Argv.Count -gt 1) {
+        Say ('ОШИБКА: лишние параметры: ' + ($Argv[1..($Argv.Count - 1)] -join ' '))
+        Say '  ./help  или  ./help example'
+        exit 1
+    }
+    function Say-Help([string]$t) {
+        if (-not $Ex) { $t = ($t -split "`n" | Where-Object { $_ -notmatch '^\s*пример:' }) -join "`n" }
+        Say $t
+    }
     Say @'
 =============================================
   ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22
@@ -483,11 +495,13 @@ if (-not $A[0]) {
   Параметры проверяются до запуска: число, формат (даты, годы, числа, 20|22), значения из базы
   (категория, поставщик, коды); при ошибке команда не выполняется [helper/args.txt, helper/menu.txt].
 '@
-    foreach ($k in 'lr1', 'lr2', 'zas', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say $Help[$k] }
-    Show-Menu
+    if ($Ex) { Say '  Справка с примерами запуска; без примеров: ./help' }
+    else     { Say '  Справка без примеров запуска; с примерами: ./help example, по блоку: ./help short <блок>' }
+    foreach ($k in 'lr1', 'lr2', 'zas', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say-Help $Help[$k] }
+    Show-Menu -NoExample:(-not $Ex)
     Say ''
-    Say $Help.sql
-    exit 1
+    Say-Help $Help.sql
+    if ($Ex) { exit 0 } else { exit 1 }
 }
 
 if ($A[0] -like '*.sql') {
