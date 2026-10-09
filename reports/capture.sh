@@ -95,7 +95,7 @@ if [ -z "$ARGS" ] || want help; then
     cap help_err_date v20 1 31.02.2021 31.12.2021
     cap help_err_prov v22 1 01.07.2019 30.06.2023 "ООО Тур"
     cap help_err_variant lr2 time 21
-    cap help_err_extra zas 20 idx лишний
+    cap help_err_extra lr2 def 20 idx лишний
     cap help_err_cmd abc
 fi
 if want lr2; then

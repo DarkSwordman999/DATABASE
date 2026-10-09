@@ -1,4 +1,4 @@
-> ./help zas 20 idx лишний
+> ./help lr2 def 20 idx лишний
 ОШИБКА: лишние параметры: лишний
-  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]
-  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore
+  ./help lr2 def 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help lr2 def 22 [all|1|2|3] [категория]
+  ./help lr2 def 20|22 idx|idx_drop|idx_add   ./help lr2 def restore
