@@ -351,7 +351,8 @@ show_short() {
     echo "  ./h short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)"
     echo ""
     echo "  пример: ./h short lr2      ./h short 2   (номер лабораторной 1-8 = lr1-lr8)"
-    echo "  ./h                 - вся справка сразу"
+    echo "  ./h                 - вся справка сразу (без примеров запуска)"
+    echo "  ./h example         - вся справка сразу с примерами запуска"
 }
 
 if [ "$1" = "short" ]; then
@@ -367,7 +368,8 @@ if [ "$1" = "short" ]; then
     exit 0
 fi
 
-if [ -z "$1" ]; then
+# ./h - вся справка без строк "пример: ...", ./h example - с примерами
+full_help() {
     echo "============================================="
     echo "  ПАБД: БАЗА ДАННЫХ SALES, ВАРИАНТЫ 20 И 22"
     echo "============================================="
@@ -376,6 +378,11 @@ if [ -z "$1" ]; then
     echo "  Справка по одному блоку (лабораторной): ./h short - список блоков, ./h short lr2 - только ЛР2."
     echo "  Параметры проверяются до запуска: число, формат (даты, годы, числа, 20|22), значения из базы"
     echo "  (категория, поставщик, коды); при ошибке команда не выполняется [helper/args.txt, helper/menu.txt]."
+    if [ "$1" = "example" ]; then
+        echo "  Справка с примерами запуска; без примеров: ./h"
+    else
+        echo "  Справка без примеров запуска; с примерами: ./h example, по блоку: ./h short <блок>"
+    fi
     echo ""
     help_lr1
     echo ""
@@ -397,6 +404,16 @@ if [ -z "$1" ]; then
     help_taxi
     echo ""
     help_sql
+}
+
+if [ -z "$1" ] || [ "$1" = "example" ]; then
+    if [ $# -gt 1 ]; then
+        echo "ОШИБКА: лишние параметры: ${*:2}"
+        echo "  ./h  или  ./h example"
+        exit 1
+    fi
+    if [ "$1" = "example" ]; then full_help example; exit 0; fi
+    full_help | grep -v '^ *пример:'
     exit 1
 fi
 
