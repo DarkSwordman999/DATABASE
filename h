@@ -408,7 +408,7 @@ if [ -z "$1" ] || [ "$1" = "example" ]; then
         exit 1
     fi
     if [ "$1" = "example" ]; then full_help example; exit 0; fi
-    full_help | grep -v '^ *пример:'
+    full_help | grep -v -E '^ *пример:|^ {40,}\./h '   # пример и его строки-продолжения
     exit 1
 fi
 
