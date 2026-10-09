@@ -321,7 +321,7 @@ $Help.lr1 = @'
   (адрес - [пользователь@]хост[:порт]; пароль - $env:SRV_PASS или pgpass.conf)
 '@
 $Help.lr2 = @'
-================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN ==================
+================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN, ЗАЩИТА ЛР2 ==================
   ./help lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]
                                          пример: ./help lr2 gen 2000000
   ./help lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]
@@ -350,9 +350,7 @@ $Help.lr2 = @'
   ./help lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]
                                          пример: ./help lr2 results 20      ./help lr2 results 22
   (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)
-'@
-$Help.zas = @'
-================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
+  --- защита ЛР2: индексы и время запроса варианта (lab2/zashita) ---
   ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
   ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]
@@ -444,8 +442,7 @@ function Show-Short {
 =============================================
   Вывести подсказку только по одному блоку (лабораторной):
   ./help short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)
-  ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN (lr2 ...)
-  ./help short zas       - защита ЛР2: индексы и время запроса (zas ...)
+  ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., zas ...); то же: ./help short zas
   ./help short lr3       - ЛР3: пользовательские типы (lr3 ...)
   ./help short lr4       - ЛР4: резервное копирование (lr4 ...)
   ./help short lr5       - ЛР5: функции на C (lr5 ...)
@@ -463,6 +460,7 @@ function Show-Short {
 
 if ($A[0] -eq 'short') {
     $blk = if ($A[1] -match '^[1-8]$') { 'lr' + $A[1] } else { $A[1] }
+    if ($blk -eq 'zas') { $blk = 'lr2' }   # защита ЛР2 - в блоке ЛР2
     if (-not $blk) { Show-Short }
     elseif ($blk -eq 'taxi') { Show-Menu }
     elseif ($Help.Contains($blk)) { Say $Help[$blk] }
@@ -497,7 +495,7 @@ if (-not $A[0] -or $A[0] -eq 'example') {
 '@
     if ($Ex) { Say '  Справка с примерами запуска; без примеров: ./help' }
     else     { Say '  Справка без примеров запуска; с примерами: ./help example, по блоку: ./help short <блок>' }
-    foreach ($k in 'lr1', 'lr2', 'zas', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say-Help $Help[$k] }
+    foreach ($k in 'lr1', 'lr2', 'lr3', 'lr4', 'lr5', 'lr6', 'lr7', 'lr8') { Say ''; Say-Help $Help[$k] }
     Show-Menu -NoExample:(-not $Ex)
     Say ''
     Say-Help $Help.sql
