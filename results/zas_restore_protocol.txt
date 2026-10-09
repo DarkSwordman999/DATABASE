@@ -1,0 +1,9 @@
+>>> Файл: big_db_indexes/zashita/restore.sql
+Исходные индексы (PRIMARY KEY) восстановлены
+  таблица  |     индекс     |                                  определение                                   
+-----------+----------------+--------------------------------------------------------------------------------
+ КАТЕГОРИЯ | КАТЕГОРИЯ_pkey | CREATE UNIQUE INDEX "КАТЕГОРИЯ_pkey" ON public."КАТЕГОРИЯ" USING btree ("код")
+ ПОСТАВЩИК | ПОСТАВЩИК_pkey | CREATE UNIQUE INDEX "ПОСТАВЩИК_pkey" ON public."ПОСТАВЩИК" USING btree ("код")
+ ТОВАР     | ТОВАР_pkey     | CREATE UNIQUE INDEX "ТОВАР_pkey" ON public."ТОВАР" USING btree ("код")
+(3 строки)
+
