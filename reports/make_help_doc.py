@@ -132,7 +132,7 @@ def build():
         ("helper/check_db.sql, helper/check_db_one.sql",
          "проверка значений параметров по базе sales (категория, поставщик, товар, коды)"),
         ("lab6/check_db.sql", "та же проверка по базе SALES в MS SQL Server (команды lr6-lr8)"),
-        ("big_db_indexes/zashita/check_args.sql", "проверка параметров команд защиты ЛР2 (zas)"),
+        ("big_db_indexes/zashita/check_args.sql", "проверка параметров команд защиты ЛР2 (lr2 def)"),
         ("helper/abort.sql", "прерывание сценария psql при неверных параметрах (код выхода 3)"),
         ("helper/fixenc.pl", "фильтр ./h: служебные сообщения psql из CP1251 в UTF-8 "
                              "(в ./help - функция Fix-Line)"),
@@ -162,7 +162,7 @@ def build():
         ("./help example", "вся справка с примерами запуска под каждой командой"),
         ("./help short", "список блоков справки и команды для вывода каждого"),
         ("./help short <блок>", "один блок с примерами: lr1 … lr8, taxi, sql; вместо lrN можно "
-                                "указать номер 1-8; zas - то же, что lr2"),
+                                "указать номер 1-8"),
     ], "Команды справки", widths=[5, 11.5], size=11)
     r.output("help_short", "список блоков справки")
     r.output("help_short3", "один блок справки (ЛР3)")

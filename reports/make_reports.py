@@ -111,9 +111,9 @@ def defense_commands(lab, v):
             (f"./help lr2 copy {v}", f"big_db_indexes/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
             (f"./help lr2 measure {v}", f"big_db_indexes/measure.sql - протокол results/lr2_v{v}_results.txt"),
             (f"./help lr2 results {v}", "показать протокол измерений"),
-            (f"./help zas {v}", "big_db_indexes/zashita/z_all.sql - задание на защиту: запрос варианта, "
-                                "5 замеров без индексов, индексы варианта и EXPLAIN ANALYZE"),
-            ("./help zas restore", "big_db_indexes/zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
+            (f"./help lr2 def {v}", "big_db_indexes/zashita/z_all.sql - задание на защиту: запрос варианта, "
+                                    "5 замеров без индексов, индексы варианта и EXPLAIN ANALYZE"),
+            ("./help lr2 def restore", "big_db_indexes/zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
             ("./help lr2 restore", "big_db_indexes/restore_lr1.sql - вернуть 1000 записей ЛР1"),
         ]
     if lab == 3:
@@ -186,7 +186,7 @@ DEFENSE_NOTES = {
         "выполняемого сценария, а в справке ./help у каждой команды в квадратных скобках указан "
         "её файл, поэтому на защите видно, какой сценарий открывается и где он лежит.",
         "Задание на защиту (ПРОДАЖА, ТОВАР и поставщик или категория без индексов и с индексами "
-        "варианта) выполняется командами ./help zas; результаты приведены в отдельном отчёте "
+        "варианта) выполняется командами ./help lr2 def; результаты приведены в отдельном отчёте "
         "«Защита_вариант_NN.txt»."],
     4: ["Каталог резервных копий - lab4/work; при нехватке места на диске C: он "
         "переопределяется переменной: $env:LR4_WORK='D:/LR4_WORK'; ./help lr4 all."],
