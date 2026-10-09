@@ -376,6 +376,12 @@ $Help.lr3 = @'
   ./help lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]
   ./help lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]
   ./help lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]
+  --- защита ЛР3 (перед запуском тип варианта пересоздаётся: lab3/v20_vector3.sql, lab3/v22_rational.sql) ---
+  ./help lr3 def 20 ["(ax,ay,az)" "(bx,by,bz)"] - в.20: W = a × b (оператор #), W*a = 0 и W*b = 0  [lab3/def_v20_cross.sql]
+                                         пример: ./help lr3 def 20      ./help lr3 def 20 "(1,0,0)" "(0,1,0)"
+  ./help lr3 def 22 [a b]      - в.22: x = a/b, -x = b/a или 0/1 (оператор ~), (-x)*x = x*(-x) = 1 или 0  [lab3/def_v22_inverse.sql]
+                                         пример: ./help lr3 def 22      ./help lr3 def 22 -3 4      ./help lr3 def 22 0 7
+  (по умолч. в.20 - (1,2,3) и (4,5,6), в.22 - 3 и 4; параметры проверяются: векторы (x,y,z), целые |a|, |b| <= 2^53, b <> 0)
 '@
 $Help.lr4 = @'
 ================== ЛР4: РЕЗЕРВНОЕ КОПИРОВАНИЕ ==================
@@ -443,7 +449,7 @@ function Show-Short {
   Вывести подсказку только по одному блоку (лабораторной):
   ./help short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)
   ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., lr2 def ...)
-  ./help short lr3       - ЛР3: пользовательские типы (lr3 ...)
+  ./help short lr3       - ЛР3: пользовательские типы и защита ЛР3 (lr3 ..., lr3 def ...)
   ./help short lr4       - ЛР4: резервное копирование (lr4 ...)
   ./help short lr5       - ЛР5: функции на C (lr5 ...)
   ./help short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)
@@ -659,7 +665,18 @@ switch ($A[0]) {
             'cmplx' { Run 'lab3/cmplx.sql' }
             '20'    { Run 'lab3/v20_vector3.sql' }
             '22'    { Run 'lab3/v22_rational.sql' }
-            default { Say 'ОШИБКА: ./help lr3 cmplx|20|22'; exit 1 }
+            # защита ЛР3: тип варианта пересоздаётся без вывода, затем сценарий защиты
+            'def'   {
+                $v = $A[2]
+                Need-Variant $v
+                $type = @{ '20' = 'lab3/v20_vector3.sql'; '22' = 'lab3/v22_rational.sql' }[$v]
+                $file = @{ '20' = 'lab3/def_v20_cross.sql'; '22' = 'lab3/def_v22_inverse.sql' }[$v]
+                Say ">>> Файл: $type (тип и операции варианта, вывод скрыт)"
+                Run $type -Quiet
+                Run $file $A[3] $A[4] -Stop
+                if ($script:ExitCode -ne 0) { exit 1 }
+            }
+            default { Say 'ОШИБКА: ./help lr3 cmplx|20|22|def'; exit 1 }
         }
     }
 

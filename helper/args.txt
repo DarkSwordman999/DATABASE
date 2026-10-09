@@ -38,6 +38,8 @@ lr2 results|1|variant|20|22
 lr3 cmplx|0||
 lr3 20|0||
 lr3 22|0||
+lr3 def 20|0|text text|["(ax,ay,az)" "(bx,by,bz)"]
+lr3 def 22|0|text text|[a b]
 lr4 all|0|variant text|[20|22 [каталог]]
 lr4 base|0|text|[база]
 lr4 tasks|1|n text text|N [база] [20|22]
