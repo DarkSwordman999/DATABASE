@@ -111,9 +111,9 @@ def defense_commands(lab, v):
             (f"./help lr2 copy {v}", f"lab2/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
             (f"./help lr2 measure {v}", f"lab2/measure.sql - протокол results/lr2_v{v}_results.txt"),
             (f"./help lr2 results {v}", "показать протокол измерений"),
-            (f"./help zas {v}", "zashita/z_all.sql - задание на защиту: запрос варианта, "
+            (f"./help zas {v}", "lab2/zashita/z_all.sql - задание на защиту: запрос варианта, "
                                 "5 замеров без индексов, индексы варианта и EXPLAIN ANALYZE"),
-            ("./help zas restore", "zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
+            ("./help zas restore", "lab2/zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
             ("./help lr2 restore", "lab2/restore_lr1.sql - вернуть 1000 записей ЛР1"),
         ]
     if lab == 3:
