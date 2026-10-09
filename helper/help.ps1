@@ -480,7 +480,7 @@ if (-not $A[0] -or $A[0] -eq 'example') {
         exit 1
     }
     function Say-Help([string]$t) {
-        if (-not $Ex) { $t = ($t -split "`n" | Where-Object { $_ -notmatch '^\s*пример:' }) -join "`n" }
+        if (-not $Ex) { $t = ($t -split "`n" | Where-Object { $_ -notmatch '^\s*пример:|^\s{40,}\./help ' }) -join "`n" }
         Say $t
     }
     Say @'
