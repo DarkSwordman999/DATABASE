@@ -1,6 +1,6 @@
 -- Защита ЛР2: настройки варианта по первому параметру (20 или 22, по умолчанию 20)
 -- arg2, arg3 - параметры запроса: в.20 - названия двух поставщиков, в.22 - категория товара
--- Пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"  (arg1 = 20, arg2, arg3 - поставщики)
+-- Пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"  (arg1 = 20, arg2, arg3 - поставщики)
 -- Результат: variant, is_v20, p1, p2, tbls (таблицы запроса), q (текст запроса),
 --            q_file (файл с текстом запроса)
 \if :{?arg1} \else \set arg1 '' \endif
@@ -27,7 +27,7 @@ SET client_min_messages TO warning;
     SELECT :'err' <> '' AS bad \gset
     \if :bad
         \echo 'ОШИБКА:' :err
-        \echo 'Допустимые поставщики (пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"):'
+        \echo 'Допустимые поставщики (пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"):'
         SELECT название AS "поставщик" FROM ПОСТАВЩИК ORDER BY название;
         \ir ../../helper/abort.sql
     \endif
@@ -49,7 +49,7 @@ SET client_min_messages TO warning;
     SELECT :'err' <> '' AS bad \gset
     \if :bad
         \echo 'ОШИБКА:' :err
-        \echo 'Допустимые категории (пример: ./help zas 22 1 мебель):'
+        \echo 'Допустимые категории (пример: ./help lr2 def 22 1 мебель):'
         SELECT наименование AS "категория" FROM КАТЕГОРИЯ ORDER BY наименование;
         \ir ../../helper/abort.sql
     \endif
@@ -63,4 +63,25 @@ SET client_min_messages TO warning;
 SELECT count(*) < 100000 AS small FROM ПРОДАЖА \gset
 \if :small
     \echo 'ВНИМАНИЕ: в ПРОДАЖА меньше 100 000 записей - сначала ./help lr2 gen (2 млн записей)'
+\endif
+-- Независимость вариантов: таблицы ПРОДАЖА и ТОВАР общие, поэтому индексы другого варианта
+-- (def22_* для в.20, def20_* для в.22) и прежние zas_* удаляются перед любой командой варианта
+SELECT coalesce(string_agg(ic.relname, ', ' ORDER BY ic.relname), '') AS other_idx
+  FROM pg_index i
+       JOIN pg_class t  ON t.oid = i.indrelid
+       JOIN pg_class ic ON ic.oid = i.indexrelid
+ WHERE t.relname IN ('ПРОДАЖА', 'ТОВАР', 'ПОСТАВЩИК', 'КАТЕГОРИЯ')
+   AND (ic.relname LIKE 'zas\_%'
+        OR (ic.relname LIKE 'def__\_%' AND ic.relname NOT LIKE 'def' || :'variant' || '\_%')) \gset
+SELECT :'other_idx' <> '' AS has_other \gset
+\if :has_other
+    \echo 'Удалены индексы другого варианта:' :other_idx
+    SELECT set_config('def.other', :'other_idx', false) AS none \gset
+    DO $$
+    DECLARE n text;
+    BEGIN
+        FOREACH n IN ARRAY string_to_array(current_setting('def.other'), ', ') LOOP
+            EXECUTE format('DROP INDEX %I', n);
+        END LOOP;
+    END $$;
 \endif

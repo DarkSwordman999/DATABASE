@@ -1,9 +1,10 @@
 -- Защита ЛР2, задание 3: ввод индексов варианта, выполнение запроса с фиксацией времени
--- (5 раз и минимальное время) и EXPLAIN ANALYZE того же запроса
+-- (5 раз и минимальное время), EXPLAIN ANALYZE того же запроса и проверка плана (plan_check.sql);
+-- индексы называются def20_* / def22_* и остаются до запуска команды другого варианта
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
--- Запуск: ./help zas 20 3 [параметры]   ./help zas 22 3 [параметры]
--- Пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"     ./help zas 22 3 мебель
+-- Запуск: ./help lr2 def 20 3 [параметры]   ./help lr2 def 22 3 [параметры]
+-- Пример: ./help lr2 def 20 3 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 3 мебель
 \set QUIET on
 \ir config.sql
 \ir drop_all.sql
@@ -12,14 +13,16 @@
 \echo '=============================================================================='
 \echo 'Ввод индексов (прежние индексы таблиц' :tbls 'удалены):'
 \set ECHO queries
-CREATE INDEX zas_продажа_товар ON ПРОДАЖА USING btree (товар);
-CREATE INDEX zas_товар_код ON ТОВАР USING hash (код);
 \if :is_v20
-CREATE INDEX zas_товар_поставщик ON ТОВАР USING hash (поставщик);
-CREATE INDEX zas_поставщик_название ON ПОСТАВЩИК USING btree (название);
+CREATE INDEX def20_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX def20_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX def20_товар_поставщик ON ТОВАР USING hash (поставщик);
+CREATE INDEX def20_поставщик_название ON ПОСТАВЩИК USING btree (название);
 \else
-CREATE INDEX zas_товар_категория ON ТОВАР USING hash (категория);
-CREATE INDEX zas_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
+CREATE INDEX def22_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX def22_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX def22_товар_категория ON ТОВАР USING hash (категория);
+CREATE INDEX def22_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
 \endif
 \set ECHO none
 ANALYZE ПРОДАЖА;
@@ -41,8 +44,8 @@ SELECT CASE t.relname WHEN 'ПРОДАЖА' THEN '1)' WHEN 'ТОВАР' THEN '2)
  WHERE t.relname = ANY (:'tbls'::text[])
  ORDER BY 1, ic.oid;
 \ir show_query.sql
-DROP TABLE IF EXISTS zas_время;
-CREATE TEMP TABLE zas_время (№ serial, ms numeric);
+DROP TABLE IF EXISTS def_время;
+CREATE TEMP TABLE def_время (№ serial, ms numeric);
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
@@ -54,3 +57,4 @@ CREATE TEMP TABLE zas_время (№ serial, ms numeric);
 \echo
 \echo 'EXPLAIN ANALYZE того же запроса, что и 5 замеров выше:'
 EXPLAIN ANALYZE :q ;
+\ir plan_check.sql
