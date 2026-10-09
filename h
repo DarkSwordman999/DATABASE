@@ -207,7 +207,7 @@ help_lr1() {
 }
 
 help_lr2() {
-    echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN =================="
+    echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN, ЗАЩИТА ЛР2 =================="
     echo "  ./h lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]"
     echo "                                         пример: ./h lr2 gen 2000000"
     echo "  ./h lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]"
@@ -236,10 +236,7 @@ help_lr2() {
     echo "  ./h lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]"
     echo "                                         пример: ./h lr2 results 20      ./h lr2 results 22"
     echo "  (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)"
-}
-
-help_zas() {
-    echo "================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА =================="
+    echo "  --- защита ЛР2: индексы и время запроса варианта (lab2/zashita) ---"
     echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 all \"ООО Турман\" \"ЧП Загорье\""
     echo "  ./h zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
@@ -339,8 +336,7 @@ show_short() {
     echo "============================================="
     echo "  Вывести подсказку только по одному блоку (лабораторной):"
     echo "  ./h short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)"
-    echo "  ./h short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN (lr2 ...)"
-    echo "  ./h short zas       - защита ЛР2: индексы и время запроса (zas ...)"
+    echo "  ./h short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., zas ...); то же: ./h short zas"
     echo "  ./h short lr3       - ЛР3: пользовательские типы (lr3 ...)"
     echo "  ./h short lr4       - ЛР4: резервное копирование (lr4 ...)"
     echo "  ./h short lr5       - ЛР5: функции на C (lr5 ...)"
@@ -357,6 +353,7 @@ show_short() {
 
 if [ "$1" = "short" ]; then
     [[ "$2" =~ ^[1-8]$ ]] && set -- "$1" "lr$2"
+    [ "$2" = "zas" ] && set -- "$1" lr2   # защита ЛР2 - в блоке ЛР2
     if [ -z "$2" ]; then
         show_short
     elif declare -F "help_$2" >/dev/null; then
@@ -387,8 +384,6 @@ full_help() {
     help_lr1
     echo ""
     help_lr2
-    echo ""
-    help_zas
     echo ""
     help_lr3
     echo ""
