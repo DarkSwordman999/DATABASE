@@ -274,6 +274,39 @@ function Read-Menu {
         Where-Object { $_ -and -not $_.StartsWith('#') }
 }
 
+# дерево файлов проекта (аналог tree /f, но в UTF-8 - кириллица в именах выводится верно):
+# внутри папки сначала файлы, затем подпапки, порядок - по кодам символов (как в ./h tree);
+# $Tracked - файлы git (режим git), пусто - все файлы, кроме папки .git
+$TreeCount = @{ dirs = 0; files = 0 }
+function Show-Tree([string]$rel, [string]$prefix, $Tracked) {
+    $path = if ($rel) { Join-Path $Root $rel } else { $Root }
+    $files = @(); $dirs = @()
+    foreach ($e in Get-ChildItem -LiteralPath $path -Force) {
+        if ($e.Name -eq '.git') { continue }
+        $r = if ($rel) { "$rel/$($e.Name)" } else { $e.Name }
+        if ($e.PSIsContainer) {
+            if ($Tracked -and -not ($Tracked.Keys | Where-Object { $_.StartsWith("$r/") } | Select-Object -First 1)) { continue }
+            $dirs += $e.Name
+        }
+        else {
+            if ($Tracked -and -not $Tracked.ContainsKey($r)) { continue }
+            $files += $e.Name
+        }
+    }
+    $files = [string[]]$files; [Array]::Sort($files, [StringComparer]::Ordinal)
+    $dirs = [string[]]$dirs; [Array]::Sort($dirs, [StringComparer]::Ordinal)
+    $bar = if ($dirs.Count) { '│   ' } else { '    ' }
+    foreach ($f in $files) { Say ($prefix + $bar + $f); $script:TreeCount.files++ }
+    if ($files.Count) { Say ($prefix + $bar).TrimEnd() }
+    for ($i = 0; $i -lt $dirs.Count; $i++) {
+        $last = $i -eq $dirs.Count - 1
+        Say ($prefix + $(if ($last) { '└───' } else { '├───' }) + $dirs[$i])
+        $script:TreeCount.dirs++
+        $sub = if ($rel) { "$rel/$($dirs[$i])" } else { $dirs[$i] }
+        Show-Tree $sub ($prefix + $(if ($last) { '    ' } else { '│   ' })) $Tracked
+    }
+}
+
 function Show-Menu([switch]$NoExample) {
     foreach ($l in Read-Menu) {
         if ($l.StartsWith('== ')) {
@@ -438,6 +471,8 @@ $Help.sql = @'
   ./help файл.sql [a1 .. a5]   - выполнить любой psql-сценарий с параметрами arg1..arg5
   ./help psql                  - консоль psql (база sales)
   ./help reports [N ...]       - пересобрать отчёты .docx  [reports/make_reports.py]
+  ./help tree [all|git] [папка] - дерево файлов проекта (как tree /f, кириллица в UTF-8): all - все файлы, кроме .git (по умолч.), git - только файлы git
+                                         пример: ./help tree      ./help tree git      ./help tree all lab3
 '@
 
 # ./help short - список блоков справки и команды для вывода каждого из них
@@ -456,7 +491,7 @@ function Show-Short {
   ./help short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)
   ./help short lr8       - ЛР8: программы с данными MS SQL Server (lr8 ...)
   ./help short taxi      - база SALES: аналоги команд TAXI-db (01 ... 204)  [helper/menu.txt]
-  ./help short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)
+  ./help short sql       - запуск SQL-файлов, консоль psql, отчёты, дерево проекта (файл.sql, psql, reports, tree)
 
   пример: ./help short lr2      ./help short 2   (номер лабораторной 1-8 = lr1-lr8)
   ./help                 - вся справка сразу (без примеров запуска)
@@ -505,6 +540,29 @@ if (-not $A[0] -or $A[0] -eq 'example') {
     Say ''
     Say-Help $Help.sql
     if ($Ex) { exit 0 } else { exit 1 }
+}
+
+# ./help tree [all|git] [папка] - дерево файлов проекта
+if ($A[0] -eq 'tree') {
+    $mode = if ($A[1]) { $A[1] } else { 'all' }
+    if ($Argv.Count -gt 3 -or $mode -notin 'all', 'git') {
+        Say 'ОШИБКА: ./help tree [all|git] [папка]   (all - все файлы, кроме .git; git - только файлы git)'
+        exit 1
+    }
+    $rel = ($A[2] -replace '\\', '/').Trim('/')
+    if ($rel -and -not (Test-Path -LiteralPath (Join-Path $Root $rel) -PathType Container)) {
+        Say "ОШИБКА: нет папки $($A[2]) в проекте"
+        exit 1
+    }
+    $tracked = $null
+    if ($mode -eq 'git') {
+        $tracked = @{}
+        foreach ($f in (& git -C $Root -c core.quotepath=false ls-files)) { $tracked[$f] = $true }
+    }
+    Say ('Дерево проекта: ' + $(if ($rel) { $rel } else { '.' }) + $(if ($mode -eq 'git') { ' (файлы git)' } else { ' (все файлы, кроме .git)' }))
+    Show-Tree $rel '' $tracked
+    Say ("Папок: $($TreeCount.dirs), файлов: $($TreeCount.files)")
+    exit 0
 }
 
 if ($A[0] -like '*.sql') {
