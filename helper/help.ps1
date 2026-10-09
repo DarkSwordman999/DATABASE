@@ -351,23 +351,23 @@ $Help.lr2 = @'
                                          пример: ./help lr2 results 20      ./help lr2 results 22
   (запрос (*) и настройки варианта: big_db_indexes/vNN_query.sql, big_db_indexes/vNN_config.sql, big_db_indexes/config.sql)
   --- защита ЛР2: индексы и время запроса варианта (big_db_indexes/zashita) ---
-  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]
-                                         пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
-  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]
-                                         пример: ./help zas 22 all мебель
-  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [big_db_indexes/zashita/z1_query.sql, запрос big_db_indexes/zashita/vNN_query.sql]
-                                         пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"      ./help zas 22 1 мебель
-  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [big_db_indexes/zashita/z2_noidx.sql, запрос big_db_indexes/zashita/vNN_query.sql]
-                                         пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"      ./help zas 22 2 мебель
-  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [big_db_indexes/zashita/z3_idx.sql, запрос big_db_indexes/zashita/vNN_query.sql]
-                                         пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
-  ./help zas 20|22 idx             - индексы таблиц запроса варианта  [big_db_indexes/zashita/show_idx.sql]
-                                         пример: ./help zas 20 idx      ./help zas 22 idx
-  ./help zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [big_db_indexes/zashita/idx_drop.sql]
-                                         пример: ./help zas 20 idx_drop      ./help zas 22 idx_drop
-  ./help zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [big_db_indexes/zashita/idx_add.sql]
-                                         пример: ./help zas 20 idx_add      ./help zas 22 idx_add
-  ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [big_db_indexes/zashita/restore.sql]
+  ./help lr2 def 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]
+                                         пример: ./help lr2 def 20 all "ООО Турман" "ЧП Загорье"
+  ./help lr2 def 22 [all] [категория]  - в.22: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]
+                                         пример: ./help lr2 def 22 all мебель
+  ./help lr2 def 20|22 1 [параметры] - 1) запрос варианта и результат  [big_db_indexes/zashita/z1_query.sql, запрос big_db_indexes/zashita/vNN_query.sql]
+                                         пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"      ./help lr2 def 22 1 мебель
+  ./help lr2 def 20|22 2 [параметры] - 2) в.20 без индексов (показ: индексов 0, в плане не используются), в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [big_db_indexes/zashita/z2_noidx.sql, запрос big_db_indexes/zashita/vNN_query.sql]
+                                         пример: ./help lr2 def 20 2 "ООО Турман" "ЧП Загорье"      ./help lr2 def 22 2 мебель
+  ./help lr2 def 20|22 3 [параметры] - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE, использование индексов в плане  [big_db_indexes/zashita/z3_idx.sql, запрос big_db_indexes/zashita/vNN_query.sql]
+                                         пример: ./help lr2 def 20 3 "ООО Турман" "ЧП Загорье"      ./help lr2 def 22 3 мебель
+  ./help lr2 def 20|22 idx         - индексы таблиц запроса варианта  [big_db_indexes/zashita/show_idx.sql]
+                                         пример: ./help lr2 def 20 idx      ./help lr2 def 22 idx
+  ./help lr2 def 20|22 idx_drop    - удалить индексы задания 3 своего варианта (def20_* / def22_*), остальные и PRIMARY KEY не трогаются  [big_db_indexes/zashita/idx_drop.sql]
+                                         пример: ./help lr2 def 20 idx_drop      ./help lr2 def 22 idx_drop
+  ./help lr2 def 20|22 idx_add     - создать индексы задания 3 своего варианта (def20_* / def22_*) без замеров  [big_db_indexes/zashita/idx_add.sql]
+                                         пример: ./help lr2 def 20 idx_add      ./help lr2 def 22 idx_add
+  ./help lr2 def restore           - удалить индексы защиты, вернуть PRIMARY KEY  [big_db_indexes/zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
   (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)
 '@
@@ -442,7 +442,7 @@ function Show-Short {
 =============================================
   Вывести подсказку только по одному блоку (лабораторной):
   ./help short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)
-  ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., zas ...); то же: ./help short zas
+  ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., lr2 def ...)
   ./help short lr3       - ЛР3: пользовательские типы (lr3 ...)
   ./help short lr4       - ЛР4: резервное копирование (lr4 ...)
   ./help short lr5       - ЛР5: функции на C (lr5 ...)
@@ -460,7 +460,6 @@ function Show-Short {
 
 if ($A[0] -eq 'short') {
     $blk = if ($A[1] -match '^[1-8]$') { 'lr' + $A[1] } else { $A[1] }
-    if ($blk -eq 'zas') { $blk = 'lr2' }   # защита ЛР2 - в блоке ЛР2
     if (-not $blk) { Show-Short }
     elseif ($blk -eq 'taxi') { Show-Menu }
     elseif ($Help.Contains($blk)) { Say $Help[$blk] }
@@ -615,7 +614,42 @@ switch ($A[0]) {
             'measure' { Need-Variant $v; Run 'big_db_indexes/measure.sql' $v $A[3]
                         Show-Text "results/lr2_v$($v)_results.txt" }
             'results' { Need-Variant $v; Show-Text "results/lr2_v$($v)_results.txt" }
-            default   { Say 'ОШИБКА: ./help lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results'; exit 1 }
+            # защита ЛР2: ./help lr2 def 20|22 [шаг] [параметры] (big_db_indexes/zashita/*.sql)
+            'def'     {
+                if ($A[2] -eq 'restore') {
+                    if ($Argv.Count -gt 3) { Say 'ОШИБКА: у ./help lr2 def restore нет параметров'; exit 1 }
+                    Run 'big_db_indexes/zashita/restore.sql'
+                }
+                else {
+                    Need-Variant $v
+                    $step = if ($A[3]) { $A[3] } else { 'all' }
+                    # индексы варианта (без параметров запроса)
+                    $idxFile = @{ 'idx' = 'big_db_indexes/zashita/show_idx.sql'; 'idx_drop' = 'big_db_indexes/zashita/idx_drop.sql'
+                                  'idx_add' = 'big_db_indexes/zashita/idx_add.sql' }[$step]
+                    # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
+                    $max = if ($idxFile) { 4 } elseif ($v -eq '20') { 6 } else { 5 }
+                    if ($Argv.Count -gt $max) {
+                        Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
+                        Say '  ./help lr2 def 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help lr2 def 22 [all|1|2|3] [категория]'
+                        Say '  ./help lr2 def 20|22 idx|idx_drop|idx_add   ./help lr2 def restore'
+                        exit 1
+                    }
+                    $file = @{ 'all' = 'big_db_indexes/zashita/z_all.sql'; '1' = 'big_db_indexes/zashita/z1_query.sql'
+                               '2' = 'big_db_indexes/zashita/z2_noidx.sql'; '3' = 'big_db_indexes/zashita/z3_idx.sql' }[$step]
+                    if ($idxFile) { Run $idxFile $v }
+                    elseif (-not $file) {
+                        Say 'ОШИБКА: ./help lr2 def 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help lr2 def restore'
+                        exit 1
+                    }
+                    else {
+                        # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
+                        Run 'big_db_indexes/zashita/check_args.sql' $v $A[4] $A[5] -Stop
+                        if ($script:ExitCode -ne 0) { exit 1 }
+                        Run $file $v $A[4] $A[5]
+                    }
+                }
+            }
+            default   { Say 'ОШИБКА: ./help lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results|def'; exit 1 }
         }
     }
 
@@ -722,41 +756,6 @@ switch ($A[0]) {
     }
     'psql'  { & psql.exe -X }
 
-    # защита ЛР2: запрос варианта без индексов и с индексами (big_db_indexes/zashita/*.sql)
-    'zas' {
-        if ($A[1] -eq 'restore') {
-            if ($Argv.Count -gt 2) { Say 'ОШИБКА: у ./help zas restore нет параметров'; exit 1 }
-            Run 'big_db_indexes/zashita/restore.sql'
-        }
-        else {
-            Need-Variant $A[1]
-            $step = if ($A[2]) { $A[2] } else { 'all' }
-            # индексы варианта (без параметров запроса)
-            $idxFile = @{ 'idx' = 'big_db_indexes/zashita/show_idx.sql'; 'idx_drop' = 'big_db_indexes/zashita/idx_drop.sql'
-                          'idx_add' = 'big_db_indexes/zashita/idx_add.sql' }[$step]
-            # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
-            $max = if ($idxFile) { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
-            if ($Argv.Count -gt $max) {
-                Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
-                Say '  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]'
-                Say '  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore'
-                exit 1
-            }
-            $file = @{ 'all' = 'big_db_indexes/zashita/z_all.sql'; '1' = 'big_db_indexes/zashita/z1_query.sql'
-                       '2' = 'big_db_indexes/zashita/z2_noidx.sql'; '3' = 'big_db_indexes/zashita/z3_idx.sql' }[$step]
-            if ($idxFile) { Run $idxFile $A[1] }
-            elseif (-not $file) {
-                Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help zas restore'
-                exit 1
-            }
-            else {
-                # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
-                Run 'big_db_indexes/zashita/check_args.sql' $A[1] $A[3] $A[4] -Stop
-                if ($script:ExitCode -ne 0) { exit 1 }
-                Run $file $A[1] $A[3] $A[4]
-            }
-        }
-    }
     default { Say "ОШИБКА: Неизвестная команда $($A[0]) (./help - список команд)"; exit 1 }
 }
 exit 0
