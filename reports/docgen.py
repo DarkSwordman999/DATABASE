@@ -49,22 +49,27 @@ SCRIPT = {"h": "h", "help": "helper/help.ps1"}
 
 
 def _help_lines(runner):
-    """Строки справки: echo "..." в h (None - не echo), here-string @' ... '@ в help.ps1."""
+    """Строки справки: echo "..." в h (None - не echo), блоки $Help.<блок> = @' ... '@ в help.ps1
+    (None - граница блока)."""
     src = read(SCRIPT[runner]).splitlines()
     if runner == "h":
         for line in src:
             m = re.match(r'\s*echo "(.*)"$', line)
             yield m.group(1).replace("\\\\", "\\") if m else None
         return
-    start = next(i for i, l in enumerate(src) if l.rstrip().endswith("@'"))
-    for line in src[start + 1:]:
-        if line.startswith("'@"):
-            return
-        yield line
+    on = False                  # внутри блока $Help.<блок> = @' ... '@
+    for line in src:
+        if on and line.startswith("'@"):
+            on = False
+            yield None
+        elif on:
+            yield line
+        elif re.match(r"\$Help\.\w+ = @'$", line.rstrip()):
+            on = True
 
 
 def h_help(lab, runner="h"):
-    """Раздел справки ./h (./help) без параметров для ЛР lab - строки между заголовками."""
+    """Раздел справки ./h (./help) short <lab> - строки блока ЛР lab с примерами запуска."""
     lines, on = [], False
     for text in _help_lines(runner):
         if text is None:
@@ -293,7 +298,7 @@ class Report:
         for n in notes:
             self.p(n)
         self.code(h_help(self.lab, self.runner),
-                  f"справка по командам ЛР{self.lab}: {cmd} (без параметров)", size=8)
+                  f"справка по командам ЛР{self.lab}: {cmd} short {self.lab}", size=8)
         self.code(h_branch(self.lab, self.runner),
                   f"обработка команд ЛР{self.lab} в сценарии {SCRIPT[self.runner]} (фрагмент)",
                   size=8)
