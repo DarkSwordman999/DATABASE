@@ -263,6 +263,12 @@ help_lr3() {
     echo "  ./h lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]"
     echo "  ./h lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]"
     echo "  ./h lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]"
+    echo "  --- защита ЛР3 (перед запуском тип варианта пересоздаётся: lab3/v20_vector3.sql, lab3/v22_rational.sql) ---"
+    echo "  ./h lr3 def 20 [\"(ax,ay,az)\" \"(bx,by,bz)\"] - в.20: W = a × b (оператор #), W*a = 0 и W*b = 0  [lab3/def_v20_cross.sql]"
+    echo "                                         пример: ./h lr3 def 20      ./h lr3 def 20 \"(1,0,0)\" \"(0,1,0)\""
+    echo "  ./h lr3 def 22 [a b]      - в.22: x = a/b, -x = b/a или 0/1 (оператор ~), (-x)*x = x*(-x) = 1 или 0  [lab3/def_v22_inverse.sql]"
+    echo "                                         пример: ./h lr3 def 22      ./h lr3 def 22 -3 4      ./h lr3 def 22 0 7"
+    echo "  (по умолч. в.20 - (1,2,3) и (4,5,6), в.22 - 3 и 4; параметры проверяются: векторы (x,y,z), целые |a|, |b| <= 2^53, b <> 0)"
 }
 
 help_lr4() {
@@ -337,7 +343,7 @@ show_short() {
     echo "  Вывести подсказку только по одному блоку (лабораторной):"
     echo "  ./h short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)"
     echo "  ./h short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., lr2 def ...)"
-    echo "  ./h short lr3       - ЛР3: пользовательские типы (lr3 ...)"
+    echo "  ./h short lr3       - ЛР3: пользовательские типы и защита ЛР3 (lr3 ..., lr3 def ...)"
     echo "  ./h short lr4       - ЛР4: резервное копирование (lr4 ...)"
     echo "  ./h short lr5       - ЛР5: функции на C (lr5 ...)"
     echo "  ./h short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)"
@@ -560,7 +566,14 @@ case "$1" in
             cmplx) run lab3/cmplx.sql ;;
             20)    run lab3/v20_vector3.sql ;;
             22)    run lab3/v22_rational.sql ;;
-            *) echo "ОШИБКА: ./h lr3 cmplx|20|22"; exit 1 ;;
+            # защита ЛР3: тип варианта пересоздаётся без вывода, затем сценарий защиты
+            def)   need_variant "$3"
+                   if [ "$3" = 20 ]; then t=lab3/v20_vector3.sql; f=lab3/def_v20_cross.sql
+                   else t=lab3/v22_rational.sql; f=lab3/def_v22_inverse.sql; fi
+                   echo ">>> Файл: $t (тип и операции варианта, вывод скрыт)"
+                   run "$t" >/dev/null 2>&1
+                   RUN_STOP=1 run "$f" "$4" "$5" || exit 1 ;;
+            *) echo "ОШИБКА: ./h lr3 cmplx|20|22|def"; exit 1 ;;
         esac
         ;;
 
