@@ -8,7 +8,7 @@ import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-D = "big_db_indexes/zashita/"
+D = "big_db_indexes/def_"
 LINE = "-" * 78
 DLINE = "=" * 78
 
@@ -114,7 +114,7 @@ def report(v):
             f"  ./help lr2 def {v} 2 [парам.]      задание 2: 5 замеров          ({D}z2_noidx.sql)",
             f"  ./help lr2 def {v} 3 [парам.]      задание 3: индексы, замеры    ({D}z3_idx.sql)",
             f"  ./help lr2 def {v} idx             индексы таблиц запроса        ({D}show_idx.sql)",
-            f"  ./help lr2 def {v} idx_drop|idx_add  удалить / создать индексы задания 3 ({D}idx_drop.sql, idx_add.sql)",
+            f"  ./help lr2 def {v} idx_drop|idx_add  удалить / создать индексы задания 3 ({D}idx_drop.sql, def_idx_add.sql)",
             f"  ./help lr2 def restore            вернуть PRIMARY KEY           ({D}restore.sql)",
             f"  Параметры по умолчанию: {c['params']}; пример: {c['example']}",
             "  Каждая команда печатает строку «>>> Файл: ...» - путь выполняемого сценария.",
@@ -122,9 +122,9 @@ def report(v):
                  f"и любая команда варианта удаляет индексы другого варианта ({D}config.sql), "
                  f"поэтому вручную индексы удалять не нужно."),
             wrap(f"Вспомогательные файлы: {D}config.sql (настройки варианта, текст запроса :q), "
-                 "show_query.sql (вывод текста запроса), drop_all.sql (удаление всех индексов, "
-                 "в т.ч. PRIMARY KEY), time_run.sql (один замер), time_table.sql (таблица замеров, "
-                 "минимум), plan_check.sql (узлы плана и использование индексов), indexes.sql "
+                 "def_show_query.sql (вывод текста запроса), def_drop_all.sql (удаление всех индексов, "
+                 "в т.ч. PRIMARY KEY), def_time_run.sql (один замер), def_time_table.sql (таблица замеров, "
+                 "минимум), def_plan_check.sql (узлы плана и использование индексов), def_indexes.sql "
                  "(список индексов)."),
             "  Листинг программы: reports/zashita/Листинг_программы.txt",
             "", LINE, f"Результат прогона ./help lr2 def {v} (протокол results/zas_v{v}_protocol.txt)",
@@ -143,7 +143,7 @@ def report(v):
                  f"и со всеми индексами варианта "
                  + (f"практически одинаково (разница {diff:+.1f} %, в пределах разброса отдельных "
                     f"замеров)." if same else f"отличается на {diff:+.1f} %.")
-                 + " Проверка плана (plan_check.sql) в заданиях 2 и 3 показывает причину: "
+                 + " Проверка плана (def_plan_check.sql) в заданиях 2 и 3 показывает причину: "
                  + ("ни один узел плана не читает таблицы через индекс - созданные индексы "
                     "планировщик не использует." if n["no_idx"] == 2 else
                     "в плане есть узлы, читающие таблицы через индекс.")

@@ -132,7 +132,7 @@ def build():
         ("helper/check_db.sql, helper/check_db_one.sql",
          "проверка значений параметров по базе sales (категория, поставщик, товар, коды)"),
         ("lab6/check_db.sql", "та же проверка по базе SALES в MS SQL Server (команды lr6-lr8)"),
-        ("big_db_indexes/zashita/check_args.sql", "проверка параметров команд защиты ЛР2 (lr2 def)"),
+        ("big_db_indexes/def_check_args.sql", "проверка параметров команд защиты ЛР2 (lr2 def)"),
         ("helper/abort.sql", "прерывание сценария psql при неверных параметрах (код выхода 3)"),
         ("helper/fixenc.pl", "фильтр ./h: служебные сообщения psql из CP1251 в UTF-8 "
                              "(в ./help - функция Fix-Line)"),
