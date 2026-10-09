@@ -3,26 +3,29 @@
 ==============================================================================
 
 Запуск (PowerShell, корень проекта):
-  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   по умолчанию: ООО Турман, ЧП Загорье
-  ./help zas 22 [all|1|2|3] [категория]                     по умолчанию: мебель
-  ./help zas 20|22 idx|idx_drop|idx_add                     показать / удалить / создать индексы задания 3
-  ./help zas restore                                        вернуть PRIMARY KEY после защиты
+  ./help lr2 def 20 [all|1|2|3] ["поставщик1" "поставщик2"]   по умолчанию: ООО Турман, ЧП Загорье
+  ./help lr2 def 22 [all|1|2|3] [категория]                     по умолчанию: мебель
+  ./help lr2 def 20|22 idx|idx_drop|idx_add                     показать / удалить / создать индексы задания 3
+  ./help lr2 def restore                                        вернуть PRIMARY KEY после защиты
 
-Порядок выполнения ./help zas NN (all):
+Порядок выполнения ./help lr2 def NN (all):
   helper/help.ps1 -> check_args.sql (проверка параметров) -> psql -> big_db_indexes/zashita/z_all.sql
-    z1_query.sql  задание 1: config.sql (параметры, vNN_query.sql -> :q),
+    config.sql    в каждой команде: параметры, vNN_query.sql -> :q; индексы другого
+                  варианта (def20_* / def22_*) удаляются - варианты независимы
+    z1_query.sql  задание 1: config.sql,
                   show_query.sql (текст запроса), :q (сводная таблица)
     z2_noidx.sql  задание 2: drop_all.sql, [в.22: индекс ПРОДАЖА(товар)],
-                  show_query.sql, 5 x time_run.sql, time_table.sql, EXPLAIN ANALYZE :q
+                  таблица индексов (в.20: индексов 0), show_query.sql, 5 x time_run.sql,
+                  time_table.sql, EXPLAIN ANALYZE :q, plan_check.sql (индексы в плане)
     z3_idx.sql    задание 3: drop_all.sql, CREATE INDEX, таблица индексов,
                   show_query.sql, 5 x time_run.sql,
-                  time_table.sql, EXPLAIN ANALYZE :q
+                  time_table.sql, EXPLAIN ANALYZE :q, plan_check.sql
     итог          таблица минимального времени заданий 2 и 3
 
 ------------------------------------------------------------------------------
 1. big_db_indexes/zashita/check_args.sql
 ------------------------------------------------------------------------------
--- Защита ЛР2: проверка параметров запроса перед запуском заданий (./h zas, ./help zas)
+-- Защита ЛР2: проверка параметров запроса перед запуском заданий (./h lr2 def, ./help lr2 def)
 -- в.20 - два разных поставщика из ПОСТАВЩИК, в.22 - категория из КАТЕГОРИЯ.
 -- При ошибке выводит её и допустимые значения; при запуске с ON_ERROR_STOP psql
 -- завершается с кодом 3, и обёртка задания не выполняет
@@ -34,8 +37,8 @@
 2. big_db_indexes/zashita/z_all.sql
 ------------------------------------------------------------------------------
 -- Защита ЛР2: задания 1-3 подряд и итоговое сравнение времени
--- Запуск: ./help zas 20 [all] [параметры]   ./help zas 22 [all] [параметры]
--- Пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"   ./help zas 22 all мебель
+-- Запуск: ./help lr2 def 20 [all] [параметры]   ./help lr2 def 22 [all] [параметры]
+-- Пример: ./help lr2 def 20 all "ООО Турман" "ЧП Загорье"   ./help lr2 def 22 all мебель
 \ir z1_query.sql
 \ir z2_noidx.sql
 \ir z3_idx.sql
@@ -57,7 +60,7 @@ SELECT 'задание 3', :'note3', :'min3'::numeric;
 ------------------------------------------------------------------------------
 -- Защита ЛР2: настройки варианта по первому параметру (20 или 22, по умолчанию 20)
 -- arg2, arg3 - параметры запроса: в.20 - названия двух поставщиков, в.22 - категория товара
--- Пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"  (arg1 = 20, arg2, arg3 - поставщики)
+-- Пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"  (arg1 = 20, arg2, arg3 - поставщики)
 -- Результат: variant, is_v20, p1, p2, tbls (таблицы запроса), q (текст запроса),
 --            q_file (файл с текстом запроса)
 \if :{?arg1} \else \set arg1 '' \endif
@@ -84,7 +87,7 @@ SET client_min_messages TO warning;
     SELECT :'err' <> '' AS bad \gset
     \if :bad
         \echo 'ОШИБКА:' :err
-        \echo 'Допустимые поставщики (пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"):'
+        \echo 'Допустимые поставщики (пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"):'
         SELECT название AS "поставщик" FROM ПОСТАВЩИК ORDER BY название;
         \ir ../../helper/abort.sql
     \endif
@@ -106,7 +109,7 @@ SET client_min_messages TO warning;
     SELECT :'err' <> '' AS bad \gset
     \if :bad
         \echo 'ОШИБКА:' :err
-        \echo 'Допустимые категории (пример: ./help zas 22 1 мебель):'
+        \echo 'Допустимые категории (пример: ./help lr2 def 22 1 мебель):'
         SELECT наименование AS "категория" FROM КАТЕГОРИЯ ORDER BY наименование;
         \ir ../../helper/abort.sql
     \endif
@@ -121,6 +124,27 @@ SELECT count(*) < 100000 AS small FROM ПРОДАЖА \gset
 \if :small
     \echo 'ВНИМАНИЕ: в ПРОДАЖА меньше 100 000 записей - сначала ./help lr2 gen (2 млн записей)'
 \endif
+-- Независимость вариантов: таблицы ПРОДАЖА и ТОВАР общие, поэтому индексы другого варианта
+-- (def22_* для в.20, def20_* для в.22) и прежние zas_* удаляются перед любой командой варианта
+SELECT coalesce(string_agg(ic.relname, ', ' ORDER BY ic.relname), '') AS other_idx
+  FROM pg_index i
+       JOIN pg_class t  ON t.oid = i.indrelid
+       JOIN pg_class ic ON ic.oid = i.indexrelid
+ WHERE t.relname IN ('ПРОДАЖА', 'ТОВАР', 'ПОСТАВЩИК', 'КАТЕГОРИЯ')
+   AND (ic.relname LIKE 'zas\_%'
+        OR (ic.relname LIKE 'def__\_%' AND ic.relname NOT LIKE 'def' || :'variant' || '\_%')) \gset
+SELECT :'other_idx' <> '' AS has_other \gset
+\if :has_other
+    \echo 'Удалены индексы другого варианта:' :other_idx
+    SELECT set_config('def.other', :'other_idx', false) AS none \gset
+    DO $$
+    DECLARE n text;
+    BEGIN
+        FOREACH n IN ARRAY string_to_array(current_setting('def.other'), ', ') LOOP
+            EXECUTE format('DROP INDEX %I', n);
+        END LOOP;
+    END $$;
+\endif
 
 ------------------------------------------------------------------------------
 4. big_db_indexes/zashita/v20_query.sql
@@ -128,7 +152,7 @@ SELECT count(*) < 100000 AS small FROM ПРОДАЖА \gset
 -- Защита ЛР2, вариант 20, задание 1:
 -- суммарная выручка от продажи товаров двух поставщиков с заданными именами
 -- результат - сводная таблица: поставщик 1 | поставщик 2 | суммарная выручка
--- p1, p2 - названия поставщиков (./help zas 20 1 "ООО Турман" "ЧП Загорье")
+-- p1, p2 - названия поставщиков (./help lr2 def 20 1 "ООО Турман" "ЧП Загорье")
 -- Текст запроса с подставленными параметрами записывается в переменную psql :q,
 -- сценарии выводят его (\echo :q) и выполняют (:q ;  или  EXPLAIN ANALYZE :q ;)
 SELECT format($q$SELECT %L AS "поставщик 1", %L AS "поставщик 2",
@@ -144,7 +168,7 @@ WHERE ПОСТАВЩИК.название IN (%L, %L)$q$, :'p1', :'p2', :'p1', :
 -- Защита ЛР2, вариант 22, задание 1:
 -- суммарная выручка от продажи товаров заданной категории
 -- результат - сводная таблица: категория | суммарная выручка
--- p1 - наименование категории (./help zas 22 1 мебель)
+-- p1 - наименование категории (./help lr2 def 22 1 мебель)
 -- Текст запроса с подставленными параметрами записывается в переменную psql :q,
 -- сценарии выводят его (\echo :q) и выполняют (:q ;  или  EXPLAIN ANALYZE :q ;)
 SELECT format($q$SELECT %L AS "категория",
@@ -168,8 +192,8 @@ WHERE КАТЕГОРИЯ.наименование = %L$q$, :'p1', :'p1') AS q \g
 7. big_db_indexes/zashita/z1_query.sql
 ------------------------------------------------------------------------------
 -- Защита ЛР2, задание 1: текст запроса варианта и сводная таблица - его результат
--- Запуск: ./help zas 20 1 ["поставщик1" "поставщик2"]   ./help zas 22 1 [категория]
--- Пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"     ./help zas 22 1 мебель
+-- Запуск: ./help lr2 def 20 1 ["поставщик1" "поставщик2"]   ./help lr2 def 22 1 [категория]
+-- Пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 1 мебель
 \set QUIET on
 \ir config.sql
 \echo '=============================================================================='
@@ -187,11 +211,13 @@ WHERE КАТЕГОРИЯ.наименование = %L$q$, :'p1', :'p1') AS q \g
 8. big_db_indexes/zashita/z2_noidx.sql
 ------------------------------------------------------------------------------
 -- Защита ЛР2, задание 2:
---   в.20 - таблицы запроса БЕЗ индексов (никаких, в т.ч. PRIMARY KEY);
+--   в.20 - таблицы запроса БЕЗ индексов (никаких, в т.ч. PRIMARY KEY): показывается, что
+--          индексов нет, и по плану запроса - что индексы не используются;
 --   в.22 - удаляются все индексы и создаётся один индекс ПРОДАЖА(товар) btree;
--- 5 выполнений запроса, таблица времени в мс, выделено минимальное; EXPLAIN ANALYZE того же запроса
--- Запуск: ./help zas 20 2 ["поставщик1" "поставщик2"]   ./help zas 22 2 [категория]
--- Пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"     ./help zas 22 2 мебель
+-- 5 выполнений запроса, таблица времени в мс, выделено минимальное; EXPLAIN ANALYZE того же
+-- запроса и проверка плана (plan_check.sql)
+-- Запуск: ./help lr2 def 20 2 ["поставщик1" "поставщик2"]   ./help lr2 def 22 2 [категория]
+-- Пример: ./help lr2 def 20 2 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 2 мебель
 \set QUIET on
 \ir config.sql
 \ir drop_all.sql
@@ -199,22 +225,34 @@ WHERE КАТЕГОРИЯ.наименование = %L$q$, :'p1', :'p1') AS q \g
 \set cond2 'без индексов'
 \else
 \set cond2 'с индексом ПРОДАЖА(товар) btree'
-CREATE INDEX zas_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX def22_продажа_товар ON ПРОДАЖА USING btree (товар);
 ANALYZE ПРОДАЖА;
 \endif
-DROP TABLE IF EXISTS zas_время;
-CREATE TEMP TABLE zas_время (№ serial, ms numeric);
+DROP TABLE IF EXISTS def_время;
+CREATE TEMP TABLE def_время (№ serial, ms numeric);
 \echo '=============================================================================='
 \echo 'ВАРИАНТ' :variant'. ЗАДАНИЕ 2. Время выполнения запроса 1) - 5 замеров'
 \echo '=============================================================================='
-\echo 'Индексы таблиц' :tbls':'
+\echo 'Индексы таблиц' :tbls '(по системному каталогу pg_index):'
 SELECT t.relname AS "таблица",
-       coalesce(ic.relname, '') AS "индекс"
-  FROM (SELECT unnest(:'tbls'::text[]) AS relname) t
-       LEFT JOIN pg_class tc ON tc.relname = t.relname
+       count(i.indexrelid) AS "индексов",
+       coalesce(string_agg(ic.relname, ', ' ORDER BY ic.relname), '-') AS "индексы"
+  FROM unnest(:'tbls'::text[]) AS t(relname)
+       LEFT JOIN pg_class tc ON tc.relname = t.relname AND tc.relkind = 'r'
        LEFT JOIN pg_index i  ON i.indrelid = tc.oid
        LEFT JOIN pg_class ic ON ic.oid = i.indexrelid
- ORDER BY 1, 2;
+ GROUP BY t.relname
+ ORDER BY 1;
+\if :is_v20
+SELECT count(*) = 0 AS no_idx
+  FROM pg_index i JOIN pg_class t ON t.oid = i.indrelid
+ WHERE t.relname = ANY (:'tbls'::text[]) \gset
+\if :no_idx
+\echo 'Индексов на таблицах запроса нет (удалены и индексы PRIMARY KEY).'
+\else
+\echo 'ВНИМАНИЕ: на таблицах запроса остались индексы.'
+\endif
+\endif
 \echo
 \ir show_query.sql
 \ir time_run.sql
@@ -231,16 +269,18 @@ SELECT t.relname AS "таблица",
 \echo :t2
 \ir show_query.sql
 EXPLAIN ANALYZE :q ;
+\ir plan_check.sql
 
 ------------------------------------------------------------------------------
 9. big_db_indexes/zashita/z3_idx.sql
 ------------------------------------------------------------------------------
 -- Защита ЛР2, задание 3: ввод индексов варианта, выполнение запроса с фиксацией времени
--- (5 раз и минимальное время) и EXPLAIN ANALYZE того же запроса
+-- (5 раз и минимальное время), EXPLAIN ANALYZE того же запроса и проверка плана (plan_check.sql);
+-- индексы называются def20_* / def22_* и остаются до запуска команды другого варианта
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
--- Запуск: ./help zas 20 3 [параметры]   ./help zas 22 3 [параметры]
--- Пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"     ./help zas 22 3 мебель
+-- Запуск: ./help lr2 def 20 3 [параметры]   ./help lr2 def 22 3 [параметры]
+-- Пример: ./help lr2 def 20 3 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 3 мебель
 \set QUIET on
 \ir config.sql
 \ir drop_all.sql
@@ -249,14 +289,16 @@ EXPLAIN ANALYZE :q ;
 \echo '=============================================================================='
 \echo 'Ввод индексов (прежние индексы таблиц' :tbls 'удалены):'
 \set ECHO queries
-CREATE INDEX zas_продажа_товар ON ПРОДАЖА USING btree (товар);
-CREATE INDEX zas_товар_код ON ТОВАР USING hash (код);
 \if :is_v20
-CREATE INDEX zas_товар_поставщик ON ТОВАР USING hash (поставщик);
-CREATE INDEX zas_поставщик_название ON ПОСТАВЩИК USING btree (название);
+CREATE INDEX def20_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX def20_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX def20_товар_поставщик ON ТОВАР USING hash (поставщик);
+CREATE INDEX def20_поставщик_название ON ПОСТАВЩИК USING btree (название);
 \else
-CREATE INDEX zas_товар_категория ON ТОВАР USING hash (категория);
-CREATE INDEX zas_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
+CREATE INDEX def22_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX def22_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX def22_товар_категория ON ТОВАР USING hash (категория);
+CREATE INDEX def22_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
 \endif
 \set ECHO none
 ANALYZE ПРОДАЖА;
@@ -278,8 +320,8 @@ SELECT CASE t.relname WHEN 'ПРОДАЖА' THEN '1)' WHEN 'ТОВАР' THEN '2)
  WHERE t.relname = ANY (:'tbls'::text[])
  ORDER BY 1, ic.oid;
 \ir show_query.sql
-DROP TABLE IF EXISTS zas_время;
-CREATE TEMP TABLE zas_время (№ serial, ms numeric);
+DROP TABLE IF EXISTS def_время;
+CREATE TEMP TABLE def_время (№ serial, ms numeric);
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
@@ -291,25 +333,26 @@ CREATE TEMP TABLE zas_время (№ serial, ms numeric);
 \echo
 \echo 'EXPLAIN ANALYZE того же запроса, что и 5 замеров выше:'
 EXPLAIN ANALYZE :q ;
+\ir plan_check.sql
 
 ------------------------------------------------------------------------------
 10. big_db_indexes/zashita/drop_all.sql
 ------------------------------------------------------------------------------
 -- Удаление ВСЕХ индексов таблиц запроса варианта, включая индексы первичных ключей
 -- (ограничения PRIMARY KEY / UNIQUE удаляются вместе со своими индексами)
-SELECT set_config('zas.tables', :'tbls', false) AS none \gset
+SELECT set_config('def.tables', :'tbls', false) AS none \gset
 DO $$
 DECLARE r record;
 BEGIN
     FOR r IN SELECT c.conrelid::regclass AS tbl, c.conname
                FROM pg_constraint c JOIN pg_class t ON t.oid = c.conrelid
               WHERE c.contype IN ('p', 'u')
-                AND t.relname = ANY (current_setting('zas.tables')::text[]) LOOP
+                AND t.relname = ANY (current_setting('def.tables')::text[]) LOOP
         EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', r.tbl, r.conname);
     END LOOP;
     FOR r IN SELECT i.indexrelid::regclass AS idx
                FROM pg_index i JOIN pg_class t ON t.oid = i.indrelid
-              WHERE t.relname = ANY (current_setting('zas.tables')::text[]) LOOP
+              WHERE t.relname = ANY (current_setting('def.tables')::text[]) LOOP
         EXECUTE format('DROP INDEX %s', r.idx);
     END LOOP;
 END $$;
@@ -318,14 +361,14 @@ END $$;
 11. big_db_indexes/zashita/time_run.sql
 ------------------------------------------------------------------------------
 -- Один замер запроса варианта: clock_timestamp() до и после выполнения,
--- время в мс записывается в zas_время. Результат запроса отбрасывается (\o NUL).
+-- время в мс записывается в def_время. Результат запроса отбрасывается (\o NUL).
 -- Вызывается из z2_noidx.sql и z3_idx.sql.
 \set QUIET on
 SELECT clock_timestamp() AS t1 \gset
 \o NUL
 :q ;
 \o
-INSERT INTO zas_время (ms)
+INSERT INTO def_время (ms)
 SELECT round(EXTRACT(EPOCH FROM clock_timestamp() - :'t1'::timestamptz) * 1000, 3);
 
 ------------------------------------------------------------------------------
@@ -337,15 +380,48 @@ SELECT "замер", "время, мс", "отметка" FROM (
     SELECT №::text AS "замер", ms AS "время, мс",
            CASE WHEN count(*) OVER () > 1 AND ms = min(ms) OVER () THEN '<-- минимум'
                 ELSE '' END AS "отметка", № AS ord
-      FROM zas_время
+      FROM def_время
     UNION ALL
     SELECT 'минимум', min(ms), '', 1000000
-      FROM zas_время HAVING count(*) > 1
+      FROM def_время HAVING count(*) > 1
 ) t ORDER BY ord;
-SELECT min(ms) AS min_ms FROM zas_время \gset
+SELECT min(ms) AS min_ms FROM def_время \gset
 
 ------------------------------------------------------------------------------
-13. big_db_indexes/zashita/indexes.sql
+13. big_db_indexes/zashita/plan_check.sql
+------------------------------------------------------------------------------
+-- Защита ЛР2: проверка плана запроса :q - какие узлы читают таблицы и используют ли они индексы
+-- (Index Scan, Index Only Scan, Bitmap Index Scan). План берётся командой EXPLAIN - тот же,
+-- что у EXPLAIN ANALYZE, но без повторного выполнения запроса.
+-- Вызывается из z2_noidx.sql и z3_idx.sql после EXPLAIN ANALYZE.
+\set QUIET on
+SELECT set_config('def.q', :'q', false) AS none \gset
+CREATE OR REPLACE FUNCTION pg_temp.def_plan_scans()
+RETURNS TABLE ("узел плана" text, "индекс" text) AS $$
+DECLARE l text;
+BEGIN
+    FOR l IN EXECUTE 'EXPLAIN ' || current_setting('def.q') LOOP
+        IF l ~ ' Scan ' THEN
+            "узел плана" := regexp_replace(trim(regexp_replace(l, '^[ ->]*', '')), '\s+\(cost=.*$', '');
+            "индекс" := CASE WHEN l ~ '(Index Scan|Index Only Scan|Bitmap Index Scan)'
+                             THEN 'используется' ELSE 'нет' END;
+            RETURN NEXT;
+        END IF;
+    END LOOP;
+END $$ LANGUAGE plpgsql;
+SELECT count(*) FILTER (WHERE "индекс" = 'используется') = 0 AS no_idx_scan
+  FROM pg_temp.def_plan_scans() \gset
+\echo 'Чтение таблиц в плане запроса (EXPLAIN):'
+SELECT * FROM pg_temp.def_plan_scans();
+\if :no_idx_scan
+\echo 'Итог: индексы в плане НЕ используются - таблицы читаются последовательно (Seq Scan).'
+\else
+\echo 'Итог: в плане есть узлы, читающие таблицы через индекс (см. столбец «индекс»).'
+\endif
+\echo
+
+------------------------------------------------------------------------------
+14. big_db_indexes/zashita/indexes.sql
 ------------------------------------------------------------------------------
 -- Индексы таблиц запроса варианта (вызывается из сценариев защиты; tbls - из config.sql)
 SELECT tablename AS "таблица", indexname AS "индекс", indexdef AS "определение"
@@ -354,11 +430,11 @@ SELECT tablename AS "таблица", indexname AS "индекс", indexdef AS "
  ORDER BY tablename, indexname;
 
 ------------------------------------------------------------------------------
-14. big_db_indexes/zashita/show_idx.sql
+15. big_db_indexes/zashita/show_idx.sql
 ------------------------------------------------------------------------------
 -- Индексы таблиц запроса варианта
--- Запуск: ./help zas 20|22 idx
--- Пример: ./help zas 22 idx
+-- Запуск: ./help lr2 def 20|22 idx
+-- Пример: ./help lr2 def 22 idx
 \set QUIET on
 \ir config.sql
 \set QUIET off
@@ -366,17 +442,19 @@ SELECT tablename AS "таблица", indexname AS "индекс", indexdef AS "
 \ir indexes.sql
 
 ------------------------------------------------------------------------------
-15. big_db_indexes/zashita/idx_drop.sql
+16. big_db_indexes/zashita/idx_drop.sql
 ------------------------------------------------------------------------------
--- Защита ЛР2: удаление индексов задания 3 (zas_*) с таблиц запроса варианта;
+-- Защита ЛР2: удаление индексов задания 3 своего варианта (def20_* / def22_*) с таблиц запроса;
 -- прочие индексы и PRIMARY KEY не трогаются (все индексы удаляет drop_all.sql в заданиях 2 и 3)
--- Запуск: ./help zas 20|22 idx_drop
--- Пример: ./help zas 20 idx_drop      ./help zas 22 idx_drop
+-- Запуск: ./help lr2 def 20|22 idx_drop
+-- Пример: ./help lr2 def 20 idx_drop      ./help lr2 def 22 idx_drop
 \set QUIET on
 \ir config.sql
 \set QUIET off
-\echo 'Вариант' :variant': удаление индексов задания 3 (zas_*) с таблиц' :tbls
-SELECT set_config('zas.tables', :'tbls', false) AS none \gset
+\set msg 'Вариант ' :variant ': удаление индексов задания 3 (def' :variant '_*) с таблиц ' :tbls
+\echo :msg
+SELECT set_config('def.tables', :'tbls', false) AS none,
+       set_config('def.own', 'def' || :'variant' || '\_%', false) AS none2 \gset
 DO $$
 DECLARE r record;
 BEGIN
@@ -384,35 +462,38 @@ BEGIN
                FROM pg_index i
                     JOIN pg_class t  ON t.oid = i.indrelid
                     JOIN pg_class ic ON ic.oid = i.indexrelid
-              WHERE t.relname = ANY (current_setting('zas.tables')::text[])
-                AND ic.relname LIKE 'zas\_%' LOOP
+              WHERE t.relname = ANY (current_setting('def.tables')::text[])
+                AND ic.relname LIKE current_setting('def.own') LOOP
         EXECUTE format('DROP INDEX %s', r.idx);
     END LOOP;
 END $$;
 \ir indexes.sql
 
 ------------------------------------------------------------------------------
-16. big_db_indexes/zashita/idx_add.sql
+17. big_db_indexes/zashita/idx_add.sql
 ------------------------------------------------------------------------------
--- Защита ЛР2: создание индексов задания 3 (zas_*) без замеров и EXPLAIN ANALYZE
+-- Защита ЛР2: создание индексов задания 3 своего варианта (def20_* / def22_*) без замеров
+-- и EXPLAIN ANALYZE; индексы другого варианта удаляются в config.sql
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
--- Уже существующие индексы zas_* не пересоздаются (IF NOT EXISTS)
--- Запуск: ./help zas 20|22 idx_add
--- Пример: ./help zas 20 idx_add      ./help zas 22 idx_add
+-- Уже существующие индексы не пересоздаются (IF NOT EXISTS)
+-- Запуск: ./help lr2 def 20|22 idx_add
+-- Пример: ./help lr2 def 20 idx_add      ./help lr2 def 22 idx_add
 \set QUIET on
 \ir config.sql
 \set QUIET off
-\echo 'Вариант' :variant': создание индексов задания 3 (zas_*) на таблицах' :tbls
+\echo 'Вариант' :variant': создание индексов задания 3 на таблицах' :tbls
 \set ECHO queries
-CREATE INDEX IF NOT EXISTS zas_продажа_товар ON ПРОДАЖА USING btree (товар);
-CREATE INDEX IF NOT EXISTS zas_товар_код ON ТОВАР USING hash (код);
 \if :is_v20
-CREATE INDEX IF NOT EXISTS zas_товар_поставщик ON ТОВАР USING hash (поставщик);
-CREATE INDEX IF NOT EXISTS zas_поставщик_название ON ПОСТАВЩИК USING btree (название);
+CREATE INDEX IF NOT EXISTS def20_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX IF NOT EXISTS def20_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX IF NOT EXISTS def20_товар_поставщик ON ТОВАР USING hash (поставщик);
+CREATE INDEX IF NOT EXISTS def20_поставщик_название ON ПОСТАВЩИК USING btree (название);
 \else
-CREATE INDEX IF NOT EXISTS zas_товар_категория ON ТОВАР USING hash (категория);
-CREATE INDEX IF NOT EXISTS zas_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
+CREATE INDEX IF NOT EXISTS def22_продажа_товар ON ПРОДАЖА USING btree (товар);
+CREATE INDEX IF NOT EXISTS def22_товар_код ON ТОВАР USING hash (код);
+CREATE INDEX IF NOT EXISTS def22_товар_категория ON ТОВАР USING hash (категория);
+CREATE INDEX IF NOT EXISTS def22_категория_наименование ON КАТЕГОРИЯ USING hash (наименование);
 \endif
 \set ECHO none
 \set QUIET on
@@ -427,11 +508,11 @@ ANALYZE КАТЕГОРИЯ;
 \ir indexes.sql
 
 ------------------------------------------------------------------------------
-17. big_db_indexes/zashita/restore.sql
+18. big_db_indexes/zashita/restore.sql
 ------------------------------------------------------------------------------
--- Возврат исходного состояния после защиты: индексы zas_* удаляются,
+-- Возврат исходного состояния после защиты: индексы удаляются,
 -- первичные ключи ТОВАР, ПОСТАВЩИК, КАТЕГОРИЯ восстанавливаются (как в DATA/create_tables)
--- Запуск: ./help zas restore
+-- Запуск: ./help lr2 def restore
 \set tbls '{ПРОДАЖА,ТОВАР,ПОСТАВЩИК,КАТЕГОРИЯ}'
 \set QUIET on
 \ir drop_all.sql
@@ -443,40 +524,40 @@ ALTER TABLE КАТЕГОРИЯ ADD CONSTRAINT "КАТЕГОРИЯ_pkey" PRIMARY 
 \ir indexes.sql
 
 ------------------------------------------------------------------------------
-18. helper/help.ps1 - фрагмент: команда ./help zas
+19. helper/help.ps1 - фрагмент: команда ./help lr2 def
 ------------------------------------------------------------------------------
-    # защита ЛР2: запрос варианта без индексов и с индексами (big_db_indexes/zashita/*.sql)
-    'zas' {
-        if ($A[1] -eq 'restore') {
-            if ($Argv.Count -gt 2) { Say 'ОШИБКА: у ./help zas restore нет параметров'; exit 1 }
-            Run 'big_db_indexes/zashita/restore.sql'
-        }
-        else {
-            Need-Variant $A[1]
-            $step = if ($A[2]) { $A[2] } else { 'all' }
-            # индексы варианта (без параметров запроса)
-            $idxFile = @{ 'idx' = 'big_db_indexes/zashita/show_idx.sql'; 'idx_drop' = 'big_db_indexes/zashita/idx_drop.sql'
-                          'idx_add' = 'big_db_indexes/zashita/idx_add.sql' }[$step]
-            # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
-            $max = if ($idxFile) { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
-            if ($Argv.Count -gt $max) {
-                Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
-                Say '  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]'
-                Say '  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore'
-                exit 1
+            # защита ЛР2: ./help lr2 def 20|22 [шаг] [параметры] (big_db_indexes/zashita/*.sql)
+            'def'     {
+                if ($A[2] -eq 'restore') {
+                    if ($Argv.Count -gt 3) { Say 'ОШИБКА: у ./help lr2 def restore нет параметров'; exit 1 }
+                    Run 'big_db_indexes/zashita/restore.sql'
+                }
+                else {
+                    Need-Variant $v
+                    $step = if ($A[3]) { $A[3] } else { 'all' }
+                    # индексы варианта (без параметров запроса)
+                    $idxFile = @{ 'idx' = 'big_db_indexes/zashita/show_idx.sql'; 'idx_drop' = 'big_db_indexes/zashita/idx_drop.sql'
+                                  'idx_add' = 'big_db_indexes/zashita/idx_add.sql' }[$step]
+                    # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
+                    $max = if ($idxFile) { 4 } elseif ($v -eq '20') { 6 } else { 5 }
+                    if ($Argv.Count -gt $max) {
+                        Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
+                        Say '  ./help lr2 def 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help lr2 def 22 [all|1|2|3] [категория]'
+                        Say '  ./help lr2 def 20|22 idx|idx_drop|idx_add   ./help lr2 def restore'
+                        exit 1
+                    }
+                    $file = @{ 'all' = 'big_db_indexes/zashita/z_all.sql'; '1' = 'big_db_indexes/zashita/z1_query.sql'
+                               '2' = 'big_db_indexes/zashita/z2_noidx.sql'; '3' = 'big_db_indexes/zashita/z3_idx.sql' }[$step]
+                    if ($idxFile) { Run $idxFile $v }
+                    elseif (-not $file) {
+                        Say 'ОШИБКА: ./help lr2 def 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help lr2 def restore'
+                        exit 1
+                    }
+                    else {
+                        # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
+                        Run 'big_db_indexes/zashita/check_args.sql' $v $A[4] $A[5] -Stop
+                        if ($script:ExitCode -ne 0) { exit 1 }
+                        Run $file $v $A[4] $A[5]
+                    }
+                }
             }
-            $file = @{ 'all' = 'big_db_indexes/zashita/z_all.sql'; '1' = 'big_db_indexes/zashita/z1_query.sql'
-                       '2' = 'big_db_indexes/zashita/z2_noidx.sql'; '3' = 'big_db_indexes/zashita/z3_idx.sql' }[$step]
-            if ($idxFile) { Run $idxFile $A[1] }
-            elseif (-not $file) {
-                Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help zas restore'
-                exit 1
-            }
-            else {
-                # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
-                Run 'big_db_indexes/zashita/check_args.sql' $A[1] $A[3] $A[4] -Stop
-                if ($script:ExitCode -ne 0) { exit 1 }
-                Run $file $A[1] $A[3] $A[4]
-            }
-        }
-    }
