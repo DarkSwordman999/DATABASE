@@ -359,9 +359,9 @@ $Help.zas = @'
                                          пример: ./help zas 22 all мебель
   ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"      ./help zas 22 1 мебель
-  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"      ./help zas 22 2 мебель
-  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, замер(ы) и EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]
                                          пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
   ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
                                          пример: ./help zas 20 idx      ./help zas 22 idx
