@@ -35,6 +35,8 @@ if [ -z "$ARGS" ] || want lr3; then
     cap lr3_cmplx lr3 cmplx
     cap lr3_20 lr3 20
     cap lr3_22 lr3 22
+    cap lr3_def20 lr3 def 20
+    cap lr3_def22 lr3 def 22
 fi
 if [ -z "$ARGS" ] || want lr5; then
     echo "ЛР5"

@@ -1,4 +1,5 @@
 > ./help lr3 cmplx
+>>> Файл: lab3/cmplx.sql
    row   
 ---------
  (1,2,3)
@@ -20,14 +21,7 @@
  3
 (1 строка)
 
-psql:lab3/cmplx.sql:15: ЗАМЕЧАНИЕ:  удаление распространяется на ещё 7 объектов
-ПОДРОБНОСТИ:  удаление распространяется на объект тип complex
-удаление распространяется на объект функция complex_add(complex,complex)
-удаление распространяется на объект оператор +(complex,complex)
-удаление распространяется на объект функция complex_mulrl(double precision,complex)
-удаление распространяется на объект оператор *(double precision,complex)
-удаление распространяется на объект функция complex_mulrr(complex,double precision)
-удаление распространяется на объект оператор *(complex,double precision)
+psql:lab3/cmplx.sql:15: ЗАМЕЧАНИЕ:  тип "complex_" не существует, пропускается
   row  
 -------
  (1,2)
