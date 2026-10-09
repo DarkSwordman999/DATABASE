@@ -1,12 +1,12 @@
 -- Защита ЛР2: создание индексов задания 3 своего варианта (def20_* / def22_*) без замеров
--- и EXPLAIN ANALYZE; индексы другого варианта удаляются в config.sql
+-- и EXPLAIN ANALYZE; индексы другого варианта удаляются в def_config.sql
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
 -- Уже существующие индексы не пересоздаются (IF NOT EXISTS)
 -- Запуск: ./help lr2 def 20|22 idx_add
 -- Пример: ./help lr2 def 20 idx_add      ./help lr2 def 22 idx_add
 \set QUIET on
-\ir config.sql
+\ir def_config.sql
 \set QUIET off
 \echo 'Вариант' :variant': создание индексов задания 3 на таблицах' :tbls
 \set ECHO queries
@@ -31,4 +31,4 @@ ANALYZE ПОСТАВЩИК;
 ANALYZE КАТЕГОРИЯ;
 \endif
 \set QUIET off
-\ir indexes.sql
+\ir def_indexes.sql

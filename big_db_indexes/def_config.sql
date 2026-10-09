@@ -29,11 +29,11 @@ SET client_min_messages TO warning;
         \echo 'ОШИБКА:' :err
         \echo 'Допустимые поставщики (пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"):'
         SELECT название AS "поставщик" FROM ПОСТАВЩИК ORDER BY название;
-        \ir ../../helper/abort.sql
+        \ir ../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,ПОСТАВЩИК}'
-    \set q_file big_db_indexes/zashita/v20_query.sql
-    \ir v20_query.sql
+    \set q_file big_db_indexes/def_v20_query.sql
+    \ir def_v20_query.sql
 \else
     -- в.22: таблицы ПРОДАЖА, ТОВАР, КАТЕГОРИЯ
     SELECT coalesce(nullif(:'arg2', ''), 'мебель') AS p1 \gset
@@ -51,11 +51,11 @@ SET client_min_messages TO warning;
         \echo 'ОШИБКА:' :err
         \echo 'Допустимые категории (пример: ./help lr2 def 22 1 мебель):'
         SELECT наименование AS "категория" FROM КАТЕГОРИЯ ORDER BY наименование;
-        \ir ../../helper/abort.sql
+        \ir ../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,КАТЕГОРИЯ}'
-    \set q_file big_db_indexes/zashita/v22_query.sql
-    \ir v22_query.sql
+    \set q_file big_db_indexes/def_v22_query.sql
+    \ir def_v22_query.sql
 \endif
 \if :{?check_only}
     \quit

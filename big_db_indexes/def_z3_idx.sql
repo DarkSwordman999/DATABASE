@@ -1,13 +1,13 @@
 -- Защита ЛР2, задание 3: ввод индексов варианта, выполнение запроса с фиксацией времени
--- (5 раз и минимальное время), EXPLAIN ANALYZE того же запроса и проверка плана (plan_check.sql);
+-- (5 раз и минимальное время), EXPLAIN ANALYZE того же запроса и проверка плана (def_plan_check.sql);
 -- индексы называются def20_* / def22_* и остаются до запуска команды другого варианта
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
 -- Запуск: ./help lr2 def 20 3 [параметры]   ./help lr2 def 22 3 [параметры]
 -- Пример: ./help lr2 def 20 3 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 3 мебель
 \set QUIET on
-\ir config.sql
-\ir drop_all.sql
+\ir def_config.sql
+\ir def_drop_all.sql
 \echo '=============================================================================='
 \echo 'ВАРИАНТ' :variant'. ЗАДАНИЕ 3. Индексы, время выполнения запроса 1), EXPLAIN ANALYZE'
 \echo '=============================================================================='
@@ -43,18 +43,18 @@ SELECT CASE t.relname WHEN 'ПРОДАЖА' THEN '1)' WHEN 'ТОВАР' THEN '2)
        JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = i.indkey[0]
  WHERE t.relname = ANY (:'tbls'::text[])
  ORDER BY 1, ic.oid;
-\ir show_query.sql
+\ir def_show_query.sql
 DROP TABLE IF EXISTS def_время;
 CREATE TEMP TABLE def_время (№ serial, ms numeric);
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
 \echo 'Время 5 выполнений запроса с индексами:'
-\ir time_table.sql
+\ir def_time_table.sql
 \set min3 :min_ms
 \echo
 \echo 'EXPLAIN ANALYZE того же запроса, что и 5 замеров выше:'
 EXPLAIN ANALYZE :q ;
-\ir plan_check.sql
+\ir def_plan_check.sql

@@ -3,12 +3,12 @@
 --          индексов нет, и по плану запроса - что индексы не используются;
 --   в.22 - удаляются все индексы и создаётся один индекс ПРОДАЖА(товар) btree;
 -- 5 выполнений запроса, таблица времени в мс, выделено минимальное; EXPLAIN ANALYZE того же
--- запроса и проверка плана (plan_check.sql)
+-- запроса и проверка плана (def_plan_check.sql)
 -- Запуск: ./help lr2 def 20 2 ["поставщик1" "поставщик2"]   ./help lr2 def 22 2 [категория]
 -- Пример: ./help lr2 def 20 2 "ООО Турман" "ЧП Загорье"     ./help lr2 def 22 2 мебель
 \set QUIET on
-\ir config.sql
-\ir drop_all.sql
+\ir def_config.sql
+\ir def_drop_all.sql
 \if :is_v20
 \set cond2 'без индексов'
 \else
@@ -42,19 +42,19 @@ SELECT count(*) = 0 AS no_idx
 \endif
 \endif
 \echo
-\ir show_query.sql
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
-\ir time_run.sql
+\ir def_show_query.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
+\ir def_time_run.sql
 \set t2 'Время 5 выполнений запроса (' :cond2 '):'
 \echo :t2
-\ir time_table.sql
+\ir def_time_table.sql
 \set min2 :min_ms
 \echo
 \set t2 'EXPLAIN ANALYZE того же запроса (' :cond2 '):'
 \echo :t2
-\ir show_query.sql
+\ir def_show_query.sql
 EXPLAIN ANALYZE :q ;
-\ir plan_check.sql
+\ir def_plan_check.sql

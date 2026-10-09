@@ -1,7 +1,7 @@
 -- Защита ЛР2: проверка плана запроса :q - какие узлы читают таблицы и используют ли они индексы
 -- (Index Scan, Index Only Scan, Bitmap Index Scan). План берётся командой EXPLAIN - тот же,
 -- что у EXPLAIN ANALYZE, но без повторного выполнения запроса.
--- Вызывается из z2_noidx.sql и z3_idx.sql после EXPLAIN ANALYZE.
+-- Вызывается из def_z2_noidx.sql и def_z3_idx.sql после EXPLAIN ANALYZE.
 \set QUIET on
 SELECT set_config('def.q', :'q', false) AS none \gset
 CREATE OR REPLACE FUNCTION pg_temp.def_plan_scans()

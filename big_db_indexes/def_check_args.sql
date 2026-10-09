@@ -4,4 +4,4 @@
 -- завершается с кодом 3, и обёртка задания не выполняет
 \set QUIET on
 \set check_only true
-\ir config.sql
+\ir def_config.sql

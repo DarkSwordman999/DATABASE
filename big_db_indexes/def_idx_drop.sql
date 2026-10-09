@@ -1,9 +1,9 @@
 -- Защита ЛР2: удаление индексов задания 3 своего варианта (def20_* / def22_*) с таблиц запроса;
--- прочие индексы и PRIMARY KEY не трогаются (все индексы удаляет drop_all.sql в заданиях 2 и 3)
+-- прочие индексы и PRIMARY KEY не трогаются (все индексы удаляет def_drop_all.sql в заданиях 2 и 3)
 -- Запуск: ./help lr2 def 20|22 idx_drop
 -- Пример: ./help lr2 def 20 idx_drop      ./help lr2 def 22 idx_drop
 \set QUIET on
-\ir config.sql
+\ir def_config.sql
 \set QUIET off
 \set msg 'Вариант ' :variant ': удаление индексов задания 3 (def' :variant '_*) с таблиц ' :tbls
 \echo :msg
@@ -21,4 +21,4 @@ BEGIN
         EXECUTE format('DROP INDEX %s', r.idx);
     END LOOP;
 END $$;
-\ir indexes.sql
+\ir def_indexes.sql
