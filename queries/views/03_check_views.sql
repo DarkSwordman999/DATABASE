@@ -6,9 +6,12 @@
 \ir 02_create_sales_tech.sql
 \set QUIET off
 \echo '=== V_ПРОДАЖИ (5 последних) ==='
-SELECT * FROM V_ПРОДАЖИ ORDER BY дата DESC LIMIT 5;
+SELECT дата, магазин, товар, категория, поставщик, клиент, количество,
+       round(цена, 2) AS цена, round(сумма, 2) AS сумма
+FROM V_ПРОДАЖИ ORDER BY дата DESC LIMIT 5;
 \echo '=== V_ПРОДАЖИ_ТЕХ: выручка по годам и кварталам ==='
-SELECT год, квартал, count(*) AS продаж, sum(выручка) AS выручка, sum(выручка - затраты) AS прибыль
+SELECT год, квартал, count(*) AS продаж, round(sum(выручка), 2) AS выручка,
+       round(sum(выручка - затраты), 2) AS прибыль
 FROM V_ПРОДАЖИ_ТЕХ
 GROUP BY год, квартал
 ORDER BY год, квартал;

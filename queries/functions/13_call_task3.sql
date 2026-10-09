@@ -4,4 +4,5 @@
 \ir 03_create_function_task3.sql
 \set QUIET off
 \echo 'Функция display_pivot_table() определена в queries/functions/03_create_function_task3.sql'
-SELECT * FROM display_pivot_table();
+SELECT магазин, round(мебель, 2) AS мебель, round(одежда, 2) AS одежда, round(итого, 2) AS итого
+FROM display_pivot_table();

@@ -4,4 +4,5 @@
 \ir 02_create_function_task2.sql
 \set QUIET off
 \echo 'Функция revenue_by_category_and_season() определена в queries/functions/02_create_function_task2.sql'
-SELECT * FROM revenue_by_category_and_season();
+SELECT категория, время_года AS "время года", продаж, round(выручка, 2) AS выручка
+FROM revenue_by_category_and_season();

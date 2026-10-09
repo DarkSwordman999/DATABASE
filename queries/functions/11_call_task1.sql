@@ -6,4 +6,4 @@
 \set QUIET off
 SELECT CASE WHEN :'arg1' ~ '^[0-9.]+$' THEN :'arg1' ELSE '100000' END AS порог \gset
 \echo 'Функция shops_above_revenue(':порог') определена в queries/functions/01_create_function_task1.sql'
-SELECT * FROM shops_above_revenue(:порог);
+SELECT магазин, продаж, round(выручка, 2) AS выручка FROM shops_above_revenue(:порог);
