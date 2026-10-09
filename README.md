@@ -18,8 +18,8 @@
 
 | ЛР | Тема | Каталог | Главное |
 |----|------|---------|---------|
-| 1 | Сервер PostgreSQL в локальной сети Windows | [`DATA`](DATA), [`tasks`](tasks), `s*.bat` | БД `sales`, 2 задания × 2 варианта с параметрами |
-| 2 | Временные характеристики запросов в объёмной БД | [`lab2`](lab2) | 2 млн записей, `CURRENT_TIME` / `\timing`, btree/hash, `EXPLAIN ANALYZE`, протоколы |
+| 1 | Сервер PostgreSQL в локальной сети Windows | [`DATA`](DATA), [`tasks`](tasks), [`lan_server`](lan_server), `s*.bat` | БД `sales`, 2 задания × 2 варианта с параметрами |
+| 2 | Временные характеристики запросов в объёмной БД | [`big_db_indexes`](big_db_indexes) | 2 млн записей, `CURRENT_TIME` / `\timing`, btree/hash, `EXPLAIN ANALYZE`, протоколы |
 | 3 | Пользовательские типы данных | [`lab3`](lab3) | в.20 — трёхмерный вектор, в.22 — рациональное число |
 | 4 | Резервное копирование и восстановление | [`lab4`](lab4) | `pg_dump` → файл / rar / многотомный rar, проверка `fc` |
 | 5 | Функции пользователя на C | [`lab5`](lab5) | в.20 — `floor`, `ALLTRIM`; в.22 — `cosd`, позиция подстроки |
@@ -130,7 +130,7 @@ s.bat tasks\v20_task1.sql 21.08.2020 20.08.2023 мебель
 - **период** — начальная дата (год) не позже конечной;
 - **значения из базы** — категория, поставщик, товар, клиент, сотрудник, район: [`helper/check_db.sql`](helper/check_db.sql) в PostgreSQL, для `lr6`–`lr8` — [`lab6/check_db.sql`](lab6/check_db.sql) в MS SQL Server (данные там могут отличаться).
 
-Типы параметров каждой команды — в [`helper/args.txt`](helper/args.txt) (команды ЛР) и в последнем столбце [`helper/menu.txt`](helper/menu.txt) (аналоги TAXI-db); `zas` проверяет [`lab2/zashita/check_args.sql`](lab2/zashita/check_args.sql).
+Типы параметров каждой команды — в [`helper/args.txt`](helper/args.txt) (команды ЛР) и в последнем столбце [`helper/menu.txt`](helper/menu.txt) (аналоги TAXI-db); `zas` проверяет [`big_db_indexes/zashita/check_args.sql`](big_db_indexes/zashita/check_args.sql).
 
 ```powershell
 ./help v20 1 01.01.2023 01.01.2021   # ОШИБКА: начало периода 01.01.2023 позже конца 01.01.2021
@@ -147,7 +147,7 @@ s.bat tasks\v20_task1.sql 21.08.2020 20.08.2023 мебель
 | Индексы | `ПРОДАЖА(товар)` btree, `ТОВАР(код, поставщик)` hash, `ПОСТАВЩИК(название)` btree | `ПРОДАЖА(товар)` btree, `ТОВАР(код, категория)` hash, `КАТЕГОРИЯ(наименование)` hash |
 | С индексами | 1 замер — 626 мс, EXPLAIN ANALYZE — 853 мс | мин. из 5 — 686 мс, EXPLAIN ANALYZE — 965 мс |
 
-Команды: `./help zas 20`, `./help zas 22 [all|1|2|3|idx] [параметры]`, `./help zas 20|22 idx_drop|idx_add` (удалить / создать только индексы задания 3 `zas_*`), после защиты `./help zas restore` (сценарии — [`lab2/zashita`](lab2/zashita)). Индексы планировщик не использует: условие отбирает 40–50 % строк `ПРОДАЖА`, поэтому Parallel Seq Scan + Hash Join дешевле. Вывод наглядный: перед каждым результатом печатается текст запроса с подставленными параметрами; задание 1 — сводная таблица, задание 2 — индексы таблиц, таблица 5 замеров (мс, минимум) и `EXPLAIN ANALYZE`, задание 3 — введённые индексы по `pg_index`, 5 замеров (мс, минимум) и `EXPLAIN ANALYZE` того же запроса, в конце — итоговое сравнение. Отчёты: [`reports/zashita`](reports/zashita), листинг программы — [`reports/zashita/Листинг_программы.txt`](reports/zashita/Листинг_программы.txt), протоколы — [`results/zas_v20_protocol.txt`](results/zas_v20_protocol.txt), [`results/zas_v22_protocol.txt`](results/zas_v22_protocol.txt).
+Команды: `./help zas 20`, `./help zas 22 [all|1|2|3|idx] [параметры]`, `./help zas 20|22 idx_drop|idx_add` (удалить / создать только индексы задания 3 `zas_*`), после защиты `./help zas restore` (сценарии — [`big_db_indexes/zashita`](big_db_indexes/zashita)). Индексы планировщик не использует: условие отбирает 40–50 % строк `ПРОДАЖА`, поэтому Parallel Seq Scan + Hash Join дешевле. Вывод наглядный: перед каждым результатом печатается текст запроса с подставленными параметрами; задание 1 — сводная таблица, задание 2 — индексы таблиц, таблица 5 замеров (мс, минимум) и `EXPLAIN ANALYZE`, задание 3 — введённые индексы по `pg_index`, 5 замеров (мс, минимум) и `EXPLAIN ANALYZE` того же запроса, в конце — итоговое сравнение. Отчёты: [`reports/zashita`](reports/zashita), листинг программы — [`reports/zashita/Листинг_программы.txt`](reports/zashita/Листинг_программы.txt), протоколы — [`results/zas_v20_protocol.txt`](results/zas_v20_protocol.txt), [`results/zas_v22_protocol.txt`](results/zas_v22_protocol.txt).
 
 ## 📊 Результаты
 
@@ -199,9 +199,9 @@ tasks/           ЛР1: задания вариантов 20 и 22 (psql, пар
 helper/          общие сценарии, help.ps1, menu.txt; аналоги TAXI-db: просмотр, JOIN, до/после, аналитика
 queries/         аналоги TAXI-db: запросы с параметрами, представления, подзапросы, функции
 control/         контрольные вставки/удаления для задач с подзапросами
-lab1/            ЛР1: клиент для локальной сети (s_lan.bat, setup_lan.ps1)
-lab2/ ... lab8/  лабораторные работы 2-8
-lab2/zashita/    защита ЛР2: запрос варианта без индексов и с индексами
+lan_server/      ЛР1: сервер в локальной сети - клиент (s_lan.bat), настройка сервера (setup_lan.ps1)
+big_db_indexes/  ЛР2: объёмная БД, индексы, время запросов; zashita/ - защита ЛР2
+lab3/ ... lab8/  лабораторные работы 3-8
 reports/         генераторы отчётов и руководства, вывод прогонов (out), отчёты и руководство .docx, отчёты защиты (zashita)
 results/         протоколы измерений и результаты
 s0.bat s1.bat s.bat   консоль psql / сценарий в БД postgres / сценарий в БД sales
@@ -210,7 +210,7 @@ h                запуск всех задач из Git Bash
 
 ## ⚙️ Особенности окружения
 
-- Сеть (ЛР1): сервер слушает адрес 192.168.0.102; правило `pg_hba.conf` для сети и правило брандмауэра `PostgreSQL-inPort` добавляет [`lab1/setup_lan.ps1`](lab1/setup_lan.ps1) (от имени администратора), клиент в другом ПК запускается через [`lab1/s_lan.bat`](lab1/s_lan.bat).
+- Сеть (ЛР1): сервер слушает адрес 192.168.0.102; правило `pg_hba.conf` для сети и правило брандмауэра `PostgreSQL-inPort` добавляет [`lan_server/setup_lan.ps1`](lan_server/setup_lan.ps1) (от имени администратора), клиент в другом ПК запускается через [`lan_server/s_lan.bat`](lan_server/s_lan.bat).
 - Защита ЛР1 (сеть **PMII**): на сервере `192.168.1.50:5432`, база `sales`, пользователь `stud` — `./help srv check` (адрес сервера и клиента, число строк в таблицах), затем `./help srv all` или `./help srv v20 1 …`; другой адрес — параметром: `./help srv 192.168.1.60 check`, `./help srv stud@192.168.1.60:5432 v22 2`. Проверка доступности порта: `Test-NetConnection 192.168.1.50 -Port 5432`.
 - ЛР8 (Python) использует `pyodbc` и «ODBC Driver 17 for SQL Server»: `pip install -r lab8/v22/requirements.txt`.
 
