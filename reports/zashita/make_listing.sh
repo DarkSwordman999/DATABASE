@@ -1,5 +1,5 @@
 #!/bin/bash
-# Листинг программы защиты ЛР2: все сценарии lab2/zashita/*.sql в порядке выполнения
+# Листинг программы защиты ЛР2: все сценарии big_db_indexes/zashita/*.sql в порядке выполнения
 # и фрагмент ./help (helper/help.ps1), который их запускает.
 # Запуск из корня проекта: bash reports/zashita/make_listing.sh
 cd "$(dirname "$0")/../.." || exit 1
@@ -23,7 +23,7 @@ section() {
     echo "  ./help zas restore                                        вернуть PRIMARY KEY после защиты"
     echo
     echo "Порядок выполнения ./help zas NN (all):"
-    echo "  helper/help.ps1 -> check_args.sql (проверка параметров) -> psql -> lab2/zashita/z_all.sql"
+    echo "  helper/help.ps1 -> check_args.sql (проверка параметров) -> psql -> big_db_indexes/zashita/z_all.sql"
     echo "    z1_query.sql  задание 1: config.sql (параметры, vNN_query.sql -> :q),"
     echo "                  show_query.sql (текст запроса), :q (сводная таблица)"
     echo "    z2_noidx.sql  задание 2: drop_all.sql, [в.22: индекс ПРОДАЖА(товар)],"
@@ -38,8 +38,8 @@ section() {
              z1_query.sql z2_noidx.sql z3_idx.sql drop_all.sql time_run.sql \
              time_table.sql indexes.sql show_idx.sql idx_drop.sql idx_add.sql \
              restore.sql; do
-        section "$n. lab2/zashita/$f"
-        cat "lab2/zashita/$f"
+        section "$n. big_db_indexes/zashita/$f"
+        cat "big_db_indexes/zashita/$f"
         echo
         n=$((n + 1))
     done
