@@ -1,5 +1,5 @@
 -- Защита ЛР2, задание 3: ввод индексов варианта, выполнение запроса с фиксацией времени
--- (в.20 - один раз, в.22 - 5 раз и минимальное время) и один раз EXPLAIN ANALYZE
+-- (5 раз и минимальное время) и EXPLAIN ANALYZE того же запроса
 --   в.20: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(поставщик) hash, ПОСТАВЩИК(название) btree
 --   в.22: ПРОДАЖА(товар) btree, ТОВАР(код) hash, ТОВАР(категория) hash, КАТЕГОРИЯ(наименование) hash
 -- Запуск: ./help zas 20 3 [параметры]   ./help zas 22 3 [параметры]
@@ -43,19 +43,14 @@ SELECT CASE t.relname WHEN 'ПРОДАЖА' THEN '1)' WHEN 'ТОВАР' THEN '2)
 \ir show_query.sql
 DROP TABLE IF EXISTS zas_время;
 CREATE TEMP TABLE zas_время (№ serial, ms numeric);
-\if :is_v20
-\ir time_run.sql
-\echo 'Время выполнения запроса с индексами (1 замер):'
-\else
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
 \ir time_run.sql
 \echo 'Время 5 выполнений запроса с индексами:'
-\endif
 \ir time_table.sql
 \set min3 :min_ms
 \echo
-\echo 'EXPLAIN ANALYZE (один раз):'
+\echo 'EXPLAIN ANALYZE того же запроса, что и 5 замеров выше:'
 EXPLAIN ANALYZE :q ;

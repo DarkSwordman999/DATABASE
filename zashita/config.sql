@@ -11,7 +11,7 @@ SELECT :'variant' = '20' AS is_v20 \gset
 SET client_min_messages TO warning;
 \pset footer off
 \if :is_v20
-    -- в.20: таблицы ПРОДАЖА, ТОВАР, ПОСТАВЩИК; в п. 3 запрос выполняется один раз
+    -- в.20: таблицы ПРОДАЖА, ТОВАР, ПОСТАВЩИК
     SELECT coalesce(nullif(:'arg2', ''), 'ООО Турман') AS p1,
            coalesce(nullif(:'arg3', ''), 'ЧП Загорье') AS p2 \gset
     -- проверка параметров: оба поставщика есть в ПОСТАВЩИК и не совпадают
@@ -35,7 +35,7 @@ SET client_min_messages TO warning;
     \set q_file zashita/v20_query.sql
     \ir v20_query.sql
 \else
-    -- в.22: таблицы ПРОДАЖА, ТОВАР, КАТЕГОРИЯ; в п. 3 запрос выполняется 5 раз
+    -- в.22: таблицы ПРОДАЖА, ТОВАР, КАТЕГОРИЯ
     SELECT coalesce(nullif(:'arg2', ''), 'мебель') AS p1 \gset
     \set p2 ''
     -- проверка параметра: категория есть в КАТЕГОРИЯ, второго параметра нет
