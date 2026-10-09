@@ -33,35 +33,34 @@
 ------------------------------------------------------------------------------
 Команды ./help (в скобках - выполняемый файл)
 ------------------------------------------------------------------------------
-  ./help lr2 def 20                 задания 1-3 подряд            (big_db_indexes/zashita/z_all.sql)
-  ./help lr2 def 20 1 [парам.]      задание 1: сводная таблица    (big_db_indexes/zashita/z1_query.sql, big_db_indexes/zashita/v20_query.sql)
-  ./help lr2 def 20 2 [парам.]      задание 2: 5 замеров          (big_db_indexes/zashita/z2_noidx.sql)
-  ./help lr2 def 20 3 [парам.]      задание 3: индексы, замеры    (big_db_indexes/zashita/z3_idx.sql)
-  ./help lr2 def 20 idx             индексы таблиц запроса        (big_db_indexes/zashita/show_idx.sql)
-  ./help lr2 def 20 idx_drop|idx_add  удалить / создать индексы задания 3 (big_db_indexes/zashita/idx_drop.sql, idx_add.sql)
-  ./help lr2 def restore            вернуть PRIMARY KEY           (big_db_indexes/zashita/restore.sql)
+  ./help lr2 def 20                 задания 1-3 подряд            (big_db_indexes/def_z_all.sql)
+  ./help lr2 def 20 1 [парам.]      задание 1: сводная таблица    (big_db_indexes/def_z1_query.sql, big_db_indexes/def_v20_query.sql)
+  ./help lr2 def 20 2 [парам.]      задание 2: 5 замеров          (big_db_indexes/def_z2_noidx.sql)
+  ./help lr2 def 20 3 [парам.]      задание 3: индексы, замеры    (big_db_indexes/def_z3_idx.sql)
+  ./help lr2 def 20 idx             индексы таблиц запроса        (big_db_indexes/def_show_idx.sql)
+  ./help lr2 def 20 idx_drop|idx_add  удалить / создать индексы задания 3 (big_db_indexes/def_idx_drop.sql, def_idx_add.sql)
+  ./help lr2 def restore            вернуть PRIMARY KEY           (big_db_indexes/def_restore.sql)
   Параметры по умолчанию: "ООО Турман" "ЧП Загорье"; пример: ./help lr2 def 20 1 "ООО Турман" "ЧП Загорье"
   Каждая команда печатает строку «>>> Файл: ...» - путь выполняемого сценария.
   Варианты 20 и 22 независимы: индексы задания 3 называются def20_* и def22_*, и любая
-  команда варианта удаляет индексы другого варианта (big_db_indexes/zashita/config.sql),
+  команда варианта удаляет индексы другого варианта (big_db_indexes/def_config.sql),
   поэтому вручную индексы удалять не нужно.
-  Вспомогательные файлы: big_db_indexes/zashita/config.sql (настройки варианта, текст
-  запроса :q), show_query.sql (вывод текста запроса), drop_all.sql (удаление всех
-  индексов, в т.ч. PRIMARY KEY), time_run.sql (один замер), time_table.sql (таблица
-  замеров, минимум), plan_check.sql (узлы плана и использование индексов), indexes.sql
-  (список индексов).
+  Вспомогательные файлы: big_db_indexes/def_config.sql (настройки варианта, текст запроса
+  :q), def_show_query.sql (вывод текста запроса), def_drop_all.sql (удаление всех
+  индексов, в т.ч. PRIMARY KEY), def_time_run.sql (один замер), def_time_table.sql
+  (таблица замеров, минимум), def_plan_check.sql (узлы плана и использование индексов),
+  def_indexes.sql (список индексов).
   Листинг программы: reports/zashita/Листинг_программы.txt
 
 ------------------------------------------------------------------------------
 Результат прогона ./help lr2 def 20 (протокол results/zas_v20_protocol.txt)
 ------------------------------------------------------------------------------
->>> Файл: big_db_indexes/zashita/check_args.sql
->>> Файл: big_db_indexes/zashita/z_all.sql
-Удалены индексы другого варианта: zas_категория_наименование, zas_поставщик_название, zas_продажа_товар, zas_товар_категория, zas_товар_код
+>>> Файл: big_db_indexes/def_check_args.sql
+>>> Файл: big_db_indexes/def_z_all.sql
 ==============================================================================
 ВАРИАНТ 20. ЗАДАНИЕ 1. Суммарная выручка от продажи товаров двух поставщиков
 ==============================================================================
-Текст запроса (файл big_db_indexes/zashita/v20_query.sql):
+Текст запроса (файл big_db_indexes/def_v20_query.sql):
 SELECT 'ООО Турман' AS "поставщик 1", 'ЧП Загорье' AS "поставщик 2",
        sum(ПРОДАЖА.количество * ТОВАР.цена2) AS "суммарная выручка"
 FROM ПРОДАЖА
@@ -86,7 +85,7 @@ WHERE ПОСТАВЩИК.название IN ('ООО Турман', 'ЧП За�
 
 Индексов на таблицах запроса нет (удалены и индексы PRIMARY KEY).
 
-Текст запроса (файл big_db_indexes/zashita/v20_query.sql):
+Текст запроса (файл big_db_indexes/def_v20_query.sql):
 SELECT 'ООО Турман' AS "поставщик 1", 'ЧП Загорье' AS "поставщик 2",
        sum(ПРОДАЖА.количество * ТОВАР.цена2) AS "суммарная выручка"
 FROM ПРОДАЖА
@@ -97,16 +96,16 @@ WHERE ПОСТАВЩИК.название IN ('ООО Турман', 'ЧП За�
 Время 5 выполнений запроса (без индексов):
   замер  | время, мс |   отметка   
 ---------+-----------+-------------
- 1       |   570.949 | 
- 2       |   497.730 | 
- 3       |   433.285 | <-- минимум
- 4       |   433.430 | 
- 5       |   440.925 | 
- минимум |   433.285 | 
+ 1       |   531.500 | 
+ 2       |   511.899 | 
+ 3       |   482.989 | 
+ 4       |   483.426 | 
+ 5       |   482.412 | <-- минимум
+ минимум |   482.412 | 
 
 
 EXPLAIN ANALYZE того же запроса (без индексов):
-Текст запроса (файл big_db_indexes/zashita/v20_query.sql):
+Текст запроса (файл big_db_indexes/def_v20_query.sql):
 SELECT 'ООО Турман' AS "поставщик 1", 'ЧП Загорье' AS "поставщик 2",
        sum(ПРОДАЖА.количество * ТОВАР.цена2) AS "суммарная выручка"
 FROM ПРОДАЖА
@@ -116,36 +115,36 @@ WHERE ПОСТАВЩИК.название IN ('ООО Турман', 'ЧП За�
 
                                                                       QUERY PLAN                                                                      
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- Finalize Aggregate  (cost=31033.20..31033.21 rows=1 width=96) (actual time=522.877..555.801 rows=1.00 loops=1)
+ Finalize Aggregate  (cost=31033.20..31033.21 rows=1 width=96) (actual time=594.968..626.946 rows=1.00 loops=1)
    Buffers: shared hit=12755
-   ->  Gather  (cost=31032.98..31033.19 rows=2 width=32) (actual time=522.687..555.789 rows=3.00 loops=1)
+   ->  Gather  (cost=31032.98..31033.19 rows=2 width=32) (actual time=594.752..626.933 rows=3.00 loops=1)
          Workers Planned: 2
          Workers Launched: 2
          Buffers: shared hit=12755
-         ->  Partial Aggregate  (cost=30032.98..30032.99 rows=1 width=32) (actual time=452.433..452.436 rows=1.00 loops=3)
+         ->  Partial Aggregate  (cost=30032.98..30032.99 rows=1 width=32) (actual time=508.484..508.489 rows=1.00 loops=3)
                Buffers: shared hit=12755
-               ->  Hash Join  (cost=2.31..27532.98 rows=333333 width=9) (actual time=1.321..315.488 rows=266722.67 loops=3)
+               ->  Hash Join  (cost=2.31..27532.98 rows=333333 width=9) (actual time=1.434..357.252 rows=266722.67 loops=3)
                      Hash Cond: ("ПРОДАЖА"."товар" = "ТОВАР"."код")
                      Buffers: shared hit=12755
-                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.016..76.123 rows=666666.67 loops=3)
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.028..83.358 rows=666666.67 loops=3)
                            Buffers: shared hit=12739
-                     ->  Hash  (cost=2.26..2.26 rows=4 width=9) (actual time=1.284..1.287 rows=4.00 loops=3)
+                     ->  Hash  (cost=2.26..2.26 rows=4 width=9) (actual time=1.383..1.385 rows=4.00 loops=3)
                            Buckets: 1024  Batches: 1  Memory Usage: 9kB
                            Buffers: shared hit=16
-                           ->  Hash Join  (cost=1.09..2.26 rows=4 width=9) (actual time=1.270..1.278 rows=4.00 loops=3)
+                           ->  Hash Join  (cost=1.09..2.26 rows=4 width=9) (actual time=1.367..1.375 rows=4.00 loops=3)
                                  Hash Cond: ("ТОВАР"."поставщик" = "ПОСТАВЩИК"."код")
                                  Buffers: shared hit=16
-                                 ->  Seq Scan on "ТОВАР"  (cost=0.00..1.10 rows=10 width=13) (actual time=0.651..0.653 rows=10.00 loops=3)
+                                 ->  Seq Scan on "ТОВАР"  (cost=0.00..1.10 rows=10 width=13) (actual time=0.768..0.769 rows=10.00 loops=3)
                                        Buffers: shared hit=7
-                                 ->  Hash  (cost=1.06..1.06 rows=2 width=4) (actual time=0.605..0.606 rows=2.00 loops=3)
+                                 ->  Hash  (cost=1.06..1.06 rows=2 width=4) (actual time=0.585..0.586 rows=2.00 loops=3)
                                        Buckets: 1024  Batches: 1  Memory Usage: 9kB
                                        Buffers: shared hit=9
-                                       ->  Seq Scan on "ПОСТАВЩИК"  (cost=0.00..1.06 rows=2 width=4) (actual time=0.596..0.598 rows=2.00 loops=3)
+                                       ->  Seq Scan on "ПОСТАВЩИК"  (cost=0.00..1.06 rows=2 width=4) (actual time=0.575..0.578 rows=2.00 loops=3)
                                              Filter: (("название")::text = ANY ('{"ООО Турман","ЧП Загорье"}'::text[]))
                                              Rows Removed by Filter: 3
                                              Buffers: shared hit=9
- Planning Time: 0.198 ms
- Execution Time: 555.894 ms
+ Planning Time: 0.216 ms
+ Execution Time: 627.006 ms
 
 Чтение таблиц в плане запроса (EXPLAIN):
            узел плана           | индекс 
@@ -173,7 +172,7 @@ CREATE INDEX def20_поставщик_название ON ПОСТАВЩИК USI
  2) | ТОВАР     | поставщик | hash  | def20_товар_поставщик
  3) | ПОСТАВЩИК | название  | btree | def20_поставщик_название
 
-Текст запроса (файл big_db_indexes/zashita/v20_query.sql):
+Текст запроса (файл big_db_indexes/def_v20_query.sql):
 SELECT 'ООО Турман' AS "поставщик 1", 'ЧП Загорье' AS "поставщик 2",
        sum(ПРОДАЖА.количество * ТОВАР.цена2) AS "суммарная выручка"
 FROM ПРОДАЖА
@@ -184,47 +183,47 @@ WHERE ПОСТАВЩИК.название IN ('ООО Турман', 'ЧП За�
 Время 5 выполнений запроса с индексами:
   замер  | время, мс |   отметка   
 ---------+-----------+-------------
- 1       |   434.869 | 
- 2       |   436.204 | 
- 3       |   432.277 | <-- минимум
- 4       |   468.045 | 
- 5       |   464.762 | 
- минимум |   432.277 | 
+ 1       |   490.642 | 
+ 2       |   484.793 | 
+ 3       |   480.452 | <-- минимум
+ 4       |   483.728 | 
+ 5       |   502.496 | 
+ минимум |   480.452 | 
 
 
 EXPLAIN ANALYZE того же запроса, что и 5 замеров выше:
                                                                       QUERY PLAN                                                                      
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- Finalize Aggregate  (cost=31033.20..31033.21 rows=1 width=96) (actual time=518.405..546.261 rows=1.00 loops=1)
+ Finalize Aggregate  (cost=31033.20..31033.21 rows=1 width=96) (actual time=586.055..612.811 rows=1.00 loops=1)
    Buffers: shared hit=12755
-   ->  Gather  (cost=31032.98..31033.19 rows=2 width=32) (actual time=518.193..546.246 rows=3.00 loops=1)
+   ->  Gather  (cost=31032.98..31033.19 rows=2 width=32) (actual time=585.809..612.785 rows=3.00 loops=1)
          Workers Planned: 2
          Workers Launched: 2
          Buffers: shared hit=12755
-         ->  Partial Aggregate  (cost=30032.98..30032.99 rows=1 width=32) (actual time=457.302..457.305 rows=1.00 loops=3)
+         ->  Partial Aggregate  (cost=30032.98..30032.99 rows=1 width=32) (actual time=518.110..518.114 rows=1.00 loops=3)
                Buffers: shared hit=12755
-               ->  Hash Join  (cost=2.31..27532.98 rows=333333 width=9) (actual time=1.318..317.306 rows=266722.67 loops=3)
+               ->  Hash Join  (cost=2.31..27532.98 rows=333333 width=9) (actual time=1.274..361.056 rows=266722.67 loops=3)
                      Hash Cond: ("ПРОДАЖА"."товар" = "ТОВАР"."код")
                      Buffers: shared hit=12755
-                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.015..75.072 rows=666666.67 loops=3)
+                     ->  Parallel Seq Scan on "ПРОДАЖА"  (cost=0.00..21072.33 rows=833333 width=8) (actual time=0.014..89.252 rows=666666.67 loops=3)
                            Buffers: shared hit=12739
-                     ->  Hash  (cost=2.26..2.26 rows=4 width=9) (actual time=1.285..1.287 rows=4.00 loops=3)
+                     ->  Hash  (cost=2.26..2.26 rows=4 width=9) (actual time=1.239..1.242 rows=4.00 loops=3)
                            Buckets: 1024  Batches: 1  Memory Usage: 9kB
                            Buffers: shared hit=16
-                           ->  Hash Join  (cost=1.09..2.26 rows=4 width=9) (actual time=1.267..1.276 rows=4.00 loops=3)
+                           ->  Hash Join  (cost=1.09..2.26 rows=4 width=9) (actual time=1.223..1.232 rows=4.00 loops=3)
                                  Hash Cond: ("ТОВАР"."поставщик" = "ПОСТАВЩИК"."код")
                                  Buffers: shared hit=16
-                                 ->  Seq Scan on "ТОВАР"  (cost=0.00..1.10 rows=10 width=13) (actual time=0.660..0.662 rows=10.00 loops=3)
+                                 ->  Seq Scan on "ТОВАР"  (cost=0.00..1.10 rows=10 width=13) (actual time=0.590..0.592 rows=10.00 loops=3)
                                        Buffers: shared hit=7
-                                 ->  Hash  (cost=1.06..1.06 rows=2 width=4) (actual time=0.590..0.590 rows=2.00 loops=3)
+                                 ->  Hash  (cost=1.06..1.06 rows=2 width=4) (actual time=0.618..0.619 rows=2.00 loops=3)
                                        Buckets: 1024  Batches: 1  Memory Usage: 9kB
                                        Buffers: shared hit=9
-                                       ->  Seq Scan on "ПОСТАВЩИК"  (cost=0.00..1.06 rows=2 width=4) (actual time=0.580..0.583 rows=2.00 loops=3)
+                                       ->  Seq Scan on "ПОСТАВЩИК"  (cost=0.00..1.06 rows=2 width=4) (actual time=0.609..0.611 rows=2.00 loops=3)
                                              Filter: (("название")::text = ANY ('{"ООО Турман","ЧП Загорье"}'::text[]))
                                              Rows Removed by Filter: 3
                                              Buffers: shared hit=9
- Planning Time: 0.418 ms
- Execution Time: 546.344 ms
+ Planning Time: 0.299 ms
+ Execution Time: 612.877 ms
 
 Чтение таблиц в плане запроса (EXPLAIN):
            узел плана           | индекс 
@@ -240,21 +239,21 @@ EXPLAIN ANALYZE того же запроса, что и 5 замеров выш�
 ==============================================================================
   задание  |               условия               | время, мс 
 -----------+-------------------------------------+-----------
- задание 2 | без индексов, минимум из 5          |   433.285
- задание 3 | с индексами задания 3, минимум из 5 |   432.277
+ задание 2 | без индексов, минимум из 5          |   482.412
+ задание 3 | с индексами задания 3, минимум из 5 |   480.452
 
 ------------------------------------------------------------------------------
 Сравнение и выводы
 ------------------------------------------------------------------------------
    условие                        |  время, мс  | время, мин
-   без индексов, минимум из 5     |     433.285 | 0.007221
-   с индексами, минимум из 5      |     432.277 | 0.007205
-   EXPLAIN ANALYZE (с индексами)  |     546.344 | 0.009106   (Planning Time 0.418 мс)
+   без индексов, минимум из 5     |     482.412 | 0.008040
+   с индексами, минимум из 5      |     480.452 | 0.008008
+   EXPLAIN ANALYZE (с индексами)  |     612.877 | 0.010215   (Planning Time 0.299 мс)
 
 1) Суммарная выручка поставщиков ООО Турман и ЧП Загорье составила 422355932.0000 ден. ед.
 2) Время выполнения без индексов и со всеми индексами варианта практически одинаково
-   (разница -0.2 %, в пределах разброса отдельных замеров). Проверка плана
-   (plan_check.sql) в заданиях 2 и 3 показывает причину: ни один узел плана не читает
+   (разница -0.4 %, в пределах разброса отдельных замеров). Проверка плана
+   (def_plan_check.sql) в заданиях 2 и 3 показывает причину: ни один узел плана не читает
    таблицы через индекс - созданные индексы планировщик не использует. Условию
    соответствуют товары двух поставщиков из пяти (4 товара из 10, около 40 % строк
    ПРОДАЖА), поэтому читать ПРОДАЖА по индексу дороже, чем последовательно: выбран
@@ -269,7 +268,7 @@ EXPLAIN ANALYZE того же запроса, что и 5 замеров выш�
 ------------------------------------------------------------------------------
 После защиты исходные индексы возвращаются командой ./help lr2 def restore:
 ------------------------------------------------------------------------------
->>> Файл: big_db_indexes/zashita/restore.sql
+>>> Файл: big_db_indexes/def_restore.sql
 Исходные индексы (PRIMARY KEY) восстановлены
   таблица  |     индекс     |                                  определение                                   
 -----------+----------------+--------------------------------------------------------------------------------
