@@ -365,6 +365,10 @@ $Help.zas = @'
                                          пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
   ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
                                          пример: ./help zas 20 idx      ./help zas 22 idx
+  ./help zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [zashita/idx_drop.sql]
+                                         пример: ./help zas 20 idx_drop      ./help zas 22 idx_drop
+  ./help zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [zashita/idx_add.sql]
+                                         пример: ./help zas 20 idx_add      ./help zas 22 idx_add
   ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
   (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)
@@ -715,18 +719,22 @@ switch ($A[0]) {
         else {
             Need-Variant $A[1]
             $step = if ($A[2]) { $A[2] } else { 'all' }
+            # индексы варианта (без параметров запроса)
+            $idxFile = @{ 'idx' = 'zashita/show_idx.sql'; 'idx_drop' = 'zashita/idx_drop.sql'
+                          'idx_add' = 'zashita/idx_add.sql' }[$step]
             # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
-            $max = if ($step -eq 'idx') { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
+            $max = if ($idxFile) { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
             if ($Argv.Count -gt $max) {
                 Say ('ОШИБКА: лишние параметры: ' + ($Argv[$max..($Argv.Count - 1)] -join ' '))
-                Say '  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]   ./help zas 20|22 idx'
+                Say '  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]'
+                Say '  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore'
                 exit 1
             }
             $file = @{ 'all' = 'zashita/z_all.sql'; '1' = 'zashita/z1_query.sql'
                        '2' = 'zashita/z2_noidx.sql'; '3' = 'zashita/z3_idx.sql' }[$step]
-            if ($step -eq 'idx') { Run 'zashita/show_idx.sql' $A[1] }
+            if ($idxFile) { Run $idxFile $A[1] }
             elseif (-not $file) {
-                Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx] [параметры]  или  ./help zas restore'
+                Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help zas restore'
                 exit 1
             }
             else {
