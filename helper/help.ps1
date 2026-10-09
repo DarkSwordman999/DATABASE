@@ -353,23 +353,23 @@ $Help.lr2 = @'
 '@
 $Help.zas = @'
 ================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА ==================
-  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20 [all] ["поставщик1" "поставщик2"] - в.20: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 20 all "ООО Турман" "ЧП Загорье"
-  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]
+  ./help zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 22 all мебель
-  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [lab2/zashita/z1_query.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 20 1 "ООО Турман" "ЧП Загорье"      ./help zas 22 1 мебель
-  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z2_noidx.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 20 2 "ООО Турман" "ЧП Загорье"      ./help zas 22 2 мебель
-  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]
+  ./help zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z3_idx.sql, запрос lab2/zashita/vNN_query.sql]
                                          пример: ./help zas 20 3 "ООО Турман" "ЧП Загорье"      ./help zas 22 3 мебель
-  ./help zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]
+  ./help zas 20|22 idx             - индексы таблиц запроса варианта  [lab2/zashita/show_idx.sql]
                                          пример: ./help zas 20 idx      ./help zas 22 idx
-  ./help zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [zashita/idx_drop.sql]
+  ./help zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [lab2/zashita/idx_drop.sql]
                                          пример: ./help zas 20 idx_drop      ./help zas 22 idx_drop
-  ./help zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [zashita/idx_add.sql]
+  ./help zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [lab2/zashita/idx_add.sql]
                                          пример: ./help zas 20 idx_add      ./help zas 22 idx_add
-  ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]
+  ./help zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [lab2/zashita/restore.sql]
   (нужна объёмная ПРОДАЖА: ./help lr2 gen; в.20 по умолч. "ООО Турман" "ЧП Загорье", в.22 - мебель)
   (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)
 '@
@@ -724,18 +724,18 @@ switch ($A[0]) {
     }
     'psql'  { & psql.exe -X }
 
-    # защита ЛР2: запрос варианта без индексов и с индексами (zashita/*.sql)
+    # защита ЛР2: запрос варианта без индексов и с индексами (lab2/zashita/*.sql)
     'zas' {
         if ($A[1] -eq 'restore') {
             if ($Argv.Count -gt 2) { Say 'ОШИБКА: у ./help zas restore нет параметров'; exit 1 }
-            Run 'zashita/restore.sql'
+            Run 'lab2/zashita/restore.sql'
         }
         else {
             Need-Variant $A[1]
             $step = if ($A[2]) { $A[2] } else { 'all' }
             # индексы варианта (без параметров запроса)
-            $idxFile = @{ 'idx' = 'zashita/show_idx.sql'; 'idx_drop' = 'zashita/idx_drop.sql'
-                          'idx_add' = 'zashita/idx_add.sql' }[$step]
+            $idxFile = @{ 'idx' = 'lab2/zashita/show_idx.sql'; 'idx_drop' = 'lab2/zashita/idx_drop.sql'
+                          'idx_add' = 'lab2/zashita/idx_add.sql' }[$step]
             # параметров запроса: в.20 - не больше двух поставщиков, в.22 - одна категория
             $max = if ($idxFile) { 3 } elseif ($A[1] -eq '20') { 5 } else { 4 }
             if ($Argv.Count -gt $max) {
@@ -744,8 +744,8 @@ switch ($A[0]) {
                 Say '  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore'
                 exit 1
             }
-            $file = @{ 'all' = 'zashita/z_all.sql'; '1' = 'zashita/z1_query.sql'
-                       '2' = 'zashita/z2_noidx.sql'; '3' = 'zashita/z3_idx.sql' }[$step]
+            $file = @{ 'all' = 'lab2/zashita/z_all.sql'; '1' = 'lab2/zashita/z1_query.sql'
+                       '2' = 'lab2/zashita/z2_noidx.sql'; '3' = 'lab2/zashita/z3_idx.sql' }[$step]
             if ($idxFile) { Run $idxFile $A[1] }
             elseif (-not $file) {
                 Say 'ОШИБКА: ./help zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./help zas restore'
@@ -753,7 +753,7 @@ switch ($A[0]) {
             }
             else {
                 # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
-                Run 'zashita/check_args.sql' $A[1] $A[3] $A[4] -Stop
+                Run 'lab2/zashita/check_args.sql' $A[1] $A[3] $A[4] -Stop
                 if ($script:ExitCode -ne 0) { exit 1 }
                 Run $file $A[1] $A[3] $A[4]
             }

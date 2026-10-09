@@ -240,23 +240,23 @@ help_lr2() {
 
 help_zas() {
     echo "================== ЗАЩИТА ЛР2: ИНДЕКСЫ И ВРЕМЯ ЗАПРОСА =================="
-    echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 all \"ООО Турман\" \"ЧП Загорье\""
-    echo "  ./h zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [zashita/z_all.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 22 all мебель"
-    echo "  ./h zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [zashita/z1_query.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [lab2/zashita/z1_query.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 1 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 1 мебель"
-    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z2_noidx.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z2_noidx.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 2 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 2 мебель"
-    echo "  ./h zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [zashita/z3_idx.sql, запрос zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z3_idx.sql, запрос lab2/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 3 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 3 мебель"
-    echo "  ./h zas 20|22 idx             - индексы таблиц запроса варианта  [zashita/show_idx.sql]"
+    echo "  ./h zas 20|22 idx             - индексы таблиц запроса варианта  [lab2/zashita/show_idx.sql]"
     echo "                                         пример: ./h zas 20 idx      ./h zas 22 idx"
-    echo "  ./h zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [zashita/idx_drop.sql]"
+    echo "  ./h zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [lab2/zashita/idx_drop.sql]"
     echo "                                         пример: ./h zas 20 idx_drop      ./h zas 22 idx_drop"
-    echo "  ./h zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [zashita/idx_add.sql]"
+    echo "  ./h zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [lab2/zashita/idx_add.sql]"
     echo "                                         пример: ./h zas 20 idx_add      ./h zas 22 idx_add"
-    echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [zashita/restore.sql]"
+    echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [lab2/zashita/restore.sql]"
     echo "  (нужна объёмная ПРОДАЖА: ./h lr2 gen; в.20 по умолч. \"ООО Турман\" \"ЧП Загорье\", в.22 - мебель)"
     echo "  (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)"
 }
@@ -627,11 +627,11 @@ case "$1" in
     reports) shift; (cd reports && python make_reports.py "$@") ;;
     psql) psql -X ;;
 
-    # защита ЛР2: запрос варианта без индексов и с индексами (zashita/*.sql)
+    # защита ЛР2: запрос варианта без индексов и с индексами (lab2/zashita/*.sql)
     zas)
         if [ "$2" = "restore" ]; then
             if [ $# -gt 2 ]; then echo "ОШИБКА: у ./h zas restore нет параметров"; exit 1; fi
-            run zashita/restore.sql; exit 0
+            run lab2/zashita/restore.sql; exit 0
         fi
         need_variant "$2"
         step=${3:-all}
@@ -645,17 +645,17 @@ case "$1" in
             exit 1
         fi
         case "$step" in
-            all) f=zashita/z_all.sql ;;
-            1)   f=zashita/z1_query.sql ;;
-            2)   f=zashita/z2_noidx.sql ;;
-            3)   f=zashita/z3_idx.sql ;;
-            idx)      run zashita/show_idx.sql "$2"; exit 0 ;;
-            idx_drop) run zashita/idx_drop.sql "$2"; exit 0 ;;
-            idx_add)  run zashita/idx_add.sql "$2"; exit 0 ;;
+            all) f=lab2/zashita/z_all.sql ;;
+            1)   f=lab2/zashita/z1_query.sql ;;
+            2)   f=lab2/zashita/z2_noidx.sql ;;
+            3)   f=lab2/zashita/z3_idx.sql ;;
+            idx)      run lab2/zashita/show_idx.sql "$2"; exit 0 ;;
+            idx_drop) run lab2/zashita/idx_drop.sql "$2"; exit 0 ;;
+            idx_add)  run lab2/zashita/idx_add.sql "$2"; exit 0 ;;
             *)   echo "ОШИБКА: ./h zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./h zas restore"; exit 1 ;;
         esac
         # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
-        RUN_STOP=1 run zashita/check_args.sql "$2" "$4" "$5" || exit 1
+        RUN_STOP=1 run lab2/zashita/check_args.sql "$2" "$4" "$5" || exit 1
         run "$f" "$2" "$4" "$5"
         ;;
     *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)"; exit 1 ;;
