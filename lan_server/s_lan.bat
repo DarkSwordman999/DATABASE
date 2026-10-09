@@ -1,7 +1,7 @@
 @ECHO OFF
 REM s_lan.bat <сценарий> [arg1 [arg2 [arg3]]] - клиент К: сценарий в БД sales на сервере С по сети
 REM Каталог клиента (например D:\TO_PG) содержит этот файл и подкаталог bin с минимальным
-REM набором файлов psql (см. lab1\client_files.txt). Адрес сервера - IPv4 компьютера с PostgreSQL.
+REM набором файлов psql (см. lan_server\client_files.txt). Адрес сервера - IPv4 компьютера с PostgreSQL.
 REM Пароль лучше хранить в %APPDATA%\postgresql\pgpass.conf, а не в командном файле.
 CHCP 65001 >NUL
 REM адрес сервера: переменная LAN_HOST или 192.168.0.102 (IPv4 сервера при выполнении работы);

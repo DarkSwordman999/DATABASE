@@ -1,6 +1,6 @@
 -- ЛР2, этап 3: таблица-справочник варианта С ключевым полем (PRIMARY KEY => есть индекс)
 -- Аналог create_товар0. После пересоздания таблица заново заполняется (copy_ref.sql).
--- Запуск: ./help lr2 pk1 20|22      s.bat lab2\create_ref0.sql 20
+-- Запуск: ./help lr2 pk1 20|22      s.bat big_db_indexes\create_ref0.sql 20
 -- Пример: ./help lr2 pk1 22
 \set ON_ERROR_STOP on
 \set QUIET on

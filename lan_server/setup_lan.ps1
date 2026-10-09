@@ -1,5 +1,5 @@
 # ЛР1: настройка сервера PostgreSQL для работы в локальной сети (запускать от имени администратора)
-#   powershell -ExecutionPolicy Bypass -File lab1\setup_lan.ps1 [-Net 192.168.0.0/24]
+#   powershell -ExecutionPolicy Bypass -File lan_server\setup_lan.ps1 [-Net 192.168.0.0/24]
 # 1) добавляет в pg_hba.conf правило доступа из локальной сети с аутентификацией scram-sha-256;
 # 2) создаёт правило брандмауэра Windows PostgreSQL-inPort (входящие TCP 5432);
 # 3) перечитывает конфигурацию сервера.

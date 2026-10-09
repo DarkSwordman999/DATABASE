@@ -1,6 +1,6 @@
 -- ЛР2, этап 2б: время выполнения запроса (*) командой \timing on, arg2 повторов (по умолчанию 5)
 -- (аналог time05b). Время выводится psql после каждого запроса.
--- Запуск: ./help lr2 timing 20|22 [замеров]   s.bat lab2\time_timing.sql 20 [замеров]
+-- Запуск: ./help lr2 timing 20|22 [замеров]   s.bat big_db_indexes\time_timing.sql 20 [замеров]
 -- Пример: ./help lr2 timing 20 5     ./help lr2 timing 22 10
 \set ON_ERROR_STOP on
 \set QUIET on

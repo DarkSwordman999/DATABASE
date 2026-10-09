@@ -9,5 +9,5 @@ SELECT :'variant' = '20' AS is_v20 \gset
 \set idx_name ПРОДАЖА_ :ref_fk _idx
 -- файлы с текстом запросов (для вывода вместе с текстом запроса):
 -- запрос (*) - query_path, запрос EXPLAIN (join_query, where_cond) - cfg_path
-\set query_path lab2/ :query_file
-\set cfg_path lab2/ :cfg
+\set query_path big_db_indexes/ :query_file
+\set cfg_path big_db_indexes/ :cfg

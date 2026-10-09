@@ -193,11 +193,11 @@ help_lr1() {
     echo "  ./h v22 2 [год1 год2 [время года]]   - в.22: затраты клиентов по сезону и полу  [tasks/v22_task2.sql]"
     echo "                                         пример: ./h v22 2 2018 2022 зима"
     echo "  ./h all             - все 4 задания с параметрами по умолчанию  [tasks/*.sql]"
-    echo "  ./h lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lab1/setup_lan.ps1]"
-    echo "  ./h lr1 client [адрес] сценарий [a1 a2 a3] - сценарий через s_lan.bat на сервере в сети (по умолч. postgres@192.168.0.102:5432)  [lab1/s_lan.bat]"
+    echo "  ./h lr1 lan         - настроить pg_hba.conf и брандмауэр для сети (от администратора)  [lan_server/setup_lan.ps1]"
+    echo "  ./h lr1 client [адрес] сценарий [a1 a2 a3] - сценарий через s_lan.bat на сервере в сети (по умолч. postgres@192.168.0.102:5432)  [lan_server/s_lan.bat]"
     echo "                                         пример: ./h lr1 client 192.168.0.102 tasks/v20_task1.sql 01.01.2021 31.12.2022 мебель"
     echo "                                                 ./h lr1 client postgres@192.168.0.102:5432 tasks/v22_task1.sql 01.07.2019 30.06.2023 \"ООО Турман\""
-    echo "  ./h srv [адрес] [check]   - сервер в сети PMII (по умолч. stud@192.168.1.50:5432): подключение и таблицы  [lab1/check_server.sql]"
+    echo "  ./h srv [адрес] [check]   - сервер в сети PMII (по умолч. stud@192.168.1.50:5432): подключение и таблицы  [lan_server/check_server.sql]"
     echo "                                         пример: ./h srv 192.168.1.50 check"
     echo "  ./h srv [адрес] v20|v22 1|2 [параметры] - задание варианта на сервере в сети  [tasks/vNN_taskN.sql]"
     echo "                                         пример: ./h srv 192.168.1.50 v20 1 01.01.2021 31.12.2022 мебель"
@@ -208,52 +208,52 @@ help_lr1() {
 
 help_lr2() {
     echo "================== ЛР2: ОБЪЁМНАЯ БД, ИНДЕКСЫ, EXPLAIN, ЗАЩИТА ЛР2 =================="
-    echo "  ./h lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [lab2/add_data.sql]"
+    echo "  ./h lr2 gen [N]           - ПРОДАЖА: N псевдослучайных записей (по умолч. 2 000 000)  [big_db_indexes/add_data.sql]"
     echo "                                         пример: ./h lr2 gen 2000000"
-    echo "  ./h lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [lab2/restore_lr1.sql]"
-    echo "  ./h lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [lab2/tablespace.sql]"
+    echo "  ./h lr2 restore           - вернуть 1000 записей ПРОДАЖА из ЛР1  [big_db_indexes/restore_lr1.sql]"
+    echo "  ./h lr2 tbs [каталог]     - вынести ПРОДАЖА в табличное пространство (D:/PG_TBS)  [big_db_indexes/tablespace.sql]"
     echo "                                         пример: ./h lr2 tbs D:/PG_TBS"
-    echo "  ./h lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [lab2/time_current.sql, запрос lab2/vNN_query.sql]"
+    echo "  ./h lr2 time 20|22 [замеров]   - время запроса (*) по CURRENT_TIME (по умолч. 5 замеров)  [big_db_indexes/time_current.sql, запрос big_db_indexes/vNN_query.sql]"
     echo "                                         пример: ./h lr2 time 20 5      ./h lr2 time 22 10"
-    echo "  ./h lr2 timing 20|22 [замеров] - время запроса (*) по \\timing on (по умолч. 5 замеров)  [lab2/time_timing.sql, запрос lab2/vNN_query.sql]"
+    echo "  ./h lr2 timing 20|22 [замеров] - время запроса (*) по \\timing on (по умолч. 5 замеров)  [big_db_indexes/time_timing.sql, запрос big_db_indexes/vNN_query.sql]"
     echo "                                         пример: ./h lr2 timing 20 5    ./h lr2 timing 22 10"
-    echo "  ./h lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [lab2/idx_names.sql]"
+    echo "  ./h lr2 idx 20|22         - индексы ПРОДАЖА и таблицы-справочника  [big_db_indexes/idx_names.sql]"
     echo "                                         пример: ./h lr2 idx 20      ./h lr2 idx 22"
-    echo "  ./h lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке (по умолч. btree)  [lab2/idx_1.sql]"
+    echo "  ./h lr2 idx1 20|22 [btree|hash] - создать индекс ПРОДАЖА по полю-ссылке (по умолч. btree)  [big_db_indexes/idx_1.sql]"
     echo "                                         пример: ./h lr2 idx1 20 btree      ./h lr2 idx1 22 hash"
-    echo "  ./h lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке  [lab2/idx_0.sql]"
+    echo "  ./h lr2 idx0 20|22        - удалить индекс ПРОДАЖА по полю-ссылке  [big_db_indexes/idx_0.sql]"
     echo "                                         пример: ./h lr2 idx0 20      ./h lr2 idx0 22"
-    echo "  ./h lr2 pk1 20|22         - справочник с PRIMARY KEY  [lab2/create_ref0.sql]"
+    echo "  ./h lr2 pk1 20|22         - справочник с PRIMARY KEY  [big_db_indexes/create_ref0.sql]"
     echo "                                         пример: ./h lr2 pk1 20      ./h lr2 pk1 22"
-    echo "  ./h lr2 pk0 20|22         - справочник без PRIMARY KEY  [lab2/create_ref1.sql]"
+    echo "  ./h lr2 pk0 20|22         - справочник без PRIMARY KEY  [big_db_indexes/create_ref1.sql]"
     echo "                                         пример: ./h lr2 pk0 20      ./h lr2 pk0 22"
-    echo "  ./h lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [lab2/copy_ref.sql]"
+    echo "  ./h lr2 copy 20|22        - перезагрузить справочник из DATA/SOURCE  [big_db_indexes/copy_ref.sql]"
     echo "                                         пример: ./h lr2 copy 20      ./h lr2 copy 22"
-    echo "  ./h lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [lab2/explain.sql, запрос lab2/vNN_config.sql]"
+    echo "  ./h lr2 explain 20|22 [1] - EXPLAIN / EXPLAIN ANALYZE (1 - с WHERE)  [big_db_indexes/explain.sql, запрос big_db_indexes/vNN_config.sql]"
     echo "                                         пример: ./h lr2 explain 20 1      ./h lr2 explain 22"
-    echo "  ./h lr2 measure 20|22 [прогонов] - протокол замеров (по умолч. 3 прогона) -> results/lr2_vNN_results.txt  [lab2/measure.sql, запросы lab2/vNN_config.sql]"
+    echo "  ./h lr2 measure 20|22 [прогонов] - протокол замеров (по умолч. 3 прогона) -> results/lr2_vNN_results.txt  [big_db_indexes/measure.sql, запросы big_db_indexes/vNN_config.sql]"
     echo "                                         пример: ./h lr2 measure 20 3      ./h lr2 measure 22 5"
     echo "  ./h lr2 results 20|22     - показать протокол замеров  [results/lr2_vNN_results.txt]"
     echo "                                         пример: ./h lr2 results 20      ./h lr2 results 22"
-    echo "  (запрос (*) и настройки варианта: lab2/vNN_query.sql, lab2/vNN_config.sql, lab2/config.sql)"
-    echo "  --- защита ЛР2: индексы и время запроса варианта (lab2/zashita) ---"
-    echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
+    echo "  (запрос (*) и настройки варианта: big_db_indexes/vNN_query.sql, big_db_indexes/vNN_config.sql, big_db_indexes/config.sql)"
+    echo "  --- защита ЛР2: индексы и время запроса варианта (big_db_indexes/zashita) ---"
+    echo "  ./h zas 20 [all] [\"поставщик1\" \"поставщик2\"] - в.20: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 all \"ООО Турман\" \"ЧП Загорье\""
-    echo "  ./h zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [lab2/zashita/z_all.sql, запрос lab2/zashita/vNN_query.sql]"
+    echo "  ./h zas 22 [all] [категория]  - в.22: задания 1-3 подряд  [big_db_indexes/zashita/z_all.sql, запрос big_db_indexes/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 22 all мебель"
-    echo "  ./h zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [lab2/zashita/z1_query.sql, запрос lab2/zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 1 [параметры]   - 1) запрос варианта и результат  [big_db_indexes/zashita/z1_query.sql, запрос big_db_indexes/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 1 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 1 мебель"
-    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z2_noidx.sql, запрос lab2/zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 2 [параметры]   - 2) в.20 без индексов, в.22 с индексом ПРОДАЖА(товар) btree: 5 замеров в мс, минимум, EXPLAIN ANALYZE  [big_db_indexes/zashita/z2_noidx.sql, запрос big_db_indexes/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 2 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 2 мебель"
-    echo "  ./h zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [lab2/zashita/z3_idx.sql, запрос lab2/zashita/vNN_query.sql]"
+    echo "  ./h zas 20|22 3 [параметры]   - 3) индексы варианта, 5 замеров в мс, минимум, EXPLAIN ANALYZE  [big_db_indexes/zashita/z3_idx.sql, запрос big_db_indexes/zashita/vNN_query.sql]"
     echo "                                         пример: ./h zas 20 3 \"ООО Турман\" \"ЧП Загорье\"      ./h zas 22 3 мебель"
-    echo "  ./h zas 20|22 idx             - индексы таблиц запроса варианта  [lab2/zashita/show_idx.sql]"
+    echo "  ./h zas 20|22 idx             - индексы таблиц запроса варианта  [big_db_indexes/zashita/show_idx.sql]"
     echo "                                         пример: ./h zas 20 idx      ./h zas 22 idx"
-    echo "  ./h zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [lab2/zashita/idx_drop.sql]"
+    echo "  ./h zas 20|22 idx_drop        - удалить индексы задания 3 (zas_*), остальные и PRIMARY KEY не трогаются  [big_db_indexes/zashita/idx_drop.sql]"
     echo "                                         пример: ./h zas 20 idx_drop      ./h zas 22 idx_drop"
-    echo "  ./h zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [lab2/zashita/idx_add.sql]"
+    echo "  ./h zas 20|22 idx_add         - создать индексы задания 3 (zas_*) без замеров  [big_db_indexes/zashita/idx_add.sql]"
     echo "                                         пример: ./h zas 20 idx_add      ./h zas 22 idx_add"
-    echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [lab2/zashita/restore.sql]"
+    echo "  ./h zas restore               - удалить индексы защиты, вернуть PRIMARY KEY  [big_db_indexes/zashita/restore.sql]"
     echo "  (нужна объёмная ПРОДАЖА: ./h lr2 gen; в.20 по умолч. \"ООО Турман\" \"ЧП Загорье\", в.22 - мебель)"
     echo "  (параметры проверяются до запуска: поставщики - из ПОСТАВЩИК и разные, категория - из КАТЕГОРИЯ; при ошибке - список допустимых)"
 }
@@ -451,7 +451,7 @@ case "$1" in
 
     lr1)
         case "$2" in
-            lan)    powershell -ExecutionPolicy Bypass -File lab1/setup_lan.ps1 ;;
+            lan)    powershell -ExecutionPolicy Bypass -File lan_server/setup_lan.ps1 ;;
             client)
                 # необязательный адрес сервера перед сценарием: [пользователь@]хост[:порт]
                 if [ -n "$4" ] && [ ! -f "$3" ] && [ -f "$4" ]; then
@@ -461,7 +461,7 @@ case "$1" in
                 if [ -z "$3" ]; then echo "Использование: ./h lr1 client [пользователь@]хост[:порт] сценарий [a1 a2 a3]"; exit 1; fi
                 if [ ! -f "$3" ]; then echo "ОШИБКА: сценарий $3 не найден"; exit 1; fi
                 if [ -n "$7" ]; then echo "ОШИБКА: лишние параметры: ${*:7} (у сценария не больше трёх)"; exit 1; fi
-                bat lab1/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
+                bat lan_server/s_lan.bat "$(cygpath -w "$3")" "$4" "$5" "$6"
                 ;;
             *) echo "ОШИБКА: ./h lr1 lan|client"; exit 1 ;;
         esac
@@ -483,13 +483,13 @@ case "$1" in
         echo "Сервер: $PGHOST:$PGPORT, база $PGDATABASE, пользователь $PGUSER"
         check_cmd "./h srv" "${@:2}"
         case "$2" in
-            ""|check) run lab1/check_server.sql ;;
+            ""|check) run lan_server/check_server.sql ;;
             v20|v22)
                 need_task "$3"
                 run "tasks/$2_task$3.sql" "$4" "$5" "$6"
                 ;;
             all)
-                run lab1/check_server.sql
+                run lan_server/check_server.sql
                 for t in v20_task1 v20_task2 v22_task1 v22_task2; do
                     run "tasks/$t.sql"
                 done
@@ -502,19 +502,19 @@ case "$1" in
     # ------------------------------ ЛР2 ------------------------------
     lr2)
         case "$2" in
-            gen)      run lab2/add_data.sql "$3" ;;
-            restore)  run lab2/restore_lr1.sql ;;
-            tbs)      run lab2/tablespace.sql "$3" ;;
-            time)     need_variant "$3"; run lab2/time_current.sql "$3" "$4" ;;
-            timing)   need_variant "$3"; run lab2/time_timing.sql "$3" "$4" ;;
-            idx)      need_variant "$3"; run lab2/idx_names.sql "$3" ;;
-            idx1)     need_variant "$3"; run lab2/idx_1.sql "$3" "$4" ;;
-            idx0)     need_variant "$3"; run lab2/idx_0.sql "$3" ;;
-            pk1)      need_variant "$3"; run lab2/create_ref0.sql "$3" ;;
-            pk0)      need_variant "$3"; run lab2/create_ref1.sql "$3" ;;
-            copy)     need_variant "$3"; run lab2/copy_ref.sql "$3" ;;
-            explain)  need_variant "$3"; run lab2/explain.sql "$3" "$4" ;;
-            measure)  need_variant "$3"; run lab2/measure.sql "$3" "$4"
+            gen)      run big_db_indexes/add_data.sql "$3" ;;
+            restore)  run big_db_indexes/restore_lr1.sql ;;
+            tbs)      run big_db_indexes/tablespace.sql "$3" ;;
+            time)     need_variant "$3"; run big_db_indexes/time_current.sql "$3" "$4" ;;
+            timing)   need_variant "$3"; run big_db_indexes/time_timing.sql "$3" "$4" ;;
+            idx)      need_variant "$3"; run big_db_indexes/idx_names.sql "$3" ;;
+            idx1)     need_variant "$3"; run big_db_indexes/idx_1.sql "$3" "$4" ;;
+            idx0)     need_variant "$3"; run big_db_indexes/idx_0.sql "$3" ;;
+            pk1)      need_variant "$3"; run big_db_indexes/create_ref0.sql "$3" ;;
+            pk0)      need_variant "$3"; run big_db_indexes/create_ref1.sql "$3" ;;
+            copy)     need_variant "$3"; run big_db_indexes/copy_ref.sql "$3" ;;
+            explain)  need_variant "$3"; run big_db_indexes/explain.sql "$3" "$4" ;;
+            measure)  need_variant "$3"; run big_db_indexes/measure.sql "$3" "$4"
                       cat "results/lr2_v$3_results.txt" ;;
             results)  need_variant "$3"; cat "results/lr2_v$3_results.txt" ;;
             *) echo "ОШИБКА: ./h lr2 gen|restore|tbs|time|timing|idx|idx1|idx0|pk1|pk0|copy|explain|measure|results"; exit 1 ;;
@@ -622,11 +622,11 @@ case "$1" in
     reports) shift; (cd reports && python make_reports.py "$@") ;;
     psql) psql -X ;;
 
-    # защита ЛР2: запрос варианта без индексов и с индексами (lab2/zashita/*.sql)
+    # защита ЛР2: запрос варианта без индексов и с индексами (big_db_indexes/zashita/*.sql)
     zas)
         if [ "$2" = "restore" ]; then
             if [ $# -gt 2 ]; then echo "ОШИБКА: у ./h zas restore нет параметров"; exit 1; fi
-            run lab2/zashita/restore.sql; exit 0
+            run big_db_indexes/zashita/restore.sql; exit 0
         fi
         need_variant "$2"
         step=${3:-all}
@@ -640,17 +640,17 @@ case "$1" in
             exit 1
         fi
         case "$step" in
-            all) f=lab2/zashita/z_all.sql ;;
-            1)   f=lab2/zashita/z1_query.sql ;;
-            2)   f=lab2/zashita/z2_noidx.sql ;;
-            3)   f=lab2/zashita/z3_idx.sql ;;
-            idx)      run lab2/zashita/show_idx.sql "$2"; exit 0 ;;
-            idx_drop) run lab2/zashita/idx_drop.sql "$2"; exit 0 ;;
-            idx_add)  run lab2/zashita/idx_add.sql "$2"; exit 0 ;;
+            all) f=big_db_indexes/zashita/z_all.sql ;;
+            1)   f=big_db_indexes/zashita/z1_query.sql ;;
+            2)   f=big_db_indexes/zashita/z2_noidx.sql ;;
+            3)   f=big_db_indexes/zashita/z3_idx.sql ;;
+            idx)      run big_db_indexes/zashita/show_idx.sql "$2"; exit 0 ;;
+            idx_drop) run big_db_indexes/zashita/idx_drop.sql "$2"; exit 0 ;;
+            idx_add)  run big_db_indexes/zashita/idx_add.sql "$2"; exit 0 ;;
             *)   echo "ОШИБКА: ./h zas 20|22 [all|1|2|3|idx|idx_drop|idx_add] [параметры]  или  ./h zas restore"; exit 1 ;;
         esac
         # поставщики (в.20) или категория (в.22) должны быть в базе - иначе задание не запускается
-        RUN_STOP=1 run lab2/zashita/check_args.sql "$2" "$4" "$5" || exit 1
+        RUN_STOP=1 run big_db_indexes/zashita/check_args.sql "$2" "$4" "$5" || exit 1
         run "$f" "$2" "$4" "$5"
         ;;
     *) echo "ОШИБКА: Неизвестная команда $1 (./h - список команд)"; exit 1 ;;

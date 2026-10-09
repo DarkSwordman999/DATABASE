@@ -1,6 +1,6 @@
--- Прервать запуск при неверных параметрах (lab2/zashita/config.sql, helper/check_db_one.sql).
+-- Прервать запуск при неверных параметрах (big_db_indexes/zashita/config.sql, helper/check_db_one.sql).
 -- \quit во вложенном \ir завершает только этот файл, поэтому обёртки ./h и ./help запускают
--- проверку (lab2/zashita/check_args.sql, helper/check_db.sql) с ON_ERROR_STOP: ошибка здесь
+-- проверку (big_db_indexes/zashita/check_args.sql, helper/check_db.sql) с ON_ERROR_STOP: ошибка здесь
 -- останавливает psql (код 3), и команда не выполняется
 \set VERBOSITY terse
 \set SHOW_CONTEXT never

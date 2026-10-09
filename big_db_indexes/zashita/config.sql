@@ -32,7 +32,7 @@ SET client_min_messages TO warning;
         \ir ../../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,ПОСТАВЩИК}'
-    \set q_file lab2/zashita/v20_query.sql
+    \set q_file big_db_indexes/zashita/v20_query.sql
     \ir v20_query.sql
 \else
     -- в.22: таблицы ПРОДАЖА, ТОВАР, КАТЕГОРИЯ
@@ -54,7 +54,7 @@ SET client_min_messages TO warning;
         \ir ../../helper/abort.sql
     \endif
     \set tbls '{ПРОДАЖА,ТОВАР,КАТЕГОРИЯ}'
-    \set q_file lab2/zashita/v22_query.sql
+    \set q_file big_db_indexes/zashita/v22_query.sql
     \ir v22_query.sql
 \endif
 \if :{?check_only}

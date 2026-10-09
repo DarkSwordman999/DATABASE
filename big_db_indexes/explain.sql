@@ -1,6 +1,6 @@
 -- ЛР2, этап 4: план и время выполнения запроса к ПРОДАЖА, связанной с таблицей-справочником
 -- arg1 - вариант (20|22), arg2 - 1: с условием WHERE на поле справочника, иначе без него
--- Запуск: ./help lr2 explain 20 [1]      s.bat lab2\explain.sql 20 1
+-- Запуск: ./help lr2 explain 20 [1]      s.bat big_db_indexes\explain.sql 20 1
 -- Пример: ./help lr2 explain 22 1
 \set ON_ERROR_STOP on
 \set QUIET on
