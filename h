@@ -333,6 +333,38 @@ help_sql() {
     echo "  ./h файл.sql [a1 .. a5]   - выполнить любой psql-сценарий с параметрами arg1..arg5"
     echo "  ./h psql                  - консоль psql (база sales)"
     echo "  ./h reports [N ...]       - пересобрать отчёты .docx  [reports/make_reports.py]"
+    echo "  ./h tree [all|git] [папка] - дерево файлов проекта (как tree /f, кириллица в UTF-8): all - все файлы, кроме .git (по умолч.), git - только файлы git"
+    echo "                                         пример: ./h tree      ./h tree git      ./h tree all lab3"
+}
+
+# дерево файлов проекта (аналог tree /f в UTF-8, вывод как у ./help tree): внутри папки сначала
+# файлы, затем подпапки, порядок - по кодам символов; TREE_GIT=1 - только файлы git
+tree_dirs=0; tree_files=0
+declare -A tree_tracked tree_tracked_dir
+show_tree() {                   # show_tree <папка от корня или ""> <префикс>
+    local rel=$1 prefix=$2 e r bar i last
+    local -a files=() dirs=()
+    while IFS= read -r e; do
+        [ "$e" = ".git" ] && continue
+        r=${rel:+$rel/}$e
+        if [ -d "${rel:-.}/$e" ]; then
+            [ -n "$TREE_GIT" ] && [ -z "${tree_tracked_dir[$r]}" ] && continue
+            dirs+=("$e")
+        else
+            [ -n "$TREE_GIT" ] && [ -z "${tree_tracked[$r]}" ] && continue
+            files+=("$e")
+        fi
+    done < <(ls -A1 "${rel:-.}" | LC_ALL=C sort)
+    if [ ${#dirs[@]} -gt 0 ]; then bar='│   '; else bar='    '; fi
+    for e in "${files[@]}"; do echo "$prefix$bar$e"; tree_files=$((tree_files + 1)); done
+    if [ ${#files[@]} -gt 0 ]; then r="$prefix$bar"; echo "${r%"${r##*[! ]}"}"; fi
+    for ((i = 0; i < ${#dirs[@]}; i++)); do
+        last=$([ $i -eq $((${#dirs[@]} - 1)) ] && echo 1)
+        if [ -n "$last" ]; then echo "$prefix└───${dirs[$i]}"; else echo "$prefix├───${dirs[$i]}"; fi
+        tree_dirs=$((tree_dirs + 1))
+        if [ -n "$last" ]; then show_tree "${rel:+$rel/}${dirs[$i]}" "$prefix    "
+        else show_tree "${rel:+$rel/}${dirs[$i]}" "$prefix│   "; fi
+    done
 }
 
 # ./h short - список блоков справки и команды для вывода каждого из них
@@ -350,7 +382,7 @@ show_short() {
     echo "  ./h short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)"
     echo "  ./h short lr8       - ЛР8: программы с данными MS SQL Server (lr8 ...)"
     echo "  ./h short taxi      - база SALES: аналоги команд TAXI-db (01 ... 204)  [helper/menu.txt]"
-    echo "  ./h short sql       - запуск SQL-файлов, консоль psql, отчёты (файл.sql, psql, reports)"
+    echo "  ./h short sql       - запуск SQL-файлов, консоль psql, отчёты, дерево проекта (файл.sql, psql, reports, tree)"
     echo ""
     echo "  пример: ./h short lr2      ./h short 2   (номер лабораторной 1-8 = lr1-lr8)"
     echo "  ./h                 - вся справка сразу (без примеров запуска)"
@@ -415,6 +447,30 @@ if [ -z "$1" ] || [ "$1" = "example" ]; then
     if [ "$1" = "example" ]; then full_help example; exit 0; fi
     full_help | grep -v -E '^ *пример:|^ {40,}\./h '   # пример и его строки-продолжения
     exit 1
+fi
+
+# ./h tree [all|git] [папка] - дерево файлов проекта
+if [ "$1" = "tree" ]; then
+    mode=${2:-all}
+    if [ $# -gt 3 ] || { [ "$mode" != all ] && [ "$mode" != git ]; }; then
+        echo "ОШИБКА: ./h tree [all|git] [папка]   (all - все файлы, кроме .git; git - только файлы git)"
+        exit 1
+    fi
+    rel=${3//\\//}; rel=${rel#/}; rel=${rel%/}
+    if [ -n "$rel" ] && [ ! -d "$rel" ]; then echo "ОШИБКА: нет папки $3 в проекте"; exit 1; fi
+    if [ "$mode" = git ]; then
+        TREE_GIT=1
+        while IFS= read -r f; do
+            tree_tracked[$f]=1
+            while [[ $f == */* ]]; do f=${f%/*}; tree_tracked_dir[$f]=1; done
+        done < <(git -c core.quotepath=false ls-files)
+        echo "Дерево проекта: ${rel:-.} (файлы git)"
+    else
+        echo "Дерево проекта: ${rel:-.} (все файлы, кроме .git)"
+    fi
+    show_tree "$rel" ""
+    echo "Папок: $tree_dirs, файлов: $tree_files"
+    exit 0
 fi
 
 if [[ "$1" == *.sql ]]; then
