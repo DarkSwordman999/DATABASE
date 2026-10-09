@@ -1,0 +1,5 @@
+> ./help short 3
+================== ЛР3: ПОЛЬЗОВАТЕЛЬСКИЕ ТИПЫ ==================
+  ./help lr3 cmplx             - пример преподавателя (complex)  [lab3/cmplx.sql]
+  ./help lr3 20                - в.20: трёхмерный вектор (vector3)  [lab3/v20_vector3.sql]
+  ./help lr3 22                - в.22: рациональное число (rational)  [lab3/v22_rational.sql]

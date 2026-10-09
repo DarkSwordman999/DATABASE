@@ -1,0 +1,4 @@
+> ./help zas 20 idx лишний
+ОШИБКА: лишние параметры: лишний
+  ./help zas 20 [all|1|2|3] ["поставщик1" "поставщик2"]   ./help zas 22 [all|1|2|3] [категория]
+  ./help zas 20|22 idx|idx_drop|idx_add   ./help zas restore

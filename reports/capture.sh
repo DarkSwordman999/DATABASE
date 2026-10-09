@@ -1,6 +1,6 @@
 #!/bin/bash
 # Сбор реального вывода сценариев для отчётов: reports/out/*.txt
-# Запуск из корня проекта: bash reports/capture.sh [lr1|lr2|lr3|lr5|lr6|lr7 ...]
+# Запуск из корня проекта: bash reports/capture.sh [lr1|lr2|lr3|lr5|lr6|lr7|lr8|help ...]
 # ЛР2 требует объёмной таблицы ПРОДАЖА (./help lr2 gen), ЛР1/ЛР6/ЛР7 - данных ЛР1 (./help lr2 restore)
 cd "$(dirname "$0")/.." || exit 1
 O=${CAPTURE_OUT:-reports/out}
@@ -83,6 +83,20 @@ if [ -z "$ARGS" ] || want lr8; then
     cap lr8_22a lr8 22
     cap lr8_22b lr8 22 01.01.2022 31.12.2022
     cap lr8_22c lr8 22 01.10.2021 31.01.2024 "ООО Турман"
+fi
+# руководство по сценарию (reports/make_help_doc.py): справка и проверка параметров,
+# только команды без изменения данных
+if [ -z "$ARGS" ] || want help; then
+    echo "help"
+    cap help_short short
+    cap help_short3 short 3
+    cap help_menu17 17
+    cap help_err_period v20 1 01.01.2023 01.01.2021
+    cap help_err_date v20 1 31.02.2021 31.12.2021
+    cap help_err_prov v22 1 01.07.2019 30.06.2023 "ООО Тур"
+    cap help_err_variant lr2 time 21
+    cap help_err_extra zas 20 idx лишний
+    cap help_err_cmd abc
 fi
 if want lr2; then
     echo "ЛР2"
