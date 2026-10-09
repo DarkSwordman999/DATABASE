@@ -90,31 +90,31 @@ def defense_commands(lab, v):
             (f"./help v{v} 1 {a1}", "задание 1 с периодом и значением «Признака 1»"),
             (f"./help v{v} 2", f"tasks/v{v}_task2.sql - задание 2, параметры по умолчанию"),
             (f"./help v{v} 2 {t2['args']}", "задание 2 с периодом и значением «Признака 1»"),
-            ("./help lr1 lan", "lab1/setup_lan.ps1 - pg_hba.conf и брандмауэр (от администратора)"),
-            (f"./help lr1 client tasks/v{v}_task1.sql", "lab1/s_lan.bat - задание через сервер "
+            ("./help lr1 lan", "lan_server/setup_lan.ps1 - pg_hba.conf и брандмауэр (от администратора)"),
+            (f"./help lr1 client tasks/v{v}_task1.sql", "lan_server/s_lan.bat - задание через сервер "
                                                      "по адресу 192.168.0.102"),
             ("./help psql", "консоль psql (база sales)"),
         ]
     if lab == 2:
         return [
-            ("./help lr2 gen 2000000", "lab2/add_data.sql - 2 млн записей в ПРОДАЖА"),
-            ("./help lr2 tbs D:/PG_TBS", "lab2/tablespace.sql - ПРОДАЖА в табличное пространство"),
-            (f"./help lr2 time {v}", "lab2/time_current.sql - 5 замеров через CURRENT_TIME"),
-            (f"./help lr2 timing {v}", "lab2/time_timing.sql - 5 замеров через \\timing on"),
-            (f"./help lr2 idx {v}", f"lab2/idx_names.sql - индексы ПРОДАЖА и {ref}"),
-            (f"./help lr2 idx1 {v} btree", "lab2/idx_1.sql - btree-индекс по полю-ссылке"),
-            (f"./help lr2 explain {v} 1", "lab2/explain.sql - EXPLAIN / EXPLAIN ANALYZE с WHERE"),
-            (f"./help lr2 idx0 {v}", "lab2/idx_0.sql - удаление индекса"),
+            ("./help lr2 gen 2000000", "big_db_indexes/add_data.sql - 2 млн записей в ПРОДАЖА"),
+            ("./help lr2 tbs D:/PG_TBS", "big_db_indexes/tablespace.sql - ПРОДАЖА в табличное пространство"),
+            (f"./help lr2 time {v}", "big_db_indexes/time_current.sql - 5 замеров через CURRENT_TIME"),
+            (f"./help lr2 timing {v}", "big_db_indexes/time_timing.sql - 5 замеров через \\timing on"),
+            (f"./help lr2 idx {v}", f"big_db_indexes/idx_names.sql - индексы ПРОДАЖА и {ref}"),
+            (f"./help lr2 idx1 {v} btree", "big_db_indexes/idx_1.sql - btree-индекс по полю-ссылке"),
+            (f"./help lr2 explain {v} 1", "big_db_indexes/explain.sql - EXPLAIN / EXPLAIN ANALYZE с WHERE"),
+            (f"./help lr2 idx0 {v}", "big_db_indexes/idx_0.sql - удаление индекса"),
             (f"./help lr2 idx1 {v} hash", "hash-индекс по тому же полю"),
-            (f"./help lr2 pk0 {v}", f"lab2/create_ref1.sql - {ref} без PRIMARY KEY"),
-            (f"./help lr2 pk1 {v}", f"lab2/create_ref0.sql - {ref} с PRIMARY KEY"),
-            (f"./help lr2 copy {v}", f"lab2/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
-            (f"./help lr2 measure {v}", f"lab2/measure.sql - протокол results/lr2_v{v}_results.txt"),
+            (f"./help lr2 pk0 {v}", f"big_db_indexes/create_ref1.sql - {ref} без PRIMARY KEY"),
+            (f"./help lr2 pk1 {v}", f"big_db_indexes/create_ref0.sql - {ref} с PRIMARY KEY"),
+            (f"./help lr2 copy {v}", f"big_db_indexes/copy_ref.sql - загрузка {ref} из DATA/SOURCE"),
+            (f"./help lr2 measure {v}", f"big_db_indexes/measure.sql - протокол results/lr2_v{v}_results.txt"),
             (f"./help lr2 results {v}", "показать протокол измерений"),
-            (f"./help zas {v}", "lab2/zashita/z_all.sql - задание на защиту: запрос варианта, "
+            (f"./help zas {v}", "big_db_indexes/zashita/z_all.sql - задание на защиту: запрос варианта, "
                                 "5 замеров без индексов, индексы варианта и EXPLAIN ANALYZE"),
-            ("./help zas restore", "lab2/zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
-            ("./help lr2 restore", "lab2/restore_lr1.sql - вернуть 1000 записей ЛР1"),
+            ("./help zas restore", "big_db_indexes/zashita/restore.sql - вернуть PRIMARY KEY после защиты"),
+            ("./help lr2 restore", "big_db_indexes/restore_lr1.sql - вернуть 1000 записей ЛР1"),
         ]
     if lab == 3:
         f = "v20_vector3" if v == 20 else "v22_rational"
@@ -258,10 +258,10 @@ def lab1(v):
         "аутентификации scram-sha-256, а в брандмауэре Windows создаётся правило "
         "PostgreSQL-inPort для входящих подключений по TCP-порту 5432 (профили «Частный» и "
         "«Публичный»). Оба действия требуют прав администратора и выполняются сценарием "
-        "lab1\\setup_lan.ps1, после чего конфигурация сервера перечитывается (pg_ctl reload):")
+        "lan_server\\setup_lan.ps1, после чего конфигурация сервера перечитывается (pg_ctl reload):")
     r.code("host    all    all    192.168.0.0/24    scram-sha-256",
            "правило pg_hba.conf для локальной сети")
-    r.listing("lab1/setup_lan.ps1", "настройка pg_hba.conf и брандмауэра (setup_lan.ps1)")
+    r.listing("lan_server/setup_lan.ps1", "настройка pg_hba.conf и брандмауэра (setup_lan.ps1)")
     r.table(["Метод", "Описание", "Использование"], [
         ("trust", "подключение без пароля", "только localhost в среде разработки"),
         ("md5", "аутентификация по хешу MD5", "устаревшие клиенты"),
@@ -280,7 +280,7 @@ def lab1(v):
     r.p("Параметры сценариев передаются в psql через стандартный ввод командами \\set: "
         "psql под Windows получает аргументы командной строки в кодировке CP1251, и "
         "кириллические значения в ключе -v при клиентской кодировке UTF8 искажаются.")
-    r.listing("lab1/s_lan.bat", "s_lan.bat - клиент К в каталоге D:\\TO_PG, сервер по сети")
+    r.listing("lan_server/s_lan.bat", "s_lan.bat - клиент К в каталоге D:\\TO_PG, сервер по сети")
 
     r.h1("5. Создание базы данных SALES")
     r.code("PS> ./help db\n\nто же в cmd:\n>s1.bat DATA\\create_DB\n>s.bat DATA\\create_tables\n"
@@ -376,24 +376,24 @@ def lab2(v):
         "запроса (*) было в диапазоне 0.5-10 с: при 5 млн записей оно составляло 12-18 с, "
         "поэтому выбрано **2 000 000** записей.")
     r.p("На системном диске C: недостаточно места для объёмной таблицы, поэтому ПРОДАЖА "
-        "вынесена в табличное пространство lr2_tbs на диске D: (сценарий lab2\\tablespace.sql).")
-    r.listing("lab2/add_data.sql", "генерация записей ПРОДАЖА (lab2\\add_data.sql)", size=8.5)
-    r.listing("lab2/tablespace.sql", "табличное пространство (lab2\\tablespace.sql)", size=8.5)
-    r.output("lr2_gen", "выполнение генерации: >s.bat lab2\\add_data.sql 2000000")
+        "вынесена в табличное пространство lr2_tbs на диске D: (сценарий big_db_indexes\\tablespace.sql).")
+    r.listing("big_db_indexes/add_data.sql", "генерация записей ПРОДАЖА (big_db_indexes\\add_data.sql)", size=8.5)
+    r.listing("big_db_indexes/tablespace.sql", "табличное пространство (big_db_indexes\\tablespace.sql)", size=8.5)
+    r.output("lr2_gen", "выполнение генерации: >s.bat big_db_indexes\\add_data.sql 2000000")
 
     r.h1("2. Измерение времени выполнения запроса (*)")
-    r.listing(f"lab2/v{v}_query.sql", f"запрос (*) варианта {v} (lab2\\v{v}_query.sql)")
-    r.listing("lab2/config.sql", "выбор варианта (lab2\\config.sql)")
-    r.listing(f"lab2/v{v}_config.sql", f"настройки варианта (lab2\\v{v}_config.sql)")
+    r.listing(f"big_db_indexes/v{v}_query.sql", f"запрос (*) варианта {v} (big_db_indexes\\v{v}_query.sql)")
+    r.listing("big_db_indexes/config.sql", "выбор варианта (big_db_indexes\\config.sql)")
+    r.listing(f"big_db_indexes/v{v}_config.sql", f"настройки варианта (big_db_indexes\\v{v}_config.sql)")
     r.h2("2.1. Функция CURRENT_TIME")
     r.p("По аналогии со сценарием time05a время фиксируется функцией CURRENT_TIME до и после "
         "запроса; результат запроса отбрасывается (\\o NUL), замер повторяется 5 раз.")
-    r.listing("lab2/time_current.sql", "lab2\\time_current.sql")
-    r.listing("lab2/time_current_run.sql", "один замер (lab2\\time_current_run.sql)")
-    r.output(f"lr2_time_{v}", f"замеры через CURRENT_TIME: >s.bat lab2\\time_current.sql {v}")
+    r.listing("big_db_indexes/time_current.sql", "big_db_indexes\\time_current.sql")
+    r.listing("big_db_indexes/time_current_run.sql", "один замер (big_db_indexes\\time_current_run.sql)")
+    r.output(f"lr2_time_{v}", f"замеры через CURRENT_TIME: >s.bat big_db_indexes\\time_current.sql {v}")
     r.h2("2.2. Команда \\timing on")
-    r.listing("lab2/time_timing.sql", "lab2\\time_timing.sql")
-    r.output(f"lr2_timing_{v}", f"замеры командой \\timing on: >s.bat lab2\\time_timing.sql {v}")
+    r.listing("big_db_indexes/time_timing.sql", "big_db_indexes\\time_timing.sql")
+    r.output(f"lr2_timing_{v}", f"замеры командой \\timing on: >s.bat big_db_indexes\\time_timing.sql {v}")
     cur = _avg_current(f"lr2_time_{v}")
     tim = _timing_ms(f"lr2_timing_{v}")[-5:]
     tavg = sum(tim) / len(tim) / 1000
@@ -409,38 +409,38 @@ def lab2(v):
 
     r.h1("3. Организация индексов")
     r.h2("3.1. Просмотр индексов (аналог idx_names)")
-    r.listing("lab2/idx_names.sql", "lab2\\idx_names.sql")
+    r.listing("big_db_indexes/idx_names.sql", "big_db_indexes\\idx_names.sql")
     r.output(f"lr2_idx_{v}", "индексы в исходном состоянии")
     r.p(f"Пользовательских индексов в ПРОДАЖА нет; у таблицы {ref} есть автоматически "
         f"созданный уникальный btree-индекс {ref}_pkey первичного ключа.")
     r.h2("3.2. Индексы btree и hash в таблице ПРОДАЖА (аналоги idx_1, idx_0)")
-    r.listing("lab2/idx_1.sql", "создание индекса (lab2\\idx_1.sql)")
-    r.listing("lab2/idx_0.sql", "удаление индекса (lab2\\idx_0.sql)")
-    r.output(f"lr2_idx1_{v}", f"создание btree-индекса: >s.bat lab2\\idx_1.sql {v} btree")
-    r.output(f"lr2_idx0_{v}", f"удаление индекса: >s.bat lab2\\idx_0.sql {v}")
+    r.listing("big_db_indexes/idx_1.sql", "создание индекса (big_db_indexes\\idx_1.sql)")
+    r.listing("big_db_indexes/idx_0.sql", "удаление индекса (big_db_indexes\\idx_0.sql)")
+    r.output(f"lr2_idx1_{v}", f"создание btree-индекса: >s.bat big_db_indexes\\idx_1.sql {v} btree")
+    r.output(f"lr2_idx0_{v}", f"удаление индекса: >s.bat big_db_indexes\\idx_0.sql {v}")
     r.p(f"btree-индекс по полю ПРОДАЖА.{fk} строится за несколько секунд. Hash-индекс по тому "
         f"же полю строился около 5 минут: поле имеет всего {10 if v == 20 else 5} различных "
         "значений, и в каждой корзине hash-индекса образуется длинная цепочка страниц "
         "переполнения. Для полей с малым числом различных значений hash-индекс непригоден.")
     r.h2("3.3. Ключевое поле таблицы-справочника (аналоги create_товар0/1, COPY_товар)")
-    r.listing("lab2/create_ref0.sql", f"{ref} с PRIMARY KEY (lab2\\create_ref0.sql)", size=8.5)
-    r.listing("lab2/create_ref1.sql", f"{ref} без PRIMARY KEY (lab2\\create_ref1.sql)", size=8.5)
-    r.listing("lab2/copy_ref.sql", "загрузка справочника (lab2\\copy_ref.sql)")
-    r.output(f"lr2_pk0_{v}", f"справочник без ключа: >s.bat lab2\\create_ref1.sql {v}")
-    r.output(f"lr2_pk1_{v}", f"справочник с ключом: >s.bat lab2\\create_ref0.sql {v}")
+    r.listing("big_db_indexes/create_ref0.sql", f"{ref} с PRIMARY KEY (big_db_indexes\\create_ref0.sql)", size=8.5)
+    r.listing("big_db_indexes/create_ref1.sql", f"{ref} без PRIMARY KEY (big_db_indexes\\create_ref1.sql)", size=8.5)
+    r.listing("big_db_indexes/copy_ref.sql", "загрузка справочника (big_db_indexes\\copy_ref.sql)")
+    r.output(f"lr2_pk0_{v}", f"справочник без ключа: >s.bat big_db_indexes\\create_ref1.sql {v}")
+    r.output(f"lr2_pk1_{v}", f"справочник с ключом: >s.bat big_db_indexes\\create_ref0.sql {v}")
     r.p(f"При пересоздании {ref} без PRIMARY KEY исчезает и индекс {ref}_pkey, при "
         f"восстановлении ключа индекс создаётся автоматически.")
 
     r.h1("4. Анализ плана запроса командами EXPLAIN и EXPLAIN ANALYZE")
-    r.listing("lab2/explain.sql", "lab2\\explain.sql")
+    r.listing("big_db_indexes/explain.sql", "big_db_indexes\\explain.sql")
     r.output(f"lr2_explain_{v}", f"план запроса с условием WHERE и btree-индексом: "
-             f">s.bat lab2\\explain.sql {v} 1", size=7.5)
+             f">s.bat big_db_indexes\\explain.sql {v} 1", size=7.5)
     r.p("Для измерений при всех сочетаниях индексов разработан сценарий measure.sql: запрос "
         "выполняется командой EXPLAIN (ANALYZE, FORMAT JSON) внутри функции PL/pgSQL, из плана "
         "извлекаются стоимость (Total Cost) и время (Execution Time). Для каждого сочетания "
         "выполняется прогревочный и три учитываемых прогона; протокол записывается в "
         f"results\\lr2_v{v}_results.txt.")
-    r.listing("lab2/measure.sql", "протокол измерений (lab2\\measure.sql)", size=8)
+    r.listing("big_db_indexes/measure.sql", "протокол измерений (big_db_indexes\\measure.sql)", size=8)
     r.table(["Индекс П", "Индекс Т", "Условие", "cost", "Время, мс", "Среднее, мс"],
             _results_rows(v), f"Протокол измерений (Индекс П - ПРОДАЖА.{fk}, "
             f"Индекс Т - {ref}.код)", widths=[1.8, 1.8, 2.3, 2.1, 5.8, 2.2], size=10)
