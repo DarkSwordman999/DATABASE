@@ -283,6 +283,11 @@ help_lr4() {
     echo "                                         пример: ./h lr4 dump1 base      ./h lr4 dump2 base"
     echo "  ./h lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]"
     echo "                                         пример: ./h lr4 dump3 10k base"
+    echo "  --- защита ЛР4: удалить базу и восстановить из архива, задача варианта (lab4/def_restore.bat) ---"
+    echo "  ./h lr4 def 20 [дата1 дата2 [категория]] - в.20: DROP base, восстановление из однотомного base_rar.rar, задача 1  [lab4/def_restore.bat, tasks/v20_task1.sql]"
+    echo "                                         пример: ./h lr4 def 20      ./h lr4 def 20 21.08.2020 20.08.2023 мебель"
+    echo "  ./h lr4 def 22 [год1 год2 [время года]] - в.22: DROP base, восстановление из многотомного base_rarM.part*.rar, задача 2  [lab4/def_restore.bat, tasks/v22_task2.sql]"
+    echo "                                         пример: ./h lr4 def 22      ./h lr4 def 22 2018 2022 зима"
     echo "  (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)"
 }
 
@@ -376,7 +381,7 @@ show_short() {
     echo "  ./h short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)"
     echo "  ./h short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., lr2 def ...)"
     echo "  ./h short lr3       - ЛР3: пользовательские типы и защита ЛР3 (lr3 ..., lr3 def ...)"
-    echo "  ./h short lr4       - ЛР4: резервное копирование (lr4 ...)"
+    echo "  ./h short lr4       - ЛР4: резервное копирование и защита ЛР4 (lr4 ..., lr4 def ...)"
     echo "  ./h short lr5       - ЛР5: функции на C (lr5 ...)"
     echo "  ./h short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)"
     echo "  ./h short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)"
@@ -667,7 +672,15 @@ case "$1" in
                 [ -n "$4" ] && export LR4_BASE="$4"
                 bat lab4/dump-3.bat "$3"
                 ;;
-            *) echo "ОШИБКА: ./h lr4 all|base|tasks|dump1|dump2|dump3"; exit 1 ;;
+            # защита ЛР4: восстановление базы из архива варианта, затем задача с параметрами
+            def)
+                need_variant "$3"
+                LR4_DEF_NOTASK=1 bat lab4/def_restore.bat "$3" 2>&1 | perl helper/fixenc.pl
+                [ "${PIPESTATUS[0]}" = 0 ] || exit 1
+                t=1; [ "$3" = 22 ] && t=2
+                PGDATABASE=${LR4_BASE:-base} run "tasks/v$3_task$t.sql" "$4" "$5" "$6"
+                ;;
+            *) echo "ОШИБКА: ./h lr4 all|base|tasks|dump1|dump2|dump3|def"; exit 1 ;;
         esac
         ;;
 

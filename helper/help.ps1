@@ -428,6 +428,11 @@ $Help.lr4 = @'
                                          пример: ./help lr4 dump1 base      ./help lr4 dump2 base
   ./help lr4 dump3 [том [база]] - pg_dump в многотомный rar (размер тома, по умолч. 8k)  [lab4/dump-3.bat]
                                          пример: ./help lr4 dump3 10k base
+  --- защита ЛР4: удалить базу и восстановить из архива, задача варианта (lab4/def_restore.bat) ---
+  ./help lr4 def 20 [дата1 дата2 [категория]] - в.20: DROP base, восстановление из однотомного base_rar.rar, задача 1  [lab4/def_restore.bat, tasks/v20_task1.sql]
+                                         пример: ./help lr4 def 20      ./help lr4 def 20 21.08.2020 20.08.2023 мебель
+  ./help lr4 def 22 [год1 год2 [время года]] - в.22: DROP base, восстановление из многотомного base_rarM.part*.rar, задача 2  [lab4/def_restore.bat, tasks/v22_task2.sql]
+                                         пример: ./help lr4 def 22      ./help lr4 def 22 2018 2022 зима
   (каталог копий по умолч. lab4/work; база по умолч. base, настройки - lab4/config.bat)
 '@
 $Help.lr5 = @'
@@ -485,7 +490,7 @@ function Show-Short {
   ./help short lr1       - ЛР1: база, задания вариантов, сервер в сети (db, counts, v20, v22, all, lr1, srv)
   ./help short lr2       - ЛР2: объёмная БД, индексы, EXPLAIN и защита ЛР2 (lr2 ..., lr2 def ...)
   ./help short lr3       - ЛР3: пользовательские типы и защита ЛР3 (lr3 ..., lr3 def ...)
-  ./help short lr4       - ЛР4: резервное копирование (lr4 ...)
+  ./help short lr4       - ЛР4: резервное копирование и защита ЛР4 (lr4 ..., lr4 def ...)
   ./help short lr5       - ЛР5: функции на C (lr5 ...)
   ./help short lr6       - ЛР6: копирование в MS SQL Server (lr6 ...)
   ./help short lr7       - ЛР7: представления и функции MS SQL Server (lr7 ...)
@@ -770,7 +775,21 @@ switch ($A[0]) {
                 if ($A[3]) { $env:LR4_BASE = $A[3] }
                 Bat 'lab4/dump-3.bat' @($A[2])
             }
-            default { Say 'ОШИБКА: ./help lr4 all|base|tasks|dump1|dump2|dump3'; exit 1 }
+            # защита ЛР4: восстановление базы из архива варианта, затем задача с параметрами
+            'def' {
+                $v = $A[2]
+                Need-Variant $v
+                $env:LR4_DEF_NOTASK = '1'
+                Bat 'lab4/def_restore.bat' @($v) 'cp1251'
+                $env:LR4_DEF_NOTASK = $null
+                if ($script:ExitCode -ne 0) { exit 1 }
+                $t = @{ '20' = '1'; '22' = '2' }[$v]
+                $db = $env:PGDATABASE
+                $env:PGDATABASE = if ($env:LR4_BASE) { $env:LR4_BASE } else { 'base' }
+                Run "tasks/v$($v)_task$t.sql" $A[3] $A[4] $A[5]
+                $env:PGDATABASE = $db
+            }
+            default { Say 'ОШИБКА: ./help lr4 all|base|tasks|dump1|dump2|dump3|def'; exit 1 }
         }
     }
 
