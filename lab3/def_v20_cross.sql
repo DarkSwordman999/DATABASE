@@ -66,7 +66,7 @@ INSERT INTO def_pairs (a, b) VALUES
   ((1e6,-3,2), (5,1e-3,-7));
 \set QUIET off
 SELECT №, a, b, v3_round(a # b, 6) AS "W = a × b",
-       (a # b) * a AS "W*a", (a # b) * b AS "W*b",
+       (a # b) * a AS "W*a", (a # b) * b AS "W*b", b*(a # b) AS "b*(a # b)",
        round(((a # b) * a)::numeric, 10) + 0 AS "W*a (10 зн.)",
        round(((a # b) * b)::numeric, 10) + 0 AS "W*b (10 зн.)"
   FROM def_pairs ORDER BY №;
